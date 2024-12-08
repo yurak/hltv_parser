@@ -1,3 +1,7 @@
-player,firepower,kpr,damage_per_round,dpr_win,rounds_with_kill,rating_1,rounds_with_multi_kill,pistol_round_rating
-Snappi,41,0.64,71.8,86.0,44.7%,0.94,14.9%,0.94
-s1mple,97,0.85,85.4,89.6,54.0%,1.24,22.4%,1.21
+full_url,player,firepower,kpr,damage_per_round,dpr_win,rounds_with_kill,pistol_round_rating,rounds_with_multi_kill
+https://www.hltv.org/stats/players/11893/zywoo,ZywOo,98,0.84,87.4,113.2,53.1%,,22.3%
+https://www.hltv.org/stats/players/8183/rain,rain,73,0.70,79.3,90.6,46.9%,,17.4%
+https://www.hltv.org/stats/players/11816/ropz,ropz,80,0.74,78.3,99.4,49.3%,,18.5%
+https://www.hltv.org/stats/players/20903/senzu,Senzu,83,0.74,80.3,105.5,48.3%,,18.6%
+https://www.hltv.org/stats/players/20194/blitz,bLitz,83,0.73,82.6,105.7,48.7%,,18.2%
+https://www.hltv.org/stats/players/21001/mzinho,mzinho,48,0.65,72.4,92.2,44.3%,,15.7%
