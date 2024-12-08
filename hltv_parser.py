@@ -8,6 +8,12 @@ import time
 class HltvParser:
     BASE_URL = 'https://www.hltv.org/stats/players/'
 
+    ATTRS = [
+                'player', 'firepower', 'kpr', 'damage_per_round',
+                'dpr_win', 'rounds_with_kill', 'pistol_round_rating',
+                'rounds_with_multi_kill'
+            ]
+
     PLAYERS = (
         '7998/s1mple',
         '11893/zywoo',
@@ -64,21 +70,15 @@ class HltvParser:
         return self.BASE_URL + self.player_sufix
     
     def data_from_response(self):
-        data_dict = {}
+        self.data_dict = {}
         response = self.hltv_response()
-     
-        if (response.status_code == 200):
+
+        if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
             text_finder = TextFinder(soup)
-            self.data_dict['full_url']    = self.full_url()
-            self.data_dict['player']    = text_finder.player()
-            self.data_dict['firepower'] = text_finder.firepower()
-            self.data_dict['kpr']                    = text_finder.kpr()
-            self.data_dict['damage_per_round']       = text_finder.damage_per_round()
-            self.data_dict['dpr_win']                = text_finder.dpr_win()
-            self.data_dict['rounds_with_kill']       = text_finder.rounds_with_kill()
-            self.data_dict['pistol_round_rating']    =  text_finder.pistol_round_rating()
-            self.data_dict['rounds_with_multi_kill'] = text_finder.rounds_with_multi_kill()
+            self.data_dict['full_url'] = self.full_url()
+            for attr in self.ATTRS:
+                self.data_dict[attr] = getattr(text_finder, attr)()
             
         else:
             print('response is:' + str(self.hltv_response().status_code))
