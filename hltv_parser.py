@@ -8,16 +8,37 @@ import time
 class HltvParser:
     BASE_URL = 'https://www.hltv.org/stats/players/'
 
+    # ATTRS = [
+    #             'player', 'firepower', 'kpr', 'damage_per_round',
+    #             'dpr_win', 'rounds_with_kill', 'pistol_round_rating',
+    #             'rounds_with_multi_kill', 'entrying',
+    #             'entrying', 'saved_by_teammate_pr', 'traded_deaths_pr', 'traded_death_percentage', 'opening_death_traded',
+    #             'asists_pr', 'support_rounds', 
+    #               'opening',
+    #                  'opening_kills_pr', 'opening_deaths_pr', 'opening_attempts',
+    #             'opening_sucess', 'win_percent_after_open_kill', 'opening_attempts'
+    # ]
+
     ATTRS = [
-                'player', 'firepower', 'kpr', 'damage_per_round',
-                'dpr_win', 'rounds_with_kill', 'pistol_round_rating',
-                'rounds_with_multi_kill'
+                'player',
+                'firepower', 
+                'kpr', 'damage_per_round', 'dpr_win', 'rounds_with_kill',
+                'pistol_round_rating','rounds_with_multi_kill', 'entrying',
+                'entrying',
+                'saved_by_teammate_pr', 'traded_deaths_pr','traded_death_percentage', 
+                'opening_death_traded_percentage', 'asists_pr','support_rounds',
+                'opening',
+                'opening_kills_pr', 'opening_deaths_pr', 'opening_attempts',
+                'opening_sucess', 'win_percent_after_open_kill', 'attacks_per_round',
+                'sniping',
+                'clutching',
+                'utility'
             ]
 
     PLAYERS = (
-        '7998/s1mple',
         '11893/zywoo',
         '3741/niko',
+        '7998/s1mple',
         '8183/rain',
         '11816/ropz',
         '429/karrigan',
@@ -38,7 +59,6 @@ class HltvParser:
         self.data_dict = {}
         self.player_sufix = player_sufix
        
-
     def parse(self, only_headers= False):
         self.data_from_response()
         self.write_file(only_headers)
@@ -81,6 +101,7 @@ class HltvParser:
                 self.data_dict[attr] = getattr(text_finder, attr)()
             
         else:
+            print(self.full_url())
             print('response is:' + str(self.hltv_response().status_code))
         return self.data_dict
 
