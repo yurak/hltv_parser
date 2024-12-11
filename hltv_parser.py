@@ -8,20 +8,9 @@ import time
 class HltvParser:
     BASE_URL = 'https://www.hltv.org/stats/players/'
 
-    # ATTRS = [
-    #             'player', 'firepower', 'kpr', 'damage_per_round',
-    #             'dpr_win', 'rounds_with_kill', 'pistol_round_rating',
-    #             'rounds_with_multi_kill', 'entrying',
-    #             'entrying', 'saved_by_teammate_pr', 'traded_deaths_pr', 'traded_death_percentage', 'opening_death_traded',
-    #             'asists_pr', 'support_rounds', 
-    #               'opening',
-    #                  'opening_kills_pr', 'opening_deaths_pr', 'opening_attempts',
-    #             'opening_sucess', 'win_percent_after_open_kill', 'opening_attempts'
-    # ]
-
     ATTRS = [
                 'player',
-                'firepower', 
+                'firepower', 'rating_2',
                 'kpr', 'damage_per_round', 'dpr_win', 'rounds_with_kill',
                 'pistol_round_rating','rounds_with_multi_kill', 'entrying',
                 'entrying',
@@ -31,27 +20,35 @@ class HltvParser:
                 'opening_kills_pr', 'opening_deaths_pr', 'opening_attempts',
                 'opening_sucess', 'win_percent_after_open_kill', 'attacks_per_round',
                 'sniping',
+                'sniping_kpr', 'sniping_k_percentage', 'rounds_w_sniping_k_percentage',
+                'sniping_multi_kill_rounds','sniping_opening_kpr',
+                'trading',
                 'clutching',
                 'utility'
             ]
 
+    # PLAYERS = (
+    #     '11893/zywoo',
+    #     '3741/niko',
+    #     '7998/s1mple',
+    #     '8183/rain',
+    #     '11816/ropz',
+    #     '429/karrigan',
+    #     '18987/b1t',
+    #     '9816/aleksib',
+    #     '20903/senzu',
+    #     '21809/910',
+    #     '20194/blitz',
+    #     '21001/mzinho',
+    #     '20275/techno',
+    #     '7938/xantares',
+    #     '19206/jl',
+    #     '18221/spinx'
+    # )
+
     PLAYERS = (
         '11893/zywoo',
-        '3741/niko',
-        '7998/s1mple',
-        '8183/rain',
-        '11816/ropz',
-        '429/karrigan',
-        '18987/b1t',
-        '9816/aleksib',
-        '20903/senzu',
-        '21809/910',
-        '20194/blitz',
-        '21001/mzinho',
-        '20275/techno',
-        '7938/xantares',
-        '19206/jl',
-        '18221/spinx'
+        '3741/niko'
     )
 
     def __init__(self, filename, player_sufix):
@@ -105,7 +102,17 @@ class HltvParser:
             print('response is:' + str(self.hltv_response().status_code))
         return self.data_dict
 
-HltvParser('hltv_attributes2.csv', '922/snappi').write_headers()
+# HltvParser('hltv_attributes2.csv', '922/snappi').write_headers()
 for el in HltvParser.PLAYERS:
     time.sleep(2.5)
     HltvParser('hltv_attributes2.csv', el).parse()
+
+
+with open('players.csv', 'r') as file:
+    reader = csv.reader(file)
+    
+    # Convert rows into an array (list of lists)
+    rows = [row for row in reader]
+    for row in rows:
+        time.sleep(2.5)
+        HltvParser('hltv_attributes2.csv', row[0]).parse()
