@@ -14,8 +14,14 @@ class TextFinder:
                 'sniping_kpr', 'sniping_k_percentage', 'rounds_w_sniping_k_percentage',
                 'sniping_multi_kill_rounds','sniping_opening_kpr',
                 'trading',
+                'saved_teammate_pr', 'trade_kills_pr', 'trade_kills_percentage',
+                'assisted_kills_percentage', 'damage_per_kill',
                 'clutching',
-                'utility'
+                'clutch_points_pr', 'last_alive_percentage', 'one_v_one_percentage',
+                'time_alive_pr', 'saved_per_round_loss',
+                'utility',
+                'utility_damage_pr', 'utility_kills_per100_r', 'flashes_thrown_pr', 
+                'flash_assists_pr', 'timme_opponent_flashed_pr'
             ]
     def __init__(self, soup):
         self.soup = soup
@@ -58,7 +64,10 @@ class TextFinder:
         return self.role_str('firepower')
     
     def pistol_round_rating(self):
-        return self.section_text_title('Rating 2.0 in the first round of each half.')  
+        if self.section_text_title('Rating 2.0 in the first round of each half.'):
+            return self.section_text_title('Rating 2.0 in the first round of each half.')
+        else:
+            return self.section_text_title('Rating 2.1 in the first round of each half.')
 
     def kpr(self):    
         parent_div = self.soup.find('div', class_='role-stats-row stats-side-combined', attrs={'data-per-round-title': 'Kills per round'})
@@ -163,10 +172,57 @@ class TextFinder:
     # clutching
     def clutching(self):
         return self.role_str('clutching')
+    
+    def clutch_points_pr(self):
+        return self.section_text_data_pr('Clutch points per round')
+    
+    def last_alive_percentage(self):
+        return self.section_text_title('The percentage of round where this player is the last alive on the server.')
+    
+    def one_v_one_percentage(self):
+        txt = 'Percentage of 1on1 clutches this player wins. The average is about 60%, not 50%, because 1on1s are only created from 2on1s, leaving an easy trade kill sometimes. Be wary of sample size, clutch situations are very rare.'
+        return self.section_text_title(txt)
+    
+    def time_alive_pr(self):
+        return self.section_text_data_pr('Time alive per round')
+    
+    def saved_per_round_loss(self):
+        return self.section_text_title('The percentage of round losses this player survives in.')
+    
     # utility
     def utility(self):
         return self.role_str('utility')
     
+    def utility_damage_pr(self):
+        return self.section_text_data_pr('Utility damage per round')
+    
+    def utility_kills_per100_r(self):
+        return self.section_text_data_pr('Utility kills per 100 rounds')
+    
+    def flashes_thrown_pr(self):
+        return self.section_text_data_pr('Flashes thrown per round')
+    
+    def flash_assists_pr(self):
+        return self.section_text_data_pr('Flash assists per round')
+    
+    def timme_opponent_flashed_pr(self):
+        return self.section_text_data_pr('Time opponent flashed per round')
+    
     # trading
     def trading(self):
         return self.role_str('trading')
+    
+    def saved_teammate_pr(self):
+        return self.section_text_data_pr('Saved teammate per round')
+    
+    def trade_kills_pr(self):
+        return self.section_text_data_pr('Trade kills per round')
+    
+    def trade_kills_percentage(self):
+        return self.section_text_title('Percentage of kills that were on opponents within 5 seconds of them killing a teammate.')
+    
+    def assisted_kills_percentage(self):
+        return self.section_text_title('Percentage of kills that were on opponents that had already been damaged by teammates.')
+    
+    def damage_per_kill(self):
+        return self.section_text_title('Damage divided by kills. An average below 100 would mean a player is getting more low-damage kills.')
