@@ -13,7 +13,7 @@ class PlayersParser:
         self.letter = letter
 
     def url_with_letter(self):
-        return self.BASE_URL + self.letter
+        return 'https://www.hltv.org/ranking/teams/2024/december/16'
     
     def hltv_response(self):
         headers = { 
@@ -28,8 +28,10 @@ class PlayersParser:
 
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
-            all_links = soup.find('div', class_='players-archive-grid').find_all('a')
-            return [link.get('href') for link in all_links]
+            return [
+                a['href'] for td in soup.find_all('td', class_='player-holder') 
+                for a in td.find_all('a', href=True)
+            ]
            
     def write_file(self):
         hrefs = self.data_from_response()
@@ -40,9 +42,9 @@ class PlayersParser:
                 writer.writerow([href])
 
 
-alphabet_list = list(map(chr, range(65, 91)))
+# alphabet_list = list(map(chr, range(65, 91)))
 
-for char in alphabet_list:
-    PlayersParser('players.csv', char).write_file()
-            
+# for char in alphabet_list:
+#     PlayersParser('players_top20.csv', char).write_file()
+PlayersParser('players_top20.csv', 'char').write_file()
         

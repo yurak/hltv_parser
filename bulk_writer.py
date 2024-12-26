@@ -5,11 +5,11 @@ import pdb
 import os
 
 class BulkWriter:
-    def __init__(self, filename ='htlv_attrs.csv'):
-        self.sleep_time = 1
-        self.source_filename = 'players.csv'
+    def __init__(self, filename ='htlv_attrstop20.csv'):
+        self.sleep_time = 2
+        self.source_filename = 'players_top20.csv'
         self.filename = filename
-        self.slice_tail = 3
+        self.slice_tail = -1
     
     def call(self):
         HltvParser(self.filename, '922/snappi').write_headers()

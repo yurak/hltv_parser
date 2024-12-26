@@ -1,6 +1,7 @@
 class TextFinder:
     ATTRS = [
                 'player',
+                'country', 'age', 'team',
                 'firepower', 'rating_2',
                 'kpr', 'damage_per_round', 'dpr_win', 'rounds_with_kill',
                 'pistol_round_rating','rounds_with_multi_kill', 'entrying',
@@ -54,6 +55,18 @@ class TextFinder:
         h1 = self.soup.find('h1',  class_='summaryNickname text-ellipsis')
         return h1.get_text(strip=True)
     
+    def age(self):
+        div = self.soup.find('div',  class_='summaryPlayerAge')
+        return div.get_text(strip=True)
+    
+    def team(self):
+        div = self.soup.find('div',  class_='SummaryTeamname text-ellipsis')
+        return div.get_text(strip=True)
+    
+    def country(self):
+        div = self.soup.find('div',  class_='summaryRealname text-ellipsis')
+        return div.find('img').get('title')
+
     def role_str(self, role):
         role_str = "role-stats-section role-" + role
         div = self.soup.find('div', class_= role_str ).find('div', class_="row-stats-section-score")
