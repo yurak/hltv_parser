@@ -20,14 +20,18 @@ class Processor:
     TIME_COLUMNS = ['time_alive_pr']
 
     RECORDS = 200
-    DIR = 'images'
+    IMAGES_DIR = 'images'
+    DATA_FILES_DIR = 'csv_data'
 
     def __init__(self, filter_column= 'firepower'):
-        print('init')
+        os.makedirs(self.IMAGES_DIR, exist_ok=True)
+        os.makedirs(self.DATA_FILES_DIR, exist_ok=True)
         self.source_file = 'v4.csv'
         self.normalized_file = 'v3_normalize.csv'
         self.value = 1
         self.filter_column = filter_column
+        self.csv_path = os.path.join(self.DATA_FILES_DIR, self.filter_column + ".csv")
+        
 
     def call(self,x = 'sniping',y = 'firepower'):
         self.normalize()
@@ -66,11 +70,12 @@ class Processor:
         filtered_df = df[df[self.filter_column] < self.value]
         sorted_df = filtered_df.sort_values(by=self.filter_column) 
         sorted_df = sorted_df.drop_duplicates()
-        sorted_df.to_csv(self.filter_column + '.csv', index=False)
+      
+        sorted_df.to_csv(self.csv_path, index=False)
 
     def plot_distribution(self):
-        file_path = self.filter_column + '.csv'
-        data = pd.read_csv(file_path)
+        
+        data = pd.read_csv(self.csv_path)
 
         # Перевірка наявності колонки 'firepower'
         # Видалення пропусків, якщо вони є
@@ -83,14 +88,13 @@ class Processor:
         plt.xlabel(self.filter_column, fontsize=14)
         plt.ylabel("Частота", fontsize=14)
         plt.grid(True)
-        os.makedirs(self.DIR, exist_ok=True)
-        output_path = os.path.join(self.DIR, self.filter_column + '_distribution'+ ".png")
+        output_path = os.path.join(self.IMAGES_DIR, self.filter_column + '_distribution'+ ".png")
         plt.savefig(output_path, dpi=300, bbox_inches='tight')
         plt.close()
         plt.show()
 
     def plot_all(self, x,y):
-        df = pd.read_csv(self.filter_column + '.csv')   
+        df = pd.read_csv(self.csv_path)   
         subset = df.head(self.RECORDS)[[x, y, 'player']]  # Replace 'Column1' and 'Column2' with your column names
 
         sns.scatterplot(data=df, x=x, y=y)  
@@ -108,19 +112,12 @@ class Processor:
                 color='blue'  # Text color
             )
         plt.show()
+
+    @classmethod
+    def process_all(cls):
+        for feature_list in [cls.COLUMNS_SLASH, cls.TIME_COLUMNS, cls.PERCENT_COLUMNS]:
+            for feature in feature_list:
+                processor = cls(feature)
+                processor.call()
         
-# for feature in Processor.COLUMNS_SLASH: 
-#     processor = Processor(feature)
-#     processor.call()
-
-for feature in Processor.COLUMNS_SLASH: 
-    processor = Processor(feature)
-    processor.call()
-
-for feature in Processor.TIME_COLUMNS: 
-    processor = Processor(feature)
-    processor.call()
-
-for feature in Processor.PERCENT_COLUMNS: 
-    processor = Processor(feature)
-    processor.call()
+Processor.process_all()
