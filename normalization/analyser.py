@@ -29,11 +29,9 @@ class Analyser:
         plt.figure(figsize=(12, 6))
         #plt.plot(columns, means, marker='o', color='royalblue', label="Mean", linestyle='-', linewidth=2)
 
-
-        plt.errorbar(columns, means, yerr=1.5 * std_devs, fmt='o', color='royalblue', 
-                 capsize=5, elinewidth=1, label="Mean 3σ")
+        #plt.errorbar(columns, means, yerr=1.5 * std_devs, fmt='o', color='royalblue', capsize=15, elinewidth=2, label="Mean 3σ", markersize=7, mfc='red')
         
-        plt.errorbar(columns, means, yerr=0.5 * std_devs, fmt='o', color='green', capsize=5, elinewidth=2, label="Mean 1σ")
+        plt.errorbar(columns, means, yerr=0.5 * std_devs, fmt='-', color='green', capsize=15, elinewidth=20, label="Mean 1σ", mfc='red',  markersize=7)
         # Додаємо легенду
         plt.legend( fontsize=18)
         plt.xlabel("Features", fontsize=14)

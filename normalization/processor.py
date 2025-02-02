@@ -4,6 +4,7 @@ import seaborn as sns
 import numpy as np
 import os
 import sys
+from config import CONFIG
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(parent_dir)
@@ -26,11 +27,13 @@ class Processor:
     def __init__(self, filter_column= 'firepower'):
         os.makedirs(self.IMAGES_DIR, exist_ok=True)
         os.makedirs(self.DATA_FILES_DIR, exist_ok=True)
+        self.config = CONFIG
+
         self.source_file = 'v4_igls.csv'
         self.normalized_file = 'v4_normalize.csv'
-        self.upper_limit = 1
-        self.xlower_limit = 0.1
-        self.ylower_limit = 0.9
+        self.upper_limit = self.config['upper_limit']
+        self.xlower_limit = self.config['xlower_limit']
+        self.ylower_limit = self.config['ylower_limit']
         self.filter_column = filter_column
         self.csv_path = os.path.join(self.DATA_FILES_DIR, self.filter_column + ".csv")
         
@@ -92,7 +95,7 @@ class Processor:
         df = pd.read_csv(self.csv_path)   
         subset = df.head(self.RECORDS)[[x, y, 'player', 'country', 'is_igl']]
         sns.scatterplot(data=subset, x=x, y=y)  
-        plt.title("Капітани, які грають допоміжну роль", fontsize=24, fontweight='bold')
+        plt.title(self.config['title'], fontsize=self.config['title_fontsize'], fontweight=self.config['title_fontweight'])
 
         for index, row in subset.iterrows():
             if row['is_igl'] == True:
@@ -121,4 +124,4 @@ class Processor:
                 processor.call()
         
 # Processor.process_all()
-# Processor().call()
+Processor().call()
