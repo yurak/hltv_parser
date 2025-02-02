@@ -4,6 +4,7 @@ import seaborn as sns
 import numpy as np
 import os
 import sys
+
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(parent_dir)
 
@@ -22,19 +23,20 @@ class Processor:
     IMAGES_DIR = 'images'
     DATA_FILES_DIR = 'csv_data'
 
-    def __init__(self, filter_column= 'utility'):
+    def __init__(self, filter_column= 'firepower'):
         os.makedirs(self.IMAGES_DIR, exist_ok=True)
         os.makedirs(self.DATA_FILES_DIR, exist_ok=True)
-        self.source_file = 'v4.csv'
+        self.source_file = 'v4_igls.csv'
         self.normalized_file = 'v4_normalize.csv'
         self.upper_limit = 1
-        self.lower_limit = 0.85
+        self.xlower_limit = 0.1
+        self.ylower_limit = 0.9
         self.filter_column = filter_column
         self.csv_path = os.path.join(self.DATA_FILES_DIR, self.filter_column + ".csv")
         
-    def call(self, x = 'utility', y = 'entrying'):
+    def call(self, x = 'opening_attempts', y = 'firepower'):
         self.normalize()
-        self.filter()
+        self.filter(x,y)
         self.plot_all(x,y)
         #self.plot_distribution()
         #self.distribution()
@@ -64,10 +66,10 @@ class Processor:
             df[column] = df[column].round(2)
         df.to_csv(self.normalized_file, index=False) 
 
-    def filter(self):
+    def filter(self, x,y):
         df = pd.read_csv(self.normalized_file)
         #filtered_df = df[(df[self.filter_column] < self.upper_limit) & (df['country'] == 'Ukraine')]
-        filtered_df = df[(df[self.filter_column] < self.upper_limit) & (df[self.filter_column] > self.lower_limit)]
+        filtered_df = df[(df[self.filter_column] < self.upper_limit) & (df[x] > self.xlower_limit) & (df[y] > self.ylower_limit) ]
         sorted_df = filtered_df.sort_values(by=self.filter_column)
         sorted_df = sorted_df.drop_duplicates()
         sorted_df.to_csv(self.csv_path, index=False)
@@ -86,27 +88,16 @@ class Processor:
         plt.close()
         plt.show()
 
-    def distribution(self):
-        df = pd.read_csv(self.csv_path)
-        print(df[["firepower", "sniping"]].describe())  # Ensure the columns are numeric
-        sns.set_theme(style="whitegrid")
-        plt.figure(figsize=(10, 6))
-        sns.boxplot(data=df[["firepower", "sniping"]], palette="pastel")
-        plt.title("Distribution of Firepower and Sniping", fontsize=16)
-        plt.ylabel("Values", fontsize=12)
-        plt.xticks([0, 1], ["Firepower", "Sniping"])  # Set x-axis labels
-        plt.show()
-
     def plot_all(self, x,y):
         df = pd.read_csv(self.csv_path)   
-        subset = df.head(self.RECORDS)[[x, y, 'player', 'country']]
+        subset = df.head(self.RECORDS)[[x, y, 'player', 'country', 'is_igl']]
         sns.scatterplot(data=subset, x=x, y=y)  
-        plt.title("Chart for " + self.filter_column + '=' + str(self.upper_limit))
+        plt.title("Капітани, які грають допоміжну роль", fontsize=24, fontweight='bold')
 
         for index, row in subset.iterrows():
-            if row['country'] == 'Ukraine':
+            if row['is_igl'] == True:
                 name = row['player']
-                color = 'blue'
+                color = 'red'
             else:
                 name = row['player']
                 color = 'blue'
@@ -115,9 +106,9 @@ class Processor:
                 name,  # The name or label for the point
                 (row[x], row[y]),  # The x and y coordinates of the point
                 textcoords="offset points",  # Position relative to the point
-                xytext=(4, 4),  # Offset in pixels
+                xytext=(5, 5),  # Offset in pixels
                 ha='right',  # Horizontal alignment
-                fontsize=7,  # Font size of the annotation
+                fontsize=14,  # Font size of the annotation
                 color=color
             )
         plt.show()
@@ -130,4 +121,4 @@ class Processor:
                 processor.call()
         
 # Processor.process_all()
-Processor().call()
+# Processor().call()

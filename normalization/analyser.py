@@ -14,55 +14,35 @@ class Analyser:
         print('init analyser')
 
     def call(self):
-        # Завантаження CSV
+        # Завантаження даних
+        data = pd.read_csv("v4_normalize.csv")  # Замініть на реальний шлях
+
+        # Конвертація tuple у список
+        columns = list(Processor.COLUMNS_SLASH)
+        columns = [col for col in columns if col in data.columns]  # Фільтрація колонок
+
+        # Обчислення середнього (μ) та стандартного відхилення (σ)
+        means = data[columns].mean()
+        std_devs = data[columns].std()
+
+        # Створення графіка
+        plt.figure(figsize=(12, 6))
+        #plt.plot(columns, means, marker='o', color='royalblue', label="Mean", linestyle='-', linewidth=2)
 
 
-        # Завантаження CSV
-        data = pd.read_csv("v4_normalize.csv")  # Замініть на шлях до вашого CSV-файлу
+        plt.errorbar(columns, means, yerr=1.5 * std_devs, fmt='o', color='royalblue', 
+                 capsize=5, elinewidth=1, label="Mean 3σ")
+        
+        plt.errorbar(columns, means, yerr=0.5 * std_devs, fmt='o', color='green', capsize=5, elinewidth=2, label="Mean 1σ")
+        # Додаємо легенду
+        plt.legend( fontsize=18)
+        plt.xlabel("Features", fontsize=14)
+        plt.ylabel("Values", fontsize=18)
+        plt.title("Mean with 1σ and 3σ", fontsize=18)
+        plt.xticks(rotation=45, ha='right', fontsize=10)
+        plt.grid(axis='y', linestyle='--', alpha=0.7)
 
-        columns = Processor.COLUMNS_SLASH
-
-        # Обчислення статистик
-        stats = {}
-        for col in columns:
-            mean = data[col].mean()
-            std_dev = data[col].std()
-            sigma_3_upper = mean + 3 * std_dev
-            sigma_1_lower = mean - std_dev
-            
-            stats[col] = {
-                'mean': mean,
-                'std_dev': std_dev,
-                'sigma_3_upper': sigma_3_upper,
-                'sigma_1_lower': sigma_1_lower
-            }
-
-        # Побудова барчарту
-        plt.figure(figsize=(10, 6))
-        x = range(len(columns))
-        bar_width = 0.4  # Ширина стовпців
-
-        # Горизонтальні лінії для σ і 3σ у вигляді стовпців
-        for idx, col in enumerate(columns):
-            # 1 Sigma (знизу)
-            plt.bar(idx, stats[col]['std_dev'], width=bar_width, bottom=stats[col]['sigma_1_lower'], 
-                    color='blue', alpha=0.5, label='1 Sigma' if idx == 0 else "")
-
-            # 3 Sigma (зверху)
-            plt.bar(idx, stats[col]['sigma_3_upper'] - stats[col]['mean'], width=bar_width, bottom=stats[col]['mean'], 
-                    color='orange', alpha=0.3, label='3 Sigma' if idx == 0 else "")
-
-        # Налаштування графіка
-        plt.xticks(x, columns, rotation=45)
-        plt.xlabel("Ознаки (Features)")
-        plt.ylabel("Значення статистичних параметрів")
-        plt.title("Розподіл основних ознак")
-        plt.legend(labels=["1 Sigma (синій)", "3 Sigma (помаранчевий)"])
-        plt.grid(axis='y', alpha=0.3)
-        plt.tight_layout()
-
-        # Відображення графіка
+        # Показати графік
         plt.show()
-
 
 Analyser().call()
