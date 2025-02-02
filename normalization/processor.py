@@ -11,34 +11,33 @@ from text_finder import TextFinder
 
 class Processor:
     COLUMNS_SLASH = ('sniping', 'trading', 'clutching', 'utility', 'firepower', 'opening', 'entrying')
-    PERCENT_COLUMNS = ('rounds_with_kill', 'rounds_with_multi_kill', 'traded_death_percentage',
+    PERCENT_COLUMNS = ['rounds_with_kill', 'rounds_with_multi_kill', 'traded_death_percentage',
                         'opening_death_traded_percentage', 'support_rounds', 'opening_attempts', 'win_percent_after_open_kill', 'sniping_k_percentage',
                         'rounds_w_sniping_k_percentage', 'trade_kills_percentage', 'assisted_kills_percentage', 'last_alive_percentage',
                         'one_v_one_percentage', 'saved_per_round_loss'
-                    )
+                    ]
     
     TIME_COLUMNS = ['time_alive_pr']
-
-    RECORDS = 200
+    RECORDS = 350
     IMAGES_DIR = 'images'
     DATA_FILES_DIR = 'csv_data'
 
-    def __init__(self, filter_column= 'firepower'):
+    def __init__(self, filter_column= 'utility'):
         os.makedirs(self.IMAGES_DIR, exist_ok=True)
         os.makedirs(self.DATA_FILES_DIR, exist_ok=True)
         self.source_file = 'v4.csv'
-        self.normalized_file = 'v3_normalize.csv'
-        self.value = 1
+        self.normalized_file = 'v4_normalize.csv'
+        self.upper_limit = 1
+        self.lower_limit = 0.85
         self.filter_column = filter_column
         self.csv_path = os.path.join(self.DATA_FILES_DIR, self.filter_column + ".csv")
         
-
-    def call(self,x = 'sniping',y = 'firepower'):
+    def call(self, x = 'utility', y = 'entrying'):
         self.normalize()
         self.filter()
-        # self.plot_all(x,y)
-        self.plot_distribution()
-
+        self.plot_all(x,y)
+        #self.plot_distribution()
+        #self.distribution()
 
     def time_to_seconds(self, time_str):
         parts = time_str.split()
@@ -67,24 +66,18 @@ class Processor:
 
     def filter(self):
         df = pd.read_csv(self.normalized_file)
-        filtered_df = df[df[self.filter_column] < self.value]
-        sorted_df = filtered_df.sort_values(by=self.filter_column) 
+        #filtered_df = df[(df[self.filter_column] < self.upper_limit) & (df['country'] == 'Ukraine')]
+        filtered_df = df[(df[self.filter_column] < self.upper_limit) & (df[self.filter_column] > self.lower_limit)]
+        sorted_df = filtered_df.sort_values(by=self.filter_column)
         sorted_df = sorted_df.drop_duplicates()
-      
         sorted_df.to_csv(self.csv_path, index=False)
 
     def plot_distribution(self):
-        
         data = pd.read_csv(self.csv_path)
-
-        # Перевірка наявності колонки 'firepower'
-        # Видалення пропусків, якщо вони є
         column = data[self.filter_column].dropna()
-
-        # Побудова гістограми розподілу
         plt.figure(figsize=(10, 6))
         sns.histplot(column, kde=True, bins=30, color="blue")
-        plt.title('Розподіл випадкової величини ' + self.filter_column, fontsize=16)
+        plt.title('Розподіл випадкової величини 150 гравців - top30 команд', fontsize=16)
         plt.xlabel(self.filter_column, fontsize=14)
         plt.ylabel("Частота", fontsize=14)
         plt.grid(True)
@@ -93,23 +86,39 @@ class Processor:
         plt.close()
         plt.show()
 
+    def distribution(self):
+        df = pd.read_csv(self.csv_path)
+        print(df[["firepower", "sniping"]].describe())  # Ensure the columns are numeric
+        sns.set_theme(style="whitegrid")
+        plt.figure(figsize=(10, 6))
+        sns.boxplot(data=df[["firepower", "sniping"]], palette="pastel")
+        plt.title("Distribution of Firepower and Sniping", fontsize=16)
+        plt.ylabel("Values", fontsize=12)
+        plt.xticks([0, 1], ["Firepower", "Sniping"])  # Set x-axis labels
+        plt.show()
+
     def plot_all(self, x,y):
         df = pd.read_csv(self.csv_path)   
-        subset = df.head(self.RECORDS)[[x, y, 'player']]  # Replace 'Column1' and 'Column2' with your column names
+        subset = df.head(self.RECORDS)[[x, y, 'player', 'country']]
+        sns.scatterplot(data=subset, x=x, y=y)  
+        plt.title("Chart for " + self.filter_column + '=' + str(self.upper_limit))
 
-        sns.scatterplot(data=df, x=x, y=y)  
-        plt.title("Chart for " + self.filter_column + '=' + str(self.value))
-
-        for _, row in subset.iterrows():
-            print(row)
+        for index, row in subset.iterrows():
+            if row['country'] == 'Ukraine':
+                name = row['player']
+                color = 'blue'
+            else:
+                name = row['player']
+                color = 'blue'
+                    
             plt.annotate(
-                row['player'],  # The name or label for the point
+                name,  # The name or label for the point
                 (row[x], row[y]),  # The x and y coordinates of the point
                 textcoords="offset points",  # Position relative to the point
-                xytext=(2, 2),  # Offset in pixels
+                xytext=(4, 4),  # Offset in pixels
                 ha='right',  # Horizontal alignment
-                fontsize=9,  # Font size of the annotation
-                color='blue'  # Text color
+                fontsize=7,  # Font size of the annotation
+                color=color
             )
         plt.show()
 
@@ -120,4 +129,5 @@ class Processor:
                 processor = cls(feature)
                 processor.call()
         
-Processor.process_all()
+# Processor.process_all()
+Processor().call()
