@@ -24,25 +24,24 @@ class Processor:
     IMAGES_DIR = 'images'
     DATA_FILES_DIR = 'csv_data'
 
-    def __init__(self, filter_column= 'firepower'):
+    def __init__(self, filter_column= 'sniping'):
         os.makedirs(self.IMAGES_DIR, exist_ok=True)
         os.makedirs(self.DATA_FILES_DIR, exist_ok=True)
         self.config = CONFIG
 
-        self.source_file = 'v4_igls.csv'
-        self.normalized_file = 'v4_normalize.csv'
+        self.source_file =  self.config['source_file']
+        self.normalized_file = self.config['normalized_file']
         self.upper_limit = self.config['upper_limit']
         self.xlower_limit = self.config['xlower_limit']
         self.ylower_limit = self.config['ylower_limit']
         self.filter_column = filter_column
         self.csv_path = os.path.join(self.DATA_FILES_DIR, self.filter_column + ".csv")
         
-    def call(self, x = 'opening_attempts', y = 'firepower'):
+    def call(self, x = 'trading', y = 'sniping'):
         self.normalize()
         self.filter(x,y)
-        self.plot_all(x,y)
-        #self.plot_distribution()
-        #self.distribution()
+        #self.plot_all(x,y)
+        self.plot_distribution()
 
     def time_to_seconds(self, time_str):
         parts = time_str.split()
@@ -57,16 +56,19 @@ class Processor:
     def normalize(self):
         df = pd.read_csv(self.source_file)
         for column in self.COLUMNS_SLASH:
-            df[column] = df[column].str.replace('/', '.').astype(float) / 100
-            df[column] = df[column].round(2)
+            if column in df:
+                df[column] = df[column].str.replace('/', '.').astype(float) / 100
+                df[column] = df[column].round(2)
 
         for column in self.PERCENT_COLUMNS:
-            df[column] = df[column].str.strip('%').astype(float) / 100
-            df[column] = df[column].round(2)
+            if column in df:
+                df[column] = df[column].replace('-', None)  # Або np.nan
+                df[column] = df[column].str.strip('%').astype(float) / 100
 
         for column in self.TIME_COLUMNS:
-            df[column] = df[column].apply(self.time_to_seconds) / 105
-            df[column] = df[column].round(2)
+           if column in df:
+                df[column] = df[column].apply(self.time_to_seconds) / 105
+                df[column] = df[column].round(2)
         df.to_csv(self.normalized_file, index=False) 
 
     def filter(self, x,y):
@@ -82,7 +84,7 @@ class Processor:
         column = data[self.filter_column].dropna()
         plt.figure(figsize=(10, 6))
         sns.histplot(column, kde=True, bins=30, color="blue")
-        plt.title('Розподіл випадкової величини 150 гравців - top30 команд', fontsize=16)
+        plt.title('Розподіл випадкової величини 230(1000) гравців (>0.15)', fontsize=16)
         plt.xlabel(self.filter_column, fontsize=14)
         plt.ylabel("Частота", fontsize=14)
         plt.grid(True)
