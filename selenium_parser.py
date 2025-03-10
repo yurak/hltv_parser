@@ -11,11 +11,16 @@ class SeleniumParser:
 
     PLAYERS = (
         '11893/zywoo',
-        '3741/niko'
+        '3741/niko',
+        '7938/xantares',
+        '18987/b1t',
+        '8738/elige',
+        '10394/twistzz'
     )
 
     CS_MAPS = (
-            'de_train', 'de_nuke', 'de_inferno', 'de_mirage', 'de_dust2' 
+            'de_train', 'de_nuke', 'de_inferno', 'de_mirage', 'de_dust2', 'de_vertigo',
+            'de_ancient', 'de_anubis' 
         )
 
     def __init__(self, filename, player_sufix, cs_map):
@@ -28,11 +33,12 @@ class SeleniumParser:
     def parse(self, only_headers=False):
         self.data_from_response()
         self.write_file(only_headers)
+        self.close()
 
     def write_headers(self):
         self.data_from_response()
         self.write_file()
-
+        
     def hltv_response(self):
         """Loads HLTV player stats page using Selenium."""
         self.driver.get(self.full_url())
@@ -78,9 +84,21 @@ class SeleniumParser:
         self.driver.quit()
 
 
-# Run the parser for all players
-SeleniumParser('hltv_attributes_selenium.csv', '922/snappi', 'de_nuke').write_headers()
-for cs_map in SeleniumParser.CS_MAPS:
-    for el in SeleniumParser.PLAYERS:
-        time.sleep(2.5)
-        SeleniumParser('hltv_attributes_selenium.csv', el, cs_map).parse()
+# # Run the parser for all players
+# SeleniumParser('hltv_attributes_selenium.csv', '922/snappi', 'de_nuke').write_headers()
+# for cs_map in SeleniumParser.CS_MAPS:
+#     for el in SeleniumParser.PLAYERS:
+#         time.sleep(2.5)
+#         SeleniumParser('hltv_attributes_selenium.csv', el, cs_map).parse()
+
+SeleniumParser('hltv_attributes_selenium_top20_ext.csv', '922/snappi', 'de_nuke').write_headers()
+
+with open('players_top20.csv', 'r') as file:
+    reader = csv.reader(file)
+
+    # Convert rows into an array (list of lists)
+    rows = [row for row in reader]
+    for row in rows:
+        for cs_map in SeleniumParser.CS_MAPS:
+            time.sleep(2.5)
+            SeleniumParser('hltv_attributes_selenium_top20_ext.csv', row[0], cs_map).parse()

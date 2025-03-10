@@ -15,32 +15,52 @@ class Analyser:
 
     def call(self):
         # Завантаження даних
-        data = pd.read_csv("v4_normalize.csv")  # Замініть на реальний шлях
+        dict_maps = {
+            'de_train': ['grey', 2,1],
+            'de_dust2': ['yellow', 4,2],
+            'de_ancient': ['green', 8,3],
+            'de_inferno': ['blue', 12,4],
+            'de_anubis': ['red', 16,5],
+            'de_mirage': ['black', 20,6],
+            'de_nuke': ['purple', 14,7],
+            'de_vertigo': ['brown', 6,8]        
+        }
+        plt.figure(figsize=(12, 6))  # Create a single figure for comparison
 
-        # Конвертація tuple у список
-        columns = list(Processor.COLUMNS_SLASH)
-        columns = [col for col in columns if col in data.columns]  # Фільтрація колонок
+        for key, value in dict_maps.items():
+            map_name = key
+            color = value[0]
+            width = value[1]
+            elinewidth = value[2]
 
-        # Обчислення середнього (μ) та стандартного відхилення (σ)
-        means = data[columns].mean()
-        std_devs = data[columns].std()
+            data = pd.read_csv(f"../maps/{map_name}.csv")  # Replace with actual path
 
-        # Створення графіка
-        plt.figure(figsize=(12, 6))
-        #plt.plot(columns, means, marker='o', color='royalblue', label="Mean", linestyle='-', linewidth=2)
+            columns = list(Processor.COLUMNS_SLASH)
+            columns = [col for col in columns if col in data.columns]
 
-        #plt.errorbar(columns, means, yerr=1.5 * std_devs, fmt='o', color='royalblue', capsize=15, elinewidth=2, label="Mean 3σ", markersize=7, mfc='red')
-        
-        plt.errorbar(columns, means, yerr=0.5 * std_devs, fmt='-', color='green', capsize=15, elinewidth=20, label="Mean 1σ", mfc='red',  markersize=7)
-        # Додаємо легенду
-        plt.legend( fontsize=18)
+            means = data[columns].mean()
+            std_devs = data[columns].std()
+
+            # Plot error bars for 3σ
+            # plt.errorbar(columns, means, yerr=1.5 * std_devs, fmt='o', color=color, capsize=15,
+            #             elinewidth=width, label=f"{map_name} Mean 3σ", markersize=7, mfc='red')
+
+            plt.errorbar(columns, means, yerr=0.5 * std_devs, fmt='-', color=color, capsize=width,
+                        elinewidth=elinewidth, label=f"{map_name} Mean 1σ", mfc='red', markersize=2)
+
+            plt.errorbar(columns, means, fmt='o', color=color, capsize=width,
+                        elinewidth=5, label=f"{map_name} Mean 3σ", markersize=3, mfc=color)
+
+            # Plot error bars for 1σ
+            # plt.errorbar(columns, means, fmt='-', color=color, capsize=15,
+            #             elinewidth=width, label=f"{map_name} Mean 1σ", mfc=color, markersize=7)
+        plt.legend(fontsize=6)
         plt.xlabel("Features", fontsize=14)
         plt.ylabel("Values", fontsize=18)
-        plt.title("Mean with 1σ and 3σ", fontsize=18)
+        plt.title("Comparison of Mean with 1σ and 3σ for de_train and de_dust2", fontsize=18)
         plt.xticks(rotation=45, ha='right', fontsize=10)
         plt.grid(axis='y', linestyle='--', alpha=0.7)
 
-        # Показати графік
+        # Show the final combined graph
         plt.show()
-
 Analyser().call()
