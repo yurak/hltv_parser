@@ -53,8 +53,7 @@ class SeleniumParser:
                 writer.writerow(self.data_dict.keys())
             else:
                 if self.data_dict.values():
-                    print('Processing ' + self.player_sufix)
-                    print(self.data_dict.values())
+                    print(f"Processing  + {self.player_sufix} on  {cs_map}")
 
                     writer.writerow(self.data_dict.values())
                 else:
@@ -68,10 +67,11 @@ class SeleniumParser:
         self.hltv_response()
 
         try:
-            selenium_data_builder = SeleniumDataBuiler(self.driver, self.cs_map )
+            selenium_data_builder = SeleniumDataBuiler(self.driver, self.cs_map)
             self.data_dict['full_url'] = self.full_url()
-            
-            self.data_dict.update(selenium_data_builder.build())
+            data_from_builder = selenium_data_builder.build()
+            print(f"data from builder:->> {data_from_builder}")
+            self.data_dict.update(data_from_builder)
             
             print(self.data_dict)
         except Exception as e:
