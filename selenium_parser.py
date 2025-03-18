@@ -70,10 +70,7 @@ class SeleniumParser:
             selenium_data_builder = SeleniumDataBuiler(self.driver, self.cs_map)
             self.data_dict['full_url'] = self.full_url()
             data_from_builder = selenium_data_builder.build()
-            print(f"data from builder:->> {data_from_builder}")
             self.data_dict.update(data_from_builder)
-            
-            print(self.data_dict)
         except Exception as e:
             print(f"Error parsing {self.full_url()}: {e}")
 
@@ -100,5 +97,5 @@ with open('players_top20.csv', 'r') as file:
     rows = [row for row in reader]
     for row in rows:
         for cs_map in SeleniumParser.CS_MAPS:
-            time.sleep(2.5)
+            time.sleep(1)
             SeleniumParser('hltv_attributes_selenium_top20_ext.csv', row[0], cs_map).parse()
