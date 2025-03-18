@@ -97,5 +97,5 @@ with open('players_top20.csv', 'r') as file:
     rows = [row for row in reader]
     for row in rows:
         for cs_map in SeleniumParser.CS_MAPS:
-            time.sleep(1)
+            time.sleep(0.5)
             SeleniumParser('hltv_attributes_selenium_top20_ext.csv', row[0], cs_map).parse()

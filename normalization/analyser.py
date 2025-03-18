@@ -8,12 +8,21 @@ from scipy.stats import f_oneway
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
 from processor import Processor
+from normaliser import Normaliser
+from maps_filter import MapsFilter
 
 class Analyser:
+
+    IMAGES_DIR = 'integrity_distribution'
+
     def __init__(self):
         print('init analyser')
 
     def call(self):
+        for key, value in Normaliser.MAIN_COMPONENTS_MAP.items():            
+            self.draw(key)
+
+    def draw(self, component):
         # Завантаження даних
         dict_maps = {
             'de_train': ['grey', 2,1],
@@ -34,19 +43,16 @@ class Analyser:
             elinewidth = value[2]
 
             data = pd.read_csv(f"../maps/{map_name}.csv")  # Replace with actual path
-
-            columns = list(Processor.COLUMNS_SLASH)
+            columns = list(Normaliser.MAIN_COMPONENTS_MAP[component])
             columns = [col for col in columns if col in data.columns]
 
             means = data[columns].mean()
             std_devs = data[columns].std()
 
-            # Plot error bars for 3σ
-            # plt.errorbar(columns, means, yerr=1.5 * std_devs, fmt='o', color=color, capsize=15,
-            #             elinewidth=width, label=f"{map_name} Mean 3σ", markersize=7, mfc='red')
-
-            plt.errorbar(columns, means, yerr=0.5 * std_devs, fmt='-', color=color, capsize=width,
-                        elinewidth=elinewidth, label=f"{map_name} Mean 1σ", mfc='red', markersize=2)
+            # plt.errorbar(columns, means, yerr=0.5 * std_devs, fmt='-', color=color, capsize=width,
+            #             elinewidth=elinewidth, label=f"{map_name} Mean 1σ", mfc='red', markersize=2)
+            plt.errorbar(columns, means, fmt='-', color=color, capsize=width,
+                    elinewidth=elinewidth, label=f"{map_name} Mean 1σ", mfc='red', markersize=2)
 
             plt.errorbar(columns, means, fmt='o', color=color, capsize=width,
                         elinewidth=5, label=f"{map_name} Mean 3σ", markersize=3, mfc=color)
@@ -55,12 +61,12 @@ class Analyser:
             # plt.errorbar(columns, means, fmt='-', color=color, capsize=15,
             #             elinewidth=width, label=f"{map_name} Mean 1σ", mfc=color, markersize=7)
         plt.legend(fontsize=6)
-        plt.xlabel("Features", fontsize=14)
+        plt.xlabel("Features", fontsize=8)
         plt.ylabel("Values", fontsize=18)
-        plt.title("Comparison of Mean with 1σ and 3σ for de_train and de_dust2", fontsize=18)
-        plt.xticks(rotation=45, ha='right', fontsize=10)
+        plt.title(f"Comparison of Mean for {component}", fontsize=18)
+        plt.xticks(rotation=7, ha='right', fontsize=10)
         plt.grid(axis='y', linestyle='--', alpha=0.7)
 
         # Show the final combined graph
-        plt.show()
-Analyser().call()
+        os.makedirs(self.IMAGES_DIR, exist_ok=True)
+        plt.savefig(f"{self.IMAGES_DIR}/{component}.png")

@@ -1,13 +1,15 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+import re
+import time
 
 class SeleniumDataBuiler:
     NOT_VISIBLE = 'not_visible'
-    ATTRS = (
-        'kpr','dpr','kpr_win','dpr_win','rounds_with_k', 'rounds_with_multi_k',
-        'saved_by_teammate', 'traded_deaths_pr', 'traded_death_percent', 'open_death_percent', 'asssits_per_round','support_rounds'
-    )
+
+    FIREPOWER = ('kpr','dpr','kpr_win','dpr_win','rounds_with_k', 'rounds_with_multi_k')
+    TRADING = ('saved_by_teammate', 'traded_deaths_pr', 'traded_death_percent', 'open_death_percent', 'asssits_per_round', 'support_rounds')
+    
 
     def __init__(self, driver, cs_map):
         self.driver = driver
@@ -24,56 +26,7 @@ class SeleniumDataBuiler:
         age_str = self.driver.find_element(By.CLASS_NAME, "summaryPlayerAge").text
         age = int(age_str.split()[0])
         return age
-
-    def data_original_value(self, text):
-        parent_div = self.driver.find_element(By.CSS_SELECTOR, f"div.role-stats-row.stats-side-combined[data-per-round-title='{text}']")
-        striped = parent_div.get_attribute("data-original-value").strip('%')
-        return float(striped)
-
-    def section_text_title(self, title):
-        el = self.driver.find_element(By.XPATH, f"//div[contains(@class, 'role-stats-row') and contains(@class, 'stats-side-combined') and @title=\"{title}\"]")
-        if el.is_displayed():
-            return el.text
-        return self.NOT_VISIBLE
-
-    #firepower
-    def kpr(self):
-        text = 'Kills per round'
-        return self.data_original_value(text)
-
-    def dpr(self):
-        text = 'Damage per round'
-        return self.data_original_value(text)
-
-    def kpr_win(self):
-        text = 'Kills per round win'
-        return self.data_original_value(text)
-
-    def dpr_win(self):
-        text = 'Damage per round win'
-        value = self.data_original_value(text)
-        return value / 100
-
-    def rounds_with_k(self):
-        text = 'Rounds with a kill'
-        percent = self.data_original_value(text)
-        normalized = percent / 100
-        return normalized
-
-    def rounds_with_multi_k(self):
-        text = 'Rounds with a multi-kill'
-        percent = self.data_original_value(text)
-        normalized = percent / 100
-        return normalized
-
-    def pistol_rating(self):
-        if self.section_text_title('Rating 2.0 in the first round of each half.'):
-            return self.section_text_title('Rating 2.0 in the first round of each half.').text
-        elif self.section_text_title('Rating 1.0 in the first round of each half.'):
-            return self.section_text_title('Rating 1.0 in the first round of each half.').text
-        else:
-            return self.section_text_title('Rating 2.1 in the first round of each half.').text
-
+    
     #trading
     def saved_by_teammate(self):
         text = 'Saved by teammate per round'
@@ -101,16 +54,13 @@ class SeleniumDataBuiler:
         self.dict['player_name'] = self.player_name()
         self.dict['map'] = self.cs_map
         self.dict['age'] = self.age()
-        #firepower
-        for attr in self.ATTRS:
-            self.dict[attr] = getattr(self, attr)()
-
-        element = self.driver.find_element(By.XPATH, '//*[@data-side-stats="ct"]')
-        element.click()
-        self.section('ct_')
-        element = self.driver.find_element(By.XPATH, '//*[@data-side-stats="t"]')
-        element.click()
-        self.section('t_')
+        # element = self.driver.find_element(By.XPATH, '//*[@data-side-stats="ct"]')
+        # breakpoint()
+        # element.click()
+        # self.section('ct_')
+        # element = self.driver.find_element(By.XPATH, '//*[@data-side-stats="t"]')
+        # element.click()
+        # self.section('t_')
         return self.dict
     
     def section(self, side ='', click_cookie=False ):
@@ -125,3 +75,23 @@ class SeleniumDataBuiler:
             array = element.text.split('\n')
             property_name = side + array[0].lower()
             self.dict[property_name] = int(array[1])/100
+        
+            clickable_section = element.find_element(By.CSS_SELECTOR, f"div.role-stats-section-title-wrapper.stats-side-combined")
+            if clickable_section.is_displayed():
+                clickable_section.click()
+                
+            nested_elements = element.find_elements(By.CSS_SELECTOR, f"div.role-stats-row.stats-side-combined")
+            for nested_el in nested_elements:
+                time.sleep(0.07)
+                if nested_el.text:
+                    nested_array = nested_el.text.split('\n')
+                    camel_case= nested_array[0]
+                    key = camel_case.lower().replace(" ", "_").replace('-','_').replace('%','')
+                    try:
+                        result = float(nested_array[1].strip('%'))
+                    except ValueError:
+                        result = nested_array[1]
+                    self.dict[key] = result
+                else:
+                    'not_visible'
+            
