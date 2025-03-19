@@ -5,6 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import csv
 import time
 from selenium_data_builder import SeleniumDataBuiler
+import pandas as pd
 
 class SeleniumParser:
     BASE_URL = 'https://www.hltv.org/stats/players/'
@@ -38,6 +39,7 @@ class SeleniumParser:
     def write_headers(self):
         self.data_from_response()
         self.write_file()
+        self.close()
         
     def hltv_response(self):
         """Loads HLTV player stats page using Selenium."""
@@ -76,10 +78,12 @@ class SeleniumParser:
 
         return self.data_dict
 
+    def df(self):
+        return pd.read_csv(self.filename)
+
     def close(self):
         """Closes the Selenium driver."""
         self.driver.quit()
-
 
 # # Run the parser for all players
 # SeleniumParser('hltv_attributes_selenium.csv', '922/snappi', 'de_nuke').write_headers()
