@@ -4,6 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import csv
 import time
+import os
 from selenium_data_builder import SeleniumDataBuiler
 import pandas as pd
 
@@ -29,17 +30,21 @@ class SeleniumParser:
         self.data_dict = {}
         self.player_sufix = player_sufix
         self.cs_map = cs_map
-        self.driver = webdriver.Chrome() # Start Selenium Safari WebDriver
+       
+        if os.path.getsize(self.filename) == 0 or not self.full_url() in self.df()["full_url"].values:
+            self.driver = webdriver.Chrome() # Start Selenium Safari WebDriver
 
     def parse(self, only_headers=False):
-        self.data_from_response()
-        self.write_file(only_headers)
-        self.close()
+        if not self.full_url() in self.df()["full_url"].values:
+            self.data_from_response()
+            self.write_file(only_headers)
+            self.close()
 
     def write_headers(self):
-        self.data_from_response()
-        self.write_file()
-        self.close()
+        if os.path.getsize(self.filename) == 0:
+            self.data_from_response()
+            self.write_file()
+            self.close()
         
     def hltv_response(self):
         """Loads HLTV player stats page using Selenium."""
@@ -79,7 +84,8 @@ class SeleniumParser:
         return self.data_dict
 
     def df(self):
-        return pd.read_csv(self.filename)
+        if not os.path.getsize(self.filename) == 0:
+            return pd.read_csv(self.filename)
 
     def close(self):
         """Closes the Selenium driver."""
@@ -102,4 +108,5 @@ with open('players_top20.csv', 'r') as file:
     for row in rows:
         for cs_map in SeleniumParser.CS_MAPS:
             time.sleep(0.5)
+           
             SeleniumParser('hltv_attributes_selenium_top20_ext.csv', row[0], cs_map).parse()
