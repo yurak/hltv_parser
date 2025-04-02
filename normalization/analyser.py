@@ -7,7 +7,6 @@ import sys
 from scipy.stats import f_oneway
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
-from processor import Processor
 from normaliser import Normaliser
 from maps_filter import MapsFilter
 
@@ -23,6 +22,7 @@ class Analyser:
             self.draw(key)
 
     def draw(self, component):
+        print(f"processing {component}")
         # Завантаження даних
         dict_maps = {
             'de_train': ['grey', 2,1],
@@ -42,17 +42,17 @@ class Analyser:
             width = value[1]
             elinewidth = value[2]
 
-            data = pd.read_csv(f"../maps/{map_name}.csv")  # Replace with actual path
+            data = pd.read_csv(f"maps/{map_name}.csv")  # Replace with actual path
             columns = list(Normaliser.MAIN_COMPONENTS_MAP[component])
             columns = [col for col in columns if col in data.columns]
 
             means = data[columns].mean()
             std_devs = data[columns].std()
 
-            # plt.errorbar(columns, means, yerr=0.5 * std_devs, fmt='-', color=color, capsize=width,
-            #             elinewidth=elinewidth, label=f"{map_name} Mean 1σ", mfc='red', markersize=2)
-            plt.errorbar(columns, means, fmt='-', color=color, capsize=width,
-                    elinewidth=elinewidth, label=f"{map_name} Mean 1σ", mfc='red', markersize=2)
+            plt.errorbar(columns, means, yerr=0.5 * std_devs, fmt='-', color=color, capsize=width,
+                        elinewidth=elinewidth, label=f"{map_name} Mean 1σ", mfc='red', markersize=2)
+            # plt.errorbar(columns, means, fmt='-', color=color, capsize=width,
+            #         elinewidth=elinewidth, label=f"{map_name} Mean 1σ", mfc='red', markersize=2)
 
             plt.errorbar(columns, means, fmt='o', color=color, capsize=width,
                         elinewidth=5, label=f"{map_name} Mean 3σ", markersize=3, mfc=color)
