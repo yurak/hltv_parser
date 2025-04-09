@@ -1,9 +1,9 @@
 Map,Mean,Std,Std/Mean (%)
-de_ancient,0.76,0.08,10.53
-de_anubis,0.73,0.12,16.44
-de_dust2,0.75,0.06,8.0
-de_inferno,0.74,0.05,6.76
-de_mirage,0.77,0.06,7.79
-de_nuke,0.74,0.12,16.22
-de_train,0.73,0.19,26.03
-de_vertigo,0.77,0.06,7.79
+de_ancient,0.759,0.08,10.54
+de_anubis,0.728,0.124,17.033
+de_dust2,0.753,0.059,7.835
+de_inferno,0.742,0.055,7.412
+de_mirage,0.77,0.056,7.273
+de_nuke,0.739,0.121,16.373
+de_train,0.728,0.191,26.236
+de_vertigo,0.77,0.055,7.143
