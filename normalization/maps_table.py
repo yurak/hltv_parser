@@ -11,9 +11,9 @@ class MapsTable:
             for column in values:
                 all_stats = []
                 for map_name, group in df.groupby("map"):
-                    std = group[column].std().round(2)
-                    mean = group[column].mean().round(2)
-                    divider = (std / mean * 100).round(2) if mean != 0 else 0  # Avoid division by zero
+                    std = group[column].std().round(3)
+                    mean = group[column].mean().round(3)
+                    divider = (std / mean * 100).round(3) if mean != 0 else 0  # Avoid division by zero
                     all_stats.append([map_name, mean, std, divider])
                 stats_df = pd.DataFrame(all_stats, columns=["Map", "Mean", "Std", "Std/Mean (%)"])
                 filename = f"{column}_{key}_table.csv"

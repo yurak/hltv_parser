@@ -1,39 +1,20 @@
-ROLE_FEATURES = {
-    "AWP": {
-        "sniping": 1
-    },
-    "Anchor": {
-        "support_rounds": 0.8,
-        "saves_per_round_loss": 1.0,
-        "saved_teammate_per_round": 0.9,
-        "utility_damage_per_round": 1.0,
-        "utility": 0.9,
-        "damage_per_round_win": 0.6,
-        "time_alive_per_round": 0.7,
-        "last_alive_percentage": 0.6,
-        "clutch_points_per_round": 0.6
-    },
-    "Support": {
-        'utility': 1.0,
-        "assists_per_round": 1.0,
-        "flashes_thrown_per_round": 1.0,
-        "flash_assists_per_round": 1.0,
-        "time_opponent_flashed_per_round": 1,
-        "support_rounds": 1.0,
-        "saved_teammate_per_round": 0.8,
-        "saved_by_teammate_per_round": 0.7,
-        "assisted_kills_percentage": 0.8
-    },
-    "Entry": {
-        "entrying": 1.0,
-        "opening_kills_per_round": 1.0,
-        "opening_attempts": 0.9,
-        "opening_success": 1.0,
-        "win_after_opening_kill": 0.9,
-        "damage_per_round": 1.0,
-        "kills_per_round": 0.9,
-        "rounds_with_a_kill": 0.8,
-        "attacks_per_round": 0.8,
-        "time_alive_per_round": 0.5
-    }
+FIREPOWER  = ['kills_per_round','rounds_with_a_kill','kills_per_round_win','rating_1.0','damage_per_round','rounds_with_a_multi_kill','damage_per_round_win', 'pistol_round_rating']
+ENTRYING = ['saved_by_teammate_per_round','traded_deaths_per_round','traded_deaths_percentage','opening_deaths_traded_percentage','assists_per_round','support_rounds']
+TRADING = ['saved_teammate_per_round','trade_kills_per_round','trade_kills_percentage','assisted_kills_percentage','damage_per_kill']
+OPENING = ['opening_kills_per_round','opening_deaths_per_round','opening_attempts','opening_success','win_after_opening_kill','attacks_per_round']
+CLUTCHING = ['clutch_points_per_round','last_alive_percentage','1on1_win_percentage','time_alive_per_round','saves_per_round_loss']
+SNIPING = ['sniper_kills_per_round','sniper_kills_percentage','rounds_with_sniper_kills_percentage','sniper_multi_kill_rounds','sniper_opening_kills_per_round']
+UTILITY = ['utility_damage_per_round','utility_kills_per_100_rounds','flashes_thrown_per_round','flash_assists_per_round','time_opponent_flashed_per_round']
+INTEGRAL = ['sniping', 'trading', 'clutching', 'utility', 'firepower', 'opening', 'entrying']
+
+MAIN_COMPONENTS_MAP = {
+                        'firepower': FIREPOWER,
+                        'entrying': ENTRYING, 
+                        'trading': TRADING, 
+                        'opening': OPENING, 
+                        'clutching': CLUTCHING,
+                        'sniping': SNIPING,
+                        'utility': UTILITY
 }
+
+MAP_INDEPENDENT = []

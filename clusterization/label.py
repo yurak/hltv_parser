@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Завантажуємо CSV
-df = pd.read_csv("../normalization/maps/de_mirage.csv")
+df = pd.read_csv("../normalization/maps/de_nuke.csv")
 
 opening_mean = df['opening'].mean()
 
@@ -21,14 +21,13 @@ def assign_role(row):
     if max_feature in [ 'opening']:
         return 'openfragger'
     else:
-        breakpoint()
         return 'unknown'
  
 # застосовуємо функцію до всіх рядків
 df['role'] = df.apply(assign_role, axis=1)
 
 # Зберігаємо результат
-filename = 'de_mirage_with_roles_v2.csv'
+filename = 'de_nuke_with_roles_v2.csv'
 df.to_csv(filename, index=False)
 
 print(f"Файл успішно збережено як {filename}")
