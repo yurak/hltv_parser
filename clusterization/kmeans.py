@@ -5,7 +5,7 @@ from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-from role_features import INTEGRAL,UTILITY,MAIN_COMPONENTS_MAP
+from role_features import INTEGRAL,UTILITY,MAIN_COMPONENTS_MAP, MAP_INDEPENDENT
 
 class Kmeans:
     BASE_DIR = Path(__file__).resolve()
@@ -62,13 +62,23 @@ class Kmeans:
         plt.savefig(results_dir / image_wth_ext )
 
 
-for key,values in MAIN_COMPONENTS_MAP.items():
-    filter_snipers = True
-    prefix = '_' + key
-    image_name = prefix + '_with_sniper_'
+# for key,values in MAIN_COMPONENTS_MAP.items():
+#     filter_snipers = True
+#     prefix = '_' + key
+#     image_name = prefix + '_with_sniper_'
   
-    if filter_snipers:
-        image_name = prefix + '_no_snipers_'
-    for map in ['de_mirage', 'de_nuke', 'de_inferno']:
-        Kmeans(map_name = map, features = values, image_name = image_name, filter_snipers = filter_snipers).call()
+#     if filter_snipers:
+#         image_name = prefix + '_no_snipers_'
+#     for map in ['de_mirage', 'de_nuke', 'de_inferno']:
+#         Kmeans(map_name = map, features = values, image_name = image_name, filter_snipers = filter_snipers).call()
+    
+
+filter_snipers = True
+prefix = '_' + 'map_independent'
+image_name = prefix + '_with_sniper_'
+  
+if filter_snipers:
+    image_name = prefix + '_no_snipers_'
+for map in ['de_mirage', 'de_nuke', 'de_inferno', 'de_ancient', 'de_anubis', 'de_dust2']:
+    Kmeans(map_name = map, features = MAP_INDEPENDENT, image_name = image_name, filter_snipers = filter_snipers).call()
     
