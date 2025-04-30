@@ -22,3 +22,5 @@ MAP_INDEPENDENT = ['win_after_opening_kill','traded_deaths_percentage', 'traded_
                    'rounds_with_a_kill', 'rounds_with_a_multi_kill', 'kills_per_round_win', 'kills_per_round', 'flashes_thrown_per_round'
                    
 ]
+
+CS_MAPS = ['de_train', 'de_nuke', 'de_inferno', 'de_mirage', 'de_dust2', 'de_vertigo','de_ancient', 'de_anubis']
