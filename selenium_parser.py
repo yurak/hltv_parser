@@ -60,7 +60,7 @@ class SeleniumParser:
                 writer.writerow(self.data_dict.keys())
             else:
                 if self.data_dict.values():
-                    print(f"Processing  + {self.player_sufix} on  {cs_map}")
+                    print(f"Processing  + {self.player_sufix} on all maps")
 
                     writer.writerow(self.data_dict.values())
                 else:
@@ -98,7 +98,7 @@ class SeleniumParser:
 #         time.sleep(2.5)
 #         SeleniumParser('hltv_attributes_selenium.csv', el, cs_map).parse()
 
-SeleniumParser('hltv_attributes_selenium_top20_ext.csv', '922/snappi', 'de_nuke').write_headers()
+SeleniumParser('hltv_attributes_selenium_top20_allmaps.csv', '922/snappi', 'de_nuke').write_headers()
 
 with open('players_top20.csv', 'r') as file:
     reader = csv.reader(file)
@@ -106,7 +106,6 @@ with open('players_top20.csv', 'r') as file:
     # Convert rows into an array (list of lists)
     rows = [row for row in reader]
     for row in rows:
-        for cs_map in SeleniumParser.CS_MAPS:
-            time.sleep(0.5)
-           
-            SeleniumParser('hltv_attributes_selenium_top20_ext.csv', row[0], cs_map).parse()
+        time.sleep(0.1)
+        
+        SeleniumParser('hltv_attributes_selenium_top20_allmaps.csv', row[0], 'all').parse()
