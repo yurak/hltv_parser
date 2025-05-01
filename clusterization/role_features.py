@@ -26,3 +26,8 @@ CS_MAPS = ['de_train', 'de_nuke', 'de_inferno', 'de_mirage', 'de_dust2', 'de_ver
 
 
 PLAYERS_TOP20_SOURCE = 'players_top20.csv'
+
+TEAM_MAP = {
+            'navi': ['b1t', 'iM', 'Aleksib', 'jL', 'w0nderful'],
+            'vitality': ['ZywOo', 'flameZ', 'ropz', 'mezii', 'apEX']
+        }
