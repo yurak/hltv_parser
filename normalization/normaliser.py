@@ -1,6 +1,11 @@
 import pandas as pd
 
 class Normaliser:
+
+    TEAM_MAP = {
+            'navi': ['b1t', 'iM', 'Aleksib', 'jL', 'w0nderful'],
+            'vitality': ['ZywOo', 'flameZ', 'ropz', 'mezii', 'apEX']
+        }
     COLUMNS_SLASH = ('sniping', 'trading', 'clutching', 'utility', 'firepower', 'opening', 'entrying')
  
     FIREPOWER  = ['kills_per_round','rounds_with_a_kill','kills_per_round_win','rating_1.0','damage_per_round','rounds_with_a_multi_kill','damage_per_round_win', 'pistol_round_rating']
@@ -52,6 +57,12 @@ class Normaliser:
 
     def normalize(self):
         df = pd.read_csv(self.source_file)
+        player_to_team = {}
+        for team, players in self.TEAM_MAP.items():
+            for player in players:
+                player_to_team[player] = team
+
+        df['team'] = df['player_name'].apply(lambda p: player_to_team.get(p, 'other'))
         for column in self.PERCENTS:
             if column in df:
                 df[column] = df[column].replace('-', 0.0)
