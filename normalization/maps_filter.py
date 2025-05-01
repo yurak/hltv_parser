@@ -4,7 +4,7 @@ import os
 class MapsFilter:
     TEAM_MAP = {
             'navi': ['b1t', 'iM', 'Aleksib', 'jL', 'w0nderful'],
-            'vitality': ['ZyWoo', 'Spinx']
+            'vitality': ['ZywOo', 'flameZ', 'ropz', 'mezii', 'apEX']
         }
     def call(self):
         df = pd.read_csv('top_20_normalized.csv')

@@ -47,7 +47,7 @@ class Kmeans:
         # 7. Малюємо графік з виділенням NaVi
         plt.figure(figsize=(10, 8))
 
-        navi_mask = df_filtered['team'].str.lower() == 'navi'
+        navi_mask = df_filtered['team'].str.lower() == 'vitality'
 
         # NaVi — зірочки
         plt.scatter(
@@ -57,7 +57,7 @@ class Kmeans:
             s=300,
             marker='*',
             edgecolor='black',
-            label='NaVi'
+            label='vitality'
         )
 
         # Інші — кружечки

@@ -7,30 +7,19 @@ import time
 import os
 from selenium_data_builder import SeleniumDataBuiler
 import pandas as pd
+from clusterization.role_features import CS_MAPS, PLAYERS_TOP20_SOURCE
 
 class SeleniumParser:
     BASE_URL = 'https://www.hltv.org/stats/players/'
-
-    PLAYERS = (
-        '11893/zywoo',
-        '3741/niko',
-        '7938/xantares',
-        '18987/b1t',
-        '8738/elige',
-        '10394/twistzz'
-    )
-
-    CS_MAPS = (
-            'de_train', 'de_nuke', 'de_inferno', 'de_mirage', 'de_dust2', 'de_vertigo',
-            'de_ancient', 'de_anubis' 
-        )
 
     def __init__(self, filename, player_sufix, cs_map):
         self.filename = filename
         self.data_dict = {}
         self.player_sufix = player_sufix
         self.cs_map = cs_map
-       
+
+        if not os.path.exists(self.filename):
+            self.create_file()
         if os.path.getsize(self.filename) == 0 or not self.full_url() in self.df()["full_url"].values:
             self.driver = webdriver.Chrome() # Start Selenium Safari WebDriver
 
@@ -45,6 +34,10 @@ class SeleniumParser:
             self.data_from_response()
             self.write_file()
             self.close()
+
+    def create_file(self):
+        with open(self.filename, 'w') as f:
+            pass
         
     def hltv_response(self):
         """Loads HLTV player stats page using Selenium."""
@@ -91,21 +84,28 @@ class SeleniumParser:
         """Closes the Selenium driver."""
         self.driver.quit()
 
-# # Run the parser for all players
-# SeleniumParser('hltv_attributes_selenium.csv', '922/snappi', 'de_nuke').write_headers()
-# for cs_map in SeleniumParser.CS_MAPS:
-#     for el in SeleniumParser.PLAYERS:
-#         time.sleep(2.5)
-#         SeleniumParser('hltv_attributes_selenium.csv', el, cs_map).parse()
+    @classmethod
+    def run_all_maps(cls):
+        file_name = 'hltv_attributes_selenium_top20_allmapsv2.csv'
+        cls(file_name, '922/snappi', 'de_nuke').write_headers()
+        with open(PLAYERS_TOP20_SOURCE, 'r') as file:
+            reader = csv.reader(file)
+            rows = [row for row in reader]
+            for row in rows:
+                time.sleep(0.1)
+                cls(file_name, row[0], 'all').parse()
 
-SeleniumParser('hltv_attributes_selenium_top20_allmaps.csv', '922/snappi', 'de_nuke').write_headers()
-
-with open('players_top20.csv', 'r') as file:
-    reader = csv.reader(file)
-
-    # Convert rows into an array (list of lists)
-    rows = [row for row in reader]
-    for row in rows:
-        time.sleep(0.1)
-        
-        SeleniumParser('hltv_attributes_selenium_top20_allmaps.csv', row[0], 'all').parse()
+    @classmethod
+    def run_competetive_maps(cls):
+        file_name = 'hltv_attributes_selenium_top20_competetive_maps.csv'
+        cls(file_name, '922/snappi', 'de_nuke').write_headers()
+        with open(PLAYERS_TOP20_SOURCE, 'r') as file:
+            reader = csv.reader(file)
+            rows = [row for row in reader]
+            for row in rows:
+                for cs_map in CS_MAPS:
+                    time.sleep(0.5)
+                    cls(file_name, row[0], cs_map).parse()
+            
+#SeleniumParser.run_all_maps()
+SeleniumParser.run_competetive_maps()

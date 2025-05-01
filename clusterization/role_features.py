@@ -20,7 +20,9 @@ MAIN_COMPONENTS_MAP = {
 MAP_INDEPENDENT = ['win_after_opening_kill','traded_deaths_percentage', 'traded_deaths_per_round', 'trade_kills_percentage', 'trade_kills_per_round', 'time_alive_per_round',
                    'support_rounds', 'saved_teammate_per_round', 'saved_by_teammate_per_round',
                    'rounds_with_a_kill', 'rounds_with_a_multi_kill', 'kills_per_round_win', 'kills_per_round', 'flashes_thrown_per_round'
-                   
 ]
 
 CS_MAPS = ['de_train', 'de_nuke', 'de_inferno', 'de_mirage', 'de_dust2', 'de_vertigo','de_ancient', 'de_anubis']
+
+
+PLAYERS_TOP20_SOURCE = 'players_top20.csv'
