@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+#from role_features import NORMALIZED_SOURCE
 
 class MapsFilter:
     TEAM_MAP = {
@@ -7,7 +8,7 @@ class MapsFilter:
             'vitality': ['ZywOo', 'flameZ', 'ropz', 'mezii', 'apEX']
         }
     def call(self):
-        df = pd.read_csv('top_20_normalized.csv')
+        df = pd.read_csv('top_20_normalized_competetive_maps.csv')
        
         player_to_team = {}
         for team, players in self.TEAM_MAP.items():
@@ -24,4 +25,4 @@ class MapsFilter:
             print(f"✅ Saved {filename}")
 
         print("✅ All maps processed!")
-MapsFilter().call()
+#MapsFilter().call()

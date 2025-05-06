@@ -6,6 +6,7 @@ from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 
 from role_features import INTEGRAL
+from role_features import prefixes
 
 
 class Kmeans:

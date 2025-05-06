@@ -53,7 +53,7 @@ class SeleniumParser:
                 writer.writerow(self.data_dict.keys())
             else:
                 if self.data_dict.values():
-                    print(f"Processing  + {self.player_sufix} on all maps")
+                    print(f"Processing  + {self.player_sufix} on {self.cs_map}")
 
                     writer.writerow(self.data_dict.values())
                 else:
@@ -104,7 +104,7 @@ class SeleniumParser:
             rows = [row for row in reader]
             for row in rows:
                 for cs_map in CS_MAPS:
-                    time.sleep(0.5)
+                    time.sleep(0.1)
                     cls(file_name, row[0], cs_map).parse()
             
 #SeleniumParser.run_all_maps()
