@@ -6,7 +6,6 @@ from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 
 from role_features import INTEGRAL
-from role_features import prefixes
 
 
 class Kmeans:
@@ -35,8 +34,10 @@ class Kmeans:
             df_filtered = df_filtered[df_filtered['sniping'] < 0.7]
 
         df_filtered['team'] = df_filtered['team'].str.lower()
-
-        X = df_filtered[self.features]
+        prefix = 'ct_'
+        prefixed_features = [f"{prefix}{el}" for el in self.features]
+        #breakpoint()
+        X = df_filtered[prefixed_features]
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
 
@@ -88,7 +89,7 @@ class Kmeans:
         plt.legend()
         plt.tight_layout()
 
-        image_wth_ext = f"{self.map_name}{self.image_name}detailed.png"
+        image_wth_ext = f"{prefix}{self.map_name}{self.image_name}detailed.png"
         plt.savefig(results_dir / image_wth_ext)
 
     @classmethod
@@ -138,6 +139,6 @@ class Kmeans:
                     )
                     instance.call()
 
-#Kmeans.run_map_clustering()
-Kmeans.run_map_independent_clustering()
+Kmeans.run_map_clustering()
+#Kmeans.run_map_independent_clustering()
 
