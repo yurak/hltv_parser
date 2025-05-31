@@ -4,6 +4,7 @@ from pathlib import Path
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 
 from role_features import INTEGRAL
 
@@ -36,7 +37,7 @@ class Kmeans:
         df_filtered['team'] = df_filtered['team'].str.lower()
         prefix = 'ct_'
         prefixed_features = [f"{prefix}{el}" for el in self.features]
-        #breakpoint()
+
         X = df_filtered[prefixed_features]
         scaler = StandardScaler()
         X_scaled = scaler.fit_transform(X)
@@ -44,20 +45,21 @@ class Kmeans:
         kmeans = KMeans(n_clusters=3, random_state=42)
         df_filtered['cluster'] = kmeans.fit_predict(X_scaled)
 
-        pca = PCA(n_components=2)
+        pca = PCA(n_components=3)
         X_pca = pca.fit_transform(X_scaled)
 
-        plt.figure(figsize=(10, 8))
+        fig = plt.figure(figsize=(12, 10))
+        ax = fig.add_subplot(111, projection='3d')
 
-        # Plot highlighted teams
         highlight_teams = [t.lower() for t in self.team_name]
         for i, team in enumerate(highlight_teams):
-            color = self.team_colors.get(team, 'red')  # default color
+            color = self.team_colors.get(team, 'red')
             mask = df_filtered['team'] == team
 
-            plt.scatter(
+            ax.scatter(
                 X_pca[mask, 0],
                 X_pca[mask, 1],
+                X_pca[mask, 2],
                 color=color,
                 s=300,
                 marker='*',
@@ -65,12 +67,13 @@ class Kmeans:
                 label=team.title()
             )
 
-        # Plot all other players
         other_mask = ~df_filtered['team'].isin(highlight_teams)
-        plt.scatter(
+        ax.scatter(
             X_pca[other_mask, 0],
             X_pca[other_mask, 1],
+            X_pca[other_mask, 2],
             c=df_filtered.loc[other_mask, 'cluster'],
+            cmap='viridis',
             s=60,
             marker='o',
             edgecolor='black',
@@ -80,16 +83,16 @@ class Kmeans:
 
         # Add player names
         for i, player_name in enumerate(df_filtered['player_name']):
-            plt.text(X_pca[i, 0] + 0.02, X_pca[i, 1] + 0.02, player_name, fontsize=8)
+            ax.text(X_pca[i, 0], X_pca[i, 1], X_pca[i, 2], player_name, fontsize=8)
 
-        plt.title(f'Кластеризація гравців: {self.image_name}')
-        plt.xlabel('PCA 1')
-        plt.ylabel('PCA 2')
-        plt.grid(True)
-        plt.legend()
+        ax.set_title(f'Кластеризація гравців (3D): {self.image_name}')
+        ax.set_xlabel('PCA 1')
+        ax.set_ylabel('PCA 2')
+        ax.set_zlabel('PCA 3')
+        ax.legend()
         plt.tight_layout()
 
-        image_wth_ext = f"{prefix}{self.map_name}{self.image_name}detailed.png"
+        image_wth_ext = f"{prefix}{self.map_name}{self.image_name}detailed_3d.png"
         plt.savefig(results_dir / image_wth_ext)
 
     @classmethod
