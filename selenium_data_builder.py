@@ -61,14 +61,16 @@ class SeleniumDataBuiler:
                 'ct_': 'ct',
                 't_': 't'
             }.get(side, 'combined')
-
+           
             clickable_section = element.find_element(By.CSS_SELECTOR, f"div.role-stats-section-title-wrapper.stats-side-{klass}")
-            if clickable_section.is_displayed():
+            # if clickable_section.is_displayed():
+            if not 'active' in element.get_attribute("class").split():
                 clickable_section.click()
-                
+            
+            
             nested_elements = element.find_elements(By.CSS_SELECTOR, f"div.role-stats-row.stats-side-{klass}")
             for nested_el in nested_elements:
-                
+               
                 time.sleep(0.07)
                 if nested_el.text:
                     nested_array = nested_el.text.split('\n')

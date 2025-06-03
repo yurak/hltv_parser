@@ -35,7 +35,7 @@ class Kmeans:
             df_filtered = df_filtered[df_filtered['sniping'] < 0.7]
 
         df_filtered['team'] = df_filtered['team'].str.lower()
-        prefix = 'ct_'
+        prefix = ''
         prefixed_features = [f"{prefix}{el}" for el in self.features]
 
         X = df_filtered[prefixed_features]
