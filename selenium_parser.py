@@ -21,7 +21,7 @@ class SeleniumParser:
         if not os.path.exists(self.filename):
             self.create_file()
         if os.path.getsize(self.filename) == 0 or not self.full_url() in self.df()["full_url"].values:
-            self.driver = webdriver.Chrome() # Start Selenium Safari WebDriver
+            self.driver = webdriver.Chrome()
 
     def parse(self, only_headers=False):
         if not self.full_url() in self.df()["full_url"].values:
@@ -31,7 +31,10 @@ class SeleniumParser:
 
     def write_headers(self):
         if os.path.getsize(self.filename) == 0:
+            print('writing heders')
+            
             self.data_from_response()
+            print('received response')
             self.write_file()
             self.close()
 
@@ -41,10 +44,11 @@ class SeleniumParser:
         
     def hltv_response(self):
         """Loads HLTV player stats page using Selenium."""
+
         self.driver.get(self.full_url())
-        WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, "//h1[contains(@class, 'summaryNickname')]"))
-        )
+        # WebDriverWait(self.driver, 10).until(
+        #     EC.presence_of_element_located((By.XPATH, "//h1[contains(@class, 'summaryNickname')]"))
+        # )
 
     def write_file(self, only_headers=True):
         with open(self.filename, 'a+', newline='') as file:
@@ -64,12 +68,15 @@ class SeleniumParser:
 
     def data_from_response(self):
         self.data_dict = {}
-        self.hltv_response()
 
+        self.hltv_response()
         try:
+           
             selenium_data_builder = SeleniumDataBuiler(self.driver, self.cs_map)
             self.data_dict['full_url'] = self.full_url()
+            self.data_dict['player_name'] = self.player_sufix.split('/')[1]
             data_from_builder = selenium_data_builder.build()
+          
             self.data_dict.update(data_from_builder)
         except Exception as e:
             print(f"Error parsing {self.full_url()}: {e}")
@@ -86,7 +93,7 @@ class SeleniumParser:
 
     @classmethod
     def run_all_maps(cls):
-        file_name = 'hltv_attributes_selenium_top20_allmapsv2.csv'
+        file_name = 'hltv_attributes_selenium_top20_allmapsv2_hltv3_0.csv'
         cls(file_name, '922/snappi', 'de_nuke').write_headers()
         with open(PLAYERS_TOP20_SOURCE, 'r') as file:
             reader = csv.reader(file)
@@ -97,7 +104,7 @@ class SeleniumParser:
 
     @classmethod
     def run_competetive_maps(cls):
-        file_name = 'hltv_attributes_selenium_top20_competetive_maps.csv'
+        file_name = 'hltv_attributes_selenium_top20_competetive_maps_hltv3_0.csv'
         cls(file_name, '922/snappi', 'de_nuke').write_headers()
         with open(PLAYERS_TOP20_SOURCE, 'r') as file:
             reader = csv.reader(file)
@@ -107,5 +114,5 @@ class SeleniumParser:
                     time.sleep(0.1)
                     cls(file_name, row[0], cs_map).parse()
             
-#SeleniumParser.run_all_maps()
-SeleniumParser.run_competetive_maps()
+SeleniumParser.run_all_maps()
+#SeleniumParser.run_competetive_maps()

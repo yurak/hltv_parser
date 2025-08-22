@@ -10,10 +10,10 @@ class SeleniumDataBuiler:
         self.dict = {}
 
     def player_name(self):
-        return self.driver.find_element(By.XPATH, "//h1[contains(@class, 'summaryNickname')]").text
+        return self.driver.find_element(By.CLASS_NAME, "player-summary-stat-box-left-nickname text-ellipsis").text
 
     def age(self):
-        age_str = self.driver.find_element(By.CLASS_NAME, "summaryPlayerAge").text
+        age_str = self.driver.find_element(By.CLASS_NAME, "player-summary-stat-box-left-player-age").text
         age = int(age_str.split()[0])
         return age
 
@@ -30,7 +30,7 @@ class SeleniumDataBuiler:
         self.dict = {}
         self.section('', True)
 
-        self.dict['player_name'] = self.player_name()
+        #self.dict['player_name'] = self.player_name()
         self.dict['map'] = self.cs_map
         self.dict['age'] = self.age()
 
@@ -43,13 +43,12 @@ class SeleniumDataBuiler:
         return self.dict
         
     def section(self, side ='', click_cookie=False ):
-        
+       
         if click_cookie:
             allow_cookies_button = WebDriverWait(self.driver, 10).until(
                 EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Allow all cookies')]"))
             )
             allow_cookies_button.click()
-        
         elements =  self.driver.find_elements(By.CLASS_NAME, 'role-stats-section')
         for element in elements:
             
