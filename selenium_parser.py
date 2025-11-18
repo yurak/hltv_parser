@@ -228,7 +228,7 @@ class SeleniumParser:
 
     @classmethod
     def run_competetive_maps(cls):
-        file_name = "hltv_attributes_selenium_top20_competetive_maps_hltv3_0.csv"
+        file_name = "competetive_maps_hltv3_0.csv"
         cls(file_name, "922/snappi", "de_nuke").write_headers()
         with open(PLAYERS_TOP20_SOURCE, "r") as file:
             reader = csv.reader(file)
@@ -241,4 +241,4 @@ class SeleniumParser:
 if __name__ == "__main__":
     # Обери потрібний ран:
     SeleniumParser.run_all_maps()
-    # SeleniumParser.run_competetive_maps()
+    SeleniumParser.run_competetive_maps()
