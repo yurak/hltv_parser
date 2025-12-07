@@ -70,11 +70,22 @@ def with_retries(fn, tries=3, delay=1.0, tag="op"):
 class SeleniumParser:
     BASE_URL = "https://www.hltv.org/stats/players/"
 
-    def __init__(self, filename, player_sufix, cs_map, headless=None, debug=None):
+    # Date ranges for game versions (CS2 launched Sep 27, 2023)
+    GAME_DATES = {
+        "cs2": {"startDate": "2023-09-27", "endDate": "2025-12-31"},
+        "csgo": {"startDate": "2012-08-21", "endDate": "2023-09-26"},
+        "all": {}  # no date filter
+    }
+
+    def __init__(self, filename, player_sufix, cs_map, game_version="cs2", headless=None, debug=None):
         self.filename = filename
         self.data_dict = {}
         self.player_sufix = player_sufix
         self.cs_map = cs_map
+        self.game_version = game_version.lower()
+
+        if self.game_version not in self.GAME_DATES:
+            raise ValueError(f"game_version must be one of {list(self.GAME_DATES.keys())}, got '{game_version}'")
 
         # Перемикачі через ENV (HEADLESS=0 щоб побачити браузер, DEBUG=1 щоб зберігати артефакти)
         if headless is None:
@@ -103,10 +114,25 @@ class SeleniumParser:
             # зручно для дебагу: одразу DevTools
             opts.add_argument("--auto-open-devtools-for-tabs")
 
+        # Window and display settings
         opts.add_argument("--window-size=1920,1080")
+        opts.add_argument("--start-maximized")
         opts.add_argument("--no-sandbox")
         opts.add_argument("--disable-dev-shm-usage")
+
+        # Enable JavaScript and disable GPU issues
+        opts.add_argument("--enable-javascript")
         opts.add_argument("--disable-gpu")
+        opts.add_argument("--disable-software-rasterizer")
+
+        # User agent to avoid bot detection
+        opts.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+
+        # Additional options for better compatibility
+        opts.add_argument("--disable-blink-features=AutomationControlled")
+        opts.add_experimental_option("excludeSwitches", ["enable-automation"])
+        opts.add_experimental_option("useAutomationExtension", False)
+
         opts.add_argument("--remote-debugging-port=0")
         opts.set_capability("goog:loggingPrefs", {"browser": "ALL"})
 
@@ -146,16 +172,27 @@ class SeleniumParser:
 
     # ---------- scraping ----------
     def full_url(self):
-        return f"{self.BASE_URL}{self.player_sufix}?maps={self.cs_map}"
+        url = f"{self.BASE_URL}{self.player_sufix}?maps={self.cs_map}"
+
+        # Add date filters for game version
+        date_params = self.GAME_DATES[self.game_version]
+        if date_params:
+            url += f"&startDate={date_params['startDate']}&endDate={date_params['endDate']}"
+
+        return url
 
     def _hltv_response(self):
         # Навігація + коректне очікування
         self._driver.get(self.full_url())
+
         # Спробуємо дочекатися нікнейм (коли є), інакше — просто <body>
         try:
-            wait_css(self._driver, "h1.summaryNickname, body", to=15)
+            wait_css(self._driver, "h1.summaryNickname, body", to=10)
         except Exception:
             pass
+
+        # Wait for dynamic content to load (optimized)
+        time.sleep(0.8)
 
     def data_from_response(self):
         self.data_dict = {}
@@ -165,22 +202,23 @@ class SeleniumParser:
             if self.debug:
                 dump_artifacts(self._driver, "after_load")
 
-        with_retries(do_load, tries=3, delay=1.0, tag="load")
+        with_retries(do_load, tries=2, delay=0.5, tag="load")
 
         try:
             builder = SeleniumDataBuiler(self._driver, self.cs_map)
             self.data_dict["full_url"] = self.full_url()
             # '922/snappi' -> беремо частину після слеша
             self.data_dict["player_name"] = self.player_sufix.split("/")[1]
+            self.data_dict["game_version"] = self.game_version
             built = builder.build()
             self.data_dict.update(built)
         except Exception as e:
             if self.debug:
                 dump_artifacts(self._driver, "error")
                 print_browser_logs(self._driver)
-            print(f"[ERR] {self.full_url()} -> {e}")
-            # Додатково — стек у лог
-            traceback.print_exc()
+                traceback.print_exc()
+            else:
+                print(f"[ERR] {self.player_sufix}: {e}")
         else:
             if self.debug:
                 print_browser_logs(self._driver)
@@ -195,9 +233,11 @@ class SeleniumParser:
                 if self.data_dict:
                     writer.writerow(self.data_dict.keys())
             else:
-                if self.data_dict:
-                    print(f"[OK] {self.player_sufix} on {self.cs_map}")
+                if self.data_dict and len(self.data_dict) > 5:  # Should have more than just basic fields
+                    print(f"[OK] {self.player_sufix} on {self.cs_map} ({len(self.data_dict)} fields)")
                     writer.writerow(self.data_dict.values())
+                elif self.data_dict:
+                    print(f"[WARN] Incomplete data for {self.player_sufix}: only {len(self.data_dict)} fields")
                 else:
                     print(f"[MISS] Data not found: {self.player_sufix}")
 
@@ -217,28 +257,58 @@ class SeleniumParser:
 
     # ---------- batches ----------
     @classmethod
-    def run_all_maps(cls):
-        file_name = "hltv_attributes_selenium_top20_allmapsv2_hltv3_0.csv"
-        cls(file_name, "922/snappi", "de_nuke").write_headers()
+    def run_all_maps(cls, game_version="cs2"):
+        """Scrape all maps data for specified game version (cs2, csgo, or all)."""
+        file_name = f"hltv_attributes_selenium_top20_allmapsv2_{game_version}.csv"
+        cls(file_name, "922/snappi", "de_nuke", game_version=game_version).write_headers()
         with open(PLAYERS_TOP20_SOURCE, "r") as file:
             reader = csv.reader(file)
             for row in reader:
-                time.sleep(0.1)
-                cls(file_name, row[0], "all").parse()
+                # No sleep needed - reduced from 0.1s
+                cls(file_name, row[0], "all", game_version=game_version).parse()
 
     @classmethod
-    def run_competetive_maps(cls):
-        file_name = "competetive_maps_hltv3_0.csv"
-        cls(file_name, "922/snappi", "de_nuke").write_headers()
+    def run_competetive_maps(cls, game_version="cs2"):
+        """Scrape competitive maps data for specified game version (cs2, csgo, or all)."""
+        file_name = f"competetive_maps_{game_version}.csv"
+        cls(file_name, "922/snappi", "de_nuke", game_version=game_version).write_headers()
         with open(PLAYERS_TOP20_SOURCE, "r") as file:
             reader = csv.reader(file)
             for row in reader:
                 for cs_map in CS_MAPS:
-                    time.sleep(0.1)
-                    cls(file_name, row[0], cs_map).parse()
+                    # No sleep needed - reduced from 0.1s
+                    cls(file_name, row[0], cs_map, game_version=game_version).parse()
+
+    @classmethod
+    def run_all_maps_both_games(cls):
+        """Scrape all maps data for both CS2 and CS:GO."""
+        print("\n=== Starting CS2 data collection ===")
+        cls.run_all_maps(game_version="cs2")
+        print("\n=== Starting CS:GO data collection ===")
+        cls.run_all_maps(game_version="csgo")
+
+    @classmethod
+    def run_competetive_maps_both_games(cls):
+        """Scrape competitive maps data for both CS2 and CS:GO."""
+        print("\n=== Starting CS2 data collection ===")
+        cls.run_competetive_maps(game_version="cs2")
+        print("\n=== Starting CS:GO data collection ===")
+        cls.run_competetive_maps(game_version="csgo")
 
 
 if __name__ == "__main__":
-    # Обери потрібний ран:
-    SeleniumParser.run_all_maps()
-    SeleniumParser.run_competetive_maps()
+    # Running for both CS2 and CS:GO
+    print("Starting data collection for CS2 and CS:GO...")
+    print(f"Total players to process: 183")
+    print("=" * 60)
+
+    SeleniumParser.run_all_maps_both_games()
+    SeleniumParser.run_competetive_maps_both_games()
+
+    print("=" * 60)
+    print("Data collection completed!")
+    print("Output files:")
+    print("  - hltv_attributes_selenium_top20_allmapsv2_cs2.csv")
+    print("  - hltv_attributes_selenium_top20_allmapsv2_csgo.csv")
+    print("  - competetive_maps_cs2.csv")
+    print("  - competetive_maps_csgo.csv")

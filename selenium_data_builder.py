@@ -19,15 +19,25 @@ class SeleniumDataBuiler:
 
     def safe_click(self, xpath):
         """Waits for an element, scrolls into view, and clicks it safely."""
-        element = WebDriverWait(self.driver, 10).until(
+        element = WebDriverWait(self.driver, 8).until(
             EC.element_to_be_clickable((By.XPATH, xpath))
         )
         self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
-        WebDriverWait(self.driver, 2).until(lambda d: element.is_displayed())
         self.driver.execute_script("arguments[0].click();", element)
 
     def build(self):
         self.dict = {}
+
+        # Wait for role-stats-section elements to be present
+        try:
+            WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "role-stats-section"))
+            )
+            time.sleep(0.5)  # Reduced from 2s to 0.5s
+        except Exception as e:
+            print(f"[BUILD ERROR] Could not find role-stats-section: {e}")
+            raise
+
         self.section('', True)
 
         #self.dict['player_name'] = self.player_name()
@@ -43,12 +53,37 @@ class SeleniumDataBuiler:
         return self.dict
         
     def section(self, side ='', click_cookie=False ):
-       
+
         if click_cookie:
-            allow_cookies_button = WebDriverWait(self.driver, 10).until(
-                EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Allow all cookies')]"))
-            )
-            allow_cookies_button.click()
+            # Try to handle cookie consent if it appears
+            try:
+                # Try multiple possible cookie button selectors
+                cookie_selectors = [
+                    "//button[contains(text(), 'Allow all cookies')]",
+                    "//button[contains(text(), 'Accept')]",
+                    "//button[contains(text(), 'allow')]",
+                    "//button[@id='onetrust-accept-btn-handler']",
+                    "//button[contains(@class, 'cookie') and contains(text(), 'Accept')]"
+                ]
+
+                cookie_clicked = False
+                for selector in cookie_selectors:
+                    try:
+                        allow_cookies_button = WebDriverWait(self.driver, 3).until(
+                            EC.element_to_be_clickable((By.XPATH, selector))
+                        )
+                        allow_cookies_button.click()
+                        cookie_clicked = True
+                        print("[COOKIE] Cookie consent accepted")
+                        time.sleep(1)  # Wait after clicking
+                        break
+                    except:
+                        continue
+
+                if not cookie_clicked:
+                    print("[COOKIE] No cookie dialog found, continuing...")
+            except Exception as e:
+                print(f"[COOKIE] Could not handle cookies: {e}, continuing...")
         elements =  self.driver.find_elements(By.CLASS_NAME, 'role-stats-section')
         for element in elements:
             

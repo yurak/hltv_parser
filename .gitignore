@@ -7,3 +7,5 @@ clusterization/.ipynb_checkpoints/
 __pycache__/
 artifacts/
 chromedriver.log
+.venv/
+.vscode/
