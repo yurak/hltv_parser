@@ -1,0 +1,127 @@
+FEATURE INVARIANCE ANALYSIS SUMMARY
+============================================================
+
+MAP-INVARIANT FEATURES (eta-squared < 0.06):
+----------------------------------------
+  - assisted_kills_percentage
+  - assists_per_round
+  - attacks_per_round
+  - clutch_points_per_round
+  - clutching
+  - damage_per_kill
+  - damage_per_round
+  - entrying
+  - firepower
+  - kills_per_round
+  - kills_per_round_win
+  - opening
+  - opening_attempts
+  - opening_deaths_per_round
+  - opening_kills_per_round
+  - pistol_round_rating
+  - rating_3.0
+  - rounds_with_a_kill
+  - rounds_with_a_multi_kill
+  - sniper_kills_per_round
+  - sniper_multi_kill_rounds
+  - sniper_opening_kills_per_round
+  - sniping
+  - trade_kills_per_round
+  - trade_kills_percentage
+  - traded_deaths_per_round
+  - traded_deaths_percentage
+
+VERSION-INVARIANT FEATURES (Cohen's d < 0.5):
+----------------------------------------
+  - attacks_per_round
+  - clutch_points_per_round
+  - clutching
+  - damage_per_kill
+  - damage_per_round
+  - entrying
+  - firepower
+  - flashes_thrown_per_round
+  - kills_per_round
+  - kills_per_round_win
+  - opening
+  - opening_attempts
+  - opening_deaths_per_round
+  - opening_kills_per_round
+  - pistol_round_rating
+  - rating_3.0
+  - rounds_with_a_kill
+  - rounds_with_a_multi_kill
+  - saved_by_teammate_per_round
+  - saved_teammate_per_round
+  - saves_per_round_loss
+  - sniper_kills_per_round
+  - sniper_multi_kill_rounds
+  - sniper_opening_kills_per_round
+  - sniping
+  - trade_kills_per_round
+  - trade_kills_percentage
+  - traded_deaths_per_round
+  - traded_deaths_percentage
+  - trading
+  - utility
+  - utility_damage_per_round
+  - utility_kills_per_100_rounds
+
+SIDE-INVARIANT FEATURES (Cohen's d < 0.5):
+----------------------------------------
+  - clutch_points_per_round
+  - clutching
+  - entrying
+  - firepower
+  - opening
+  - opening_attempts
+  - pistol_round_rating
+  - rating_3.0
+  - sniper_multi_kill_rounds
+  - sniper_opening_kills_per_round
+  - sniping
+  - trading
+  - utility
+  - utility_kills_per_100_rounds
+
+UNIVERSAL INVARIANT (map + version):
+----------------------------------------
+  - attacks_per_round
+  - clutch_points_per_round
+  - clutching
+  - damage_per_kill
+  - damage_per_round
+  - entrying
+  - firepower
+  - kills_per_round
+  - kills_per_round_win
+  - opening
+  - opening_attempts
+  - opening_deaths_per_round
+  - opening_kills_per_round
+  - pistol_round_rating
+  - rating_3.0
+  - rounds_with_a_kill
+  - rounds_with_a_multi_kill
+  - sniper_kills_per_round
+  - sniper_multi_kill_rounds
+  - sniper_opening_kills_per_round
+  - sniping
+  - trade_kills_per_round
+  - trade_kills_percentage
+  - traded_deaths_per_round
+  - traded_deaths_percentage
+
+TRIPLE INVARIANT (map + version + side):
+----------------------------------------
+  - clutch_points_per_round
+  - clutching
+  - entrying
+  - firepower
+  - opening
+  - opening_attempts
+  - pistol_round_rating
+  - rating_3.0
+  - sniper_multi_kill_rounds
+  - sniper_opening_kills_per_round
+  - sniping
