@@ -1,0 +1,18 @@
+============================================================
+FEATURE INVARIANCE ANALYSIS (corrected v2)
+============================================================
+Rows: 3486 (cs2=1820, csgo=1666)
+Numeric stat columns: 138 | overall (base) features: 46
+Invariance criteria: eta^2<0.06 (maps); Cohen's d<0.5 (version, side)
+
+--- RESULTS ---
+Map-invariant   : 35/46 (76.1%)
+Version-invariant: 43/46 (93.5%)
+Side-invariant  : 22/46 (47.8%)
+Universal (map & version): 33
+Triple (map & version & side): 16
+  triple set: ['1on1_win_percentage', 'clutch_points_per_round', 'clutching', 'damage_per_kill', 'entrying', 'firepower', 'opening', 'opening_attempts', 'opening_deaths_traded_percentage', 'pistol_round_rating', 'rating_3.0', 'sniper_multi_kill_rounds', 'sniper_opening_kills_per_round', 'sniping', 'traded_deaths_percentage', 'win_after_opening_kill']
+
+Sensitivity (map invariance within each version):
+  cs2: 33/46 (71.7%)
+  csgo: 35/46 (76.1%)

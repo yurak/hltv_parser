@@ -10,3 +10,6 @@ chromedriver.log
 .venv/
 .vscode/*.dem
 .vscode/*
+# Word temp/lock files
+~$*
+**/~$*

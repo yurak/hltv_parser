@@ -1,0 +1,1 @@
+Apply reviewer comments from review/reviewer_1.md to paper/manuscript.md. Create paper/manuscript_revised.md. Maintain review/revision_log.md with each issue, action taken, files changed, and status. Do not silently remove claims; support them, soften them, or mark them for supervisor review.

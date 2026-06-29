@@ -1,0 +1,30 @@
+Loaded cs2_clean: 1852 rows x 146 cols
+Loaded csgo_clean: 1705 rows x 146 cols
+
+Concatenated: 3557 rows
+After keeping de_ maps only: 3486 rows (dropped 71)
+After dropping null game_version: 3486 rows (dropped 0)
+  cs2=1820, csgo=1666
+  maps (8): ['de_ancient', 'de_anubis', 'de_dust2', 'de_inferno', 'de_mirage', 'de_nuke', 'de_train', 'de_vertigo']
+
+Coerced 138 stat columns to numeric.
+  NaN cells in stat columns: before=2680, after coercion=2680 (added 0 from '-'/garbage tokens)
+
+Top columns by % NaN (after coercion):
+  t_rounds_with_sniper_kills_percentage: 21.03%
+  ct_rounds_with_sniper_kills_percentage: 17.81%
+  t_1on1_win_percentage: 9.93%
+  rounds_with_sniper_kills_percentage: 9.87%
+  ct_1on1_win_percentage: 8.03%
+  1on1_win_percentage: 4.76%
+  t_win_after_opening_kill: 1.23%
+  ct_opening_deaths_traded_percentage: 1.03%
+  ct_win_after_opening_kill: 0.95%
+  t_opening_deaths_traded_percentage: 0.95%
+  opening_deaths_traded_percentage: 0.37%
+  win_after_opening_kill: 0.23%
+  ct_time_opponent_flashed_per_round: 0.17%
+  t_kills_per_round_win: 0.14%
+  t_damage_per_round_win: 0.14%
+
+Saved processed dataset: /Users/yuriikuzhii/projects/hltv_parser/research_article/data/processed/combined_clean.csv (3486 x 146)
