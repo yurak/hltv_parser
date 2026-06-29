@@ -9,3 +9,4 @@ artifacts/
 chromedriver.log
 .venv/
 .vscode/*.dem
+.vscode/*
