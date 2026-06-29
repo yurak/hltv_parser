@@ -24,35 +24,19 @@ ART_DIR.mkdir(exist_ok=True)
 
 def dump_artifacts(driver, tag="step"):
     """Зберегти скріншот і HTML сторінки для дебагу."""
-    ts = time.strftime("%Y%m%d-%H%M%S")
-    png = ART_DIR / f"{ts}_{tag}.png"
-    html = ART_DIR / f"{ts}_{tag}.html"
-    try:
-        driver.save_screenshot(str(png))
-    except Exception:
-        pass
-    try:
-        html.write_text(driver.page_source or "", encoding="utf-8")
-    except Exception:
-        pass
-    print(f"[ART] saved {png.name}, {html.name}")
+    # Disabled for performance
+    pass
 
 def print_browser_logs(driver):
     """Вивести логи консолі браузера."""
-    try:
-        for e in driver.get_log("browser"):
-            lvl = e.get("level")
-            msg = e.get("message")
-            print(f"[BROWSER] {lvl}: {msg}")
-    except Exception:
-        # не всі білди підтримують логи — це ок
-        pass
+    # Disabled for performance
+    pass
 
 def wait_css(driver, css, to=15):
     """Дочекатися елемента за CSS-селектором."""
     return W(driver, to).until(EC.presence_of_element_located((By.CSS_SELECTOR, css)))
 
-def with_retries(fn, tries=3, delay=1.0, tag="op"):
+def with_retries(fn, tries=2, delay=0.3, tag="op"):
     """Проста обгортка для повторних спроб."""
     last_err = None
     for i in range(1, tries + 1):
@@ -60,8 +44,8 @@ def with_retries(fn, tries=3, delay=1.0, tag="op"):
             return fn()
         except Exception as e:
             last_err = e
-            print(f"[RETRY {i}/{tries}] {tag}: {e}")
-            time.sleep(delay)
+            if i < tries:
+                time.sleep(delay)
     if last_err:
         raise last_err
 
@@ -192,7 +176,7 @@ class SeleniumParser:
             pass
 
         # Wait for dynamic content to load (optimized)
-        time.sleep(0.8)
+        time.sleep(0.5)
 
     def data_from_response(self):
         self.data_dict = {}
@@ -218,7 +202,7 @@ class SeleniumParser:
                 print_browser_logs(self._driver)
                 traceback.print_exc()
             else:
-                print(f"[ERR] {self.player_sufix}: {e}")
+                pass  # Silent fail for performance
         else:
             if self.debug:
                 print_browser_logs(self._driver)
@@ -233,17 +217,11 @@ class SeleniumParser:
                 if self.data_dict:
                     writer.writerow(self.data_dict.keys())
             else:
-                if self.data_dict and len(self.data_dict) > 5:  # Should have more than just basic fields
-                    print(f"[OK] {self.player_sufix} on {self.cs_map} ({len(self.data_dict)} fields)")
+                if self.data_dict and len(self.data_dict) > 5:
                     writer.writerow(self.data_dict.values())
-                elif self.data_dict:
-                    print(f"[WARN] Incomplete data for {self.player_sufix}: only {len(self.data_dict)} fields")
-                else:
-                    print(f"[MISS] Data not found: {self.player_sufix}")
 
     def write_headers(self):
         if os.path.getsize(self.filename) == 0:
-            print("[HDR] writing headers…")
             self.data_from_response()
             self.write_file(only_headers=True)
             self.close()

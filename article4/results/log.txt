@@ -1,0 +1,114 @@
+Data: /Users/yuriikuzhii/projects/hltv_parser/article4/df.csv
+
+=== 1. Descriptive statistics (full dataset) ===
+N = 11127, fraud N = 572 (5.141%)
+Date range: 2015-05-01 00:01:54 → 2015-05-30 23:51:31
+Unique cards: 9260
+Unique BINs: 420
+Amount: mean=129.56, median=99.00, p95=336.00, max=2920.00
+[saved] T1_univariate_tests.csv (26 features)
+
+=== 2. PCA on the full feature space ===
+Explained variance ratio (top 10 PCs):
+  PC1: 0.2908  (cum 0.2908)
+  PC2: 0.0814  (cum 0.3722)
+  PC3: 0.0685  (cum 0.4407)
+  PC4: 0.0612  (cum 0.5019)
+  PC5: 0.0564  (cum 0.5583)
+  PC6: 0.0518  (cum 0.6101)
+  PC7: 0.0513  (cum 0.6615)
+  PC8: 0.0454  (cum 0.7068)
+  PC9: 0.0412  (cum 0.7480)
+  PC10: 0.0353  (cum 0.7833)
+[saved] F1_pca_scatter.png
+[saved] T3_pca_loadings.csv
+
+=== 3. MANOVA (group = CBK Yes/No) ===
+  temporal    Wilks λ = 0.9857  F = 23.07  p = 2.73e-31
+  velocity    Wilks λ = 0.6818  F = 518.73  p = 0.00e+00
+  amount      Wilks λ = 0.9751  F = 40.61  p = 7.63e-57
+  identity    Wilks λ = 0.6591  F = 2877.03  p = 0.00e+00
+  all         Wilks λ = 0.5474  F = 352.95  p = 0.00e+00
+
+=== 4. Silhouette (group labels = CBK Yes/No) ===
+  temporal    silhouette = +0.0644
+  velocity    silhouette = +0.8091
+  amount      silhouette = +0.2212
+  identity    silhouette = +0.6448
+  all         silhouette = +0.4974
+
+=== 5. Correlation matrix between feature families ===
+          temporal  velocity  amount  identity
+temporal     1.000    -0.112  -0.014    -0.053
+velocity    -0.112     1.000   0.119     0.480
+amount      -0.014     0.119   1.000     0.140
+identity    -0.053     0.480   0.140     1.000
+
+=== 9. Card-testing signature (joint counts) ===
+same_amount_10min=1 — n=529, fraud rate 49.905%, lift over base = 9.71×
+[n_tx_card_1h≥2 AND same_amount_10min=1] n=232, fraud rate 80.603%, lift 15.68×, catches 32.7% of all fraud.
+weekend × fraud χ² = 11.73, p = 6.15e-04
+  within high-velocity (n_tx_card_24h≥2): χ² = 0.56, p = 4.56e-01, n = 363
+
+=== 6. Ablation of feature families ===
+          config model  n_features  roc_auc  pr_auc  top1_precision  top5_recall
+             all    LR          26    0.875   0.547           0.926        0.454
+             all   HGB          26    0.820   0.422           0.815        0.397
+without_temporal    LR          19    0.877   0.531           0.926        0.443
+without_temporal   HGB          19    0.797   0.420           0.815        0.414
+without_velocity    LR          16    0.738   0.212           0.333        0.241
+without_velocity   HGB          16    0.699   0.178           0.481        0.195
+  without_amount    LR          19    0.874   0.515           0.889        0.431
+  without_amount   HGB          19    0.831   0.467           0.926        0.414
+without_identity    LR          24    0.862   0.562           0.926        0.506
+without_identity   HGB          24    0.835   0.501           0.815        0.448
+   only_temporal    LR           7    0.510   0.073           0.000        0.029
+   only_temporal   HGB           7    0.533   0.067           0.000        0.029
+   only_velocity    LR          10    0.845   0.551           0.926        0.511
+   only_velocity   HGB          10    0.839   0.535           0.852        0.517
+     only_amount    LR           7    0.602   0.102           0.000        0.046
+     only_amount   HGB           7    0.525   0.099           0.296        0.075
+   only_identity    LR           2    0.757   0.210           0.296        0.236
+   only_identity   HGB           2    0.699   0.192           0.407        0.230
+
+=== 7. Permutation importance (HGB, PR-AUC drop) ===
+          feature   family  delta_pr_auc_mean  delta_pr_auc_std
+           bin_te identity             0.2560            0.0288
+     gap_min_prev velocity             0.1902            0.0153
+     n_tx_card_1h velocity             0.0385            0.0011
+        amount_te identity             0.0267            0.0172
+  sum_amt_card_1h velocity             0.0081            0.0010
+   afternoon_peak temporal             0.0057            0.0023
+         hour_sin temporal             0.0026            0.0073
+          weekend temporal             0.0011            0.0003
+            night temporal             0.0001            0.0005
+       amt_mod_50   amount             0.0001            0.0000
+   cum_card_count velocity             0.0000            0.0026
+     n_tx_card_6h velocity             0.0000            0.0000
+      amt_mod_100   amount             0.0000            0.0000
+    amount_gt_500   amount             0.0000            0.0000
+    amount_gt_200   amount             0.0000            0.0000
+    n_tx_card_24h velocity            -0.0002            0.0001
+    same_amt_prev velocity            -0.0006            0.0003
+       amt_mod_10   amount            -0.0007            0.0020
+        has_cents   amount            -0.0020            0.0017
+          dow_cos temporal            -0.0032            0.0065
+same_amount_10min velocity            -0.0033            0.0001
+ sum_amt_card_24h velocity            -0.0039            0.0004
+       amount_log   amount            -0.0049            0.0052
+  sum_amt_card_6h velocity            -0.0112            0.0004
+          dow_sin temporal            -0.0143            0.0096
+         hour_cos temporal            -0.0157            0.0041
+[saved] F2_permutation_importance.png
+
+=== 8. Residual analysis: temporal vs velocity ===
+       feature  pearson_r_with_residual  pearson_p  spearman_r_with_residual  spearman_p
+       weekend                  -0.2364     0.0000                   -0.1703      0.0000
+       dow_sin                   0.1847     0.0000                    0.1216      0.0000
+      hour_sin                   0.0577     0.0024                    0.0672      0.0004
+      hour_cos                  -0.0323     0.0887                   -0.0189      0.3197
+         night                   0.0122     0.5218                    0.0133      0.4832
+afternoon_peak                   0.0098     0.6071                    0.0227      0.2323
+       dow_cos                  -0.0067     0.7252                   -0.0322      0.0898
+
+=== DONE ===

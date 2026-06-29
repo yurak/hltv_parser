@@ -19,7 +19,7 @@ class SeleniumDataBuiler:
 
     def safe_click(self, xpath):
         """Waits for an element, scrolls into view, and clicks it safely."""
-        element = WebDriverWait(self.driver, 8).until(
+        element = WebDriverWait(self.driver, 5).until(
             EC.element_to_be_clickable((By.XPATH, xpath))
         )
         self.driver.execute_script("arguments[0].scrollIntoView(true);", element)
@@ -30,12 +30,11 @@ class SeleniumDataBuiler:
 
         # Wait for role-stats-section elements to be present
         try:
-            WebDriverWait(self.driver, 10).until(
+            WebDriverWait(self.driver, 8).until(
                 EC.presence_of_element_located((By.CLASS_NAME, "role-stats-section"))
             )
-            time.sleep(0.5)  # Reduced from 2s to 0.5s
+            time.sleep(0.3)
         except Exception as e:
-            print(f"[BUILD ERROR] Could not find role-stats-section: {e}")
             raise
 
         self.section('', True)
@@ -74,16 +73,12 @@ class SeleniumDataBuiler:
                         )
                         allow_cookies_button.click()
                         cookie_clicked = True
-                        print("[COOKIE] Cookie consent accepted")
-                        time.sleep(1)  # Wait after clicking
+                        time.sleep(1)
                         break
                     except:
                         continue
-
-                if not cookie_clicked:
-                    print("[COOKIE] No cookie dialog found, continuing...")
-            except Exception as e:
-                print(f"[COOKIE] Could not handle cookies: {e}, continuing...")
+            except:
+                pass
         elements =  self.driver.find_elements(By.CLASS_NAME, 'role-stats-section')
         for element in elements:
             
