@@ -1,0 +1,26 @@
+
+=== F1: PCA two-panel (full vs no-identity) ===
+  Повний простір (26 ознак): PC1=29.1%, PC2=8.1%, cum2=37.2%
+  Поведінковий простір без ідентифікаційних (24): PC1=30.1%, PC2=8.7%, cum2=38.8%
+[saved] F1_pca_scatter.png
+
+=== F2: family separability (silhouette + Wilks λ) ===
+[saved] F2_family_separability.png
+
+=== F3: permutation importance (from T8) ===
+  plotting top 12 features by |Δ PR-AUC| (full ranking in T8)
+[saved] F3_permutation_importance.png
+
+=== F4: confounding (weekend effect under velocity control) ===
+  full:         weekday 4.81% weekend 6.74% χ²=11.73 p=6.15e-04
+  high-velocity weekday 67.04% weekend 71.88% χ²=0.56 p=4.56e-01 (n=363)
+[saved] F4_confounding.png
+
+=== F5: card-testing signature ===
+  base 5.14% | same_amt_10min 49.9% (n=529) | composite 80.6% (n=232, coverage 32.7%)
+[saved] F5_card_testing.png
+
+=== F6: IEEE-CIS native behavioral families ===
+[saved] F6_external_validation.png
+
+=== FIGURES DONE ===

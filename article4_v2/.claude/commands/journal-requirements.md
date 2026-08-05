@@ -1,0 +1,1 @@
+Read references/journal_guidelines/. Extract exact journal requirements into paper/journal_requirements.md and paper/submission_checklist.md. Preserve word limits, structure, reference style, figure/table rules, required statements, file formats, and submission constraints. Target journal: №85 «Комп'ютерно-інтегровані технології» (ЛНТУ). Do not summarize vaguely.

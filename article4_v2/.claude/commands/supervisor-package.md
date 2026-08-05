@@ -1,0 +1,1 @@
+Create review/supervisor_summary.md summarizing research question, dataset, methods, key results, figures, limitations, unresolved questions, and what feedback is needed from the supervisor (Y. Furgala). Keep it concise and decision-oriented.

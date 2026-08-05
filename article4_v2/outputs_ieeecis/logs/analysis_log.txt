@@ -1,0 +1,114 @@
+Data: /Users/yuriikuzhii/projects/hltv_parser/article4_v2/data/raw/df_ieeecis.csv
+
+=== 1. Descriptive statistics (full dataset) ===
+N = 590540, fraud N = 20663 (3.499%)
+Date range: 2017-12-02 00:00:00 → 2018-06-01 23:58:51
+Unique cards: 13553
+Unique BINs: 120
+Amount: mean=135.03, median=68.77, p95=445.00, max=31937.39
+[saved] T1_univariate_tests.csv (26 features)
+
+=== 2. PCA on the full feature space ===
+Explained variance ratio (top 10 PCs):
+  PC1: 0.1972  (cum 0.1972)
+  PC2: 0.1087  (cum 0.3059)
+  PC3: 0.0887  (cum 0.3946)
+  PC4: 0.0787  (cum 0.4733)
+  PC5: 0.0699  (cum 0.5432)
+  PC6: 0.0658  (cum 0.6090)
+  PC7: 0.0482  (cum 0.6572)
+  PC8: 0.0407  (cum 0.6979)
+  PC9: 0.0389  (cum 0.7368)
+  PC10: 0.0379  (cum 0.7747)
+[saved] F1_pca_scatter.png
+[saved] T3_pca_loadings.csv
+
+=== 3. MANOVA (group = CBK Yes/No) ===
+  temporal    Wilks λ = 0.9981  F = 163.09  p = 5.06e-242
+  velocity    Wilks λ = 0.9936  F = 377.54  p = 0.00e+00
+  amount      Wilks λ = 0.9981  F = 160.81  p = 1.43e-238
+  identity    Wilks λ = 0.8642  F = 46386.90  p = 0.00e+00
+  all         Wilks λ = 0.8593  F = 3718.25  p = 0.00e+00
+
+=== 4. Silhouette (group labels = CBK Yes/No) ===
+  temporal    silhouette = +0.0198
+  velocity    silhouette = +0.0297
+  amount      silhouette = +0.0588
+  identity    silhouette = +0.5786
+  all         silhouette = +0.1297
+
+=== 5. Correlation matrix between feature families ===
+          temporal  velocity  amount  identity
+temporal     1.000    -0.000  -0.069     0.038
+velocity    -0.000     1.000   0.024    -0.025
+amount      -0.069     0.024   1.000     0.062
+identity     0.038    -0.025   0.062     1.000
+
+=== 9. Card-testing signature (joint counts) ===
+same_amount_10min=1 — n=37394, fraud rate 8.726%, lift over base = 2.49×
+[n_tx_card_1h≥2 AND same_amount_10min=1] n=21123, fraud rate 8.664%, lift 2.48×, catches 8.9% of all fraud.
+weekend × fraud χ² = 17.67, p = 2.63e-05
+  within high-velocity (n_tx_card_24h≥2): χ² = 4.68, p = 3.06e-02, n = 402514
+
+=== 6. Ablation of feature families ===
+          config model  n_features  roc_auc  pr_auc  top1_precision  top5_recall
+             all    LR          26    0.666   0.069           0.133        0.148
+             all   HGB          26    0.672   0.080           0.187        0.163
+without_temporal    LR          19    0.663   0.068           0.139        0.137
+without_temporal   HGB          19    0.659   0.076           0.187        0.155
+without_velocity    LR          16    0.651   0.069           0.150        0.145
+without_velocity   HGB          16    0.640   0.069           0.140        0.146
+  without_amount    LR          19    0.708   0.079           0.138        0.159
+  without_amount   HGB          19    0.672   0.081           0.190        0.170
+without_identity    LR          24    0.608   0.054           0.063        0.118
+without_identity   HGB          24    0.711   0.100           0.228        0.202
+   only_temporal    LR           7    0.547   0.046           0.097        0.100
+   only_temporal   HGB           7    0.565   0.048           0.079        0.114
+   only_velocity    LR          10    0.570   0.046           0.033        0.104
+   only_velocity   HGB          10    0.619   0.067           0.156        0.146
+     only_amount    LR           7    0.568   0.048           0.098        0.094
+     only_amount   HGB           7    0.682   0.084           0.179        0.157
+   only_identity    LR           2    0.717   0.081           0.140        0.145
+   only_identity   HGB           2    0.635   0.068           0.140        0.152
+
+=== 7. Permutation importance (HGB, PR-AUC drop) ===
+          feature   family  delta_pr_auc_mean  delta_pr_auc_std
+        amount_te identity             0.0406            0.0006
+    n_tx_card_24h velocity             0.0069            0.0002
+           bin_te identity             0.0066            0.0006
+         hour_sin temporal             0.0049            0.0002
+       amount_log   amount             0.0025            0.0002
+ sum_amt_card_24h velocity             0.0023            0.0005
+   cum_card_count velocity             0.0018            0.0005
+     gap_min_prev velocity             0.0012            0.0006
+     n_tx_card_6h velocity             0.0010            0.0002
+     n_tx_card_1h velocity             0.0005            0.0000
+         hour_cos temporal             0.0004            0.0002
+  sum_amt_card_6h velocity             0.0002            0.0002
+          dow_cos temporal             0.0002            0.0001
+   afternoon_peak temporal             0.0002            0.0001
+       amt_mod_50   amount             0.0001            0.0000
+same_amount_10min velocity             0.0001            0.0001
+      amt_mod_100   amount             0.0000            0.0000
+       amt_mod_10   amount             0.0000            0.0001
+    amount_gt_500   amount             0.0000            0.0000
+    amount_gt_200   amount             0.0000            0.0000
+          weekend temporal            -0.0000            0.0000
+          dow_sin temporal            -0.0001            0.0001
+    same_amt_prev velocity            -0.0005            0.0001
+  sum_amt_card_1h velocity            -0.0006            0.0001
+            night temporal            -0.0006            0.0001
+        has_cents   amount            -0.0048            0.0002
+[saved] F2_permutation_importance.png
+
+=== 8. Residual analysis: temporal vs velocity ===
+       feature  pearson_r_with_residual  pearson_p  spearman_r_with_residual  spearman_p
+       dow_cos                  -0.0270        0.0                   -0.0428      0.0000
+      hour_sin                   0.0264        0.0                    0.0003      0.9140
+      hour_cos                   0.0204        0.0                    0.0239      0.0000
+afternoon_peak                  -0.0195        0.0                   -0.0168      0.0000
+       weekend                   0.0174        0.0                    0.0183      0.0000
+       dow_sin                  -0.0127        0.0                   -0.0053      0.0407
+         night                   0.0109        0.0                    0.0100      0.0001
+
+=== DONE ===

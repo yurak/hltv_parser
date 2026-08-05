@@ -1,0 +1,5 @@
+family,n_features,silhouette,mean_anova_F
+count C (зв'язки картка/адреса),14,0.484,433.6
+timedelta D (інтервали подій),15,0.097,1529.9
+amount (структура суми),2,0.068,5.4
+temporal (час доби/тижня),6,0.032,145.3
