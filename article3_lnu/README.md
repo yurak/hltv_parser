@@ -19,7 +19,7 @@
 3. Відтворювані скрипти аналізу (`/analyze-data`)
 4. Таблиці та фігури (`/build-figures`)
 5. Чернетка рукопису (`/draft-paper`)
-6. Незалежна рецензія (`/reviewer`)
+6. Перевірка відповідності + рецензія + правки (`/submission-review`)
 7. Ревізії та revision log (`/revise`)
 8. Збирання LaTeX-подання (`cd latex && make`) і пакет для керівника (`/supervisor-package`)
 

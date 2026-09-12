@@ -1,1 +1,4 @@
-Export the current manuscript to DOCX using scripts/export_docx.py or Pandoc. Apply journal №85 formatting: A4, TNR 11pt (abstracts 9pt), single spacing, mirrored margins (top/bottom 1.5, left 2.5, right 2 cm), no page numbers. Verify that figures, tables, headings, references, ORCID, УДК, and required bilingual statements are present. Save output as paper/manuscript.docx.
+NOT FOR SUBMISSION — журнал №69 приймає лише LaTeX (див. latex/). Ця команда лишена тільки для
+пакета науковому керівнику, якому зручніше читати DOCX.
+
+Export the current manuscript to DOCX using scripts/export_docx.py or Pandoc. Legacy журнал №85 formatting: A4, TNR 11pt (abstracts 9pt), single spacing, mirrored margins (top/bottom 1.5, left 2.5, right 2 cm), no page numbers. Verify that figures, tables, headings, references, ORCID, УДК, and required bilingual statements are present. Save output as paper/manuscript.docx.

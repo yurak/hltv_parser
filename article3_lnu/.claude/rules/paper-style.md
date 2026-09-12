@@ -7,4 +7,4 @@ paths: ["paper/**/*.md"]
 - Results — фактичні; Discussion — інтерпретація.
 - Кожне посилання на таблицю/фігуру вказує на наявний файл у outputs/.
 - Зберігати числову точність із вихідних outputs/.
-- Структура IMRAD узгоджена з paper/journal_requirements.md (журнал №85).
+- Структура IMRAD узгоджена з paper/journal_requirements.md (журнал №69, Вісник ЛНУ).
