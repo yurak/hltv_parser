@@ -73,10 +73,10 @@ Check for:
 | "The reviewer is wrong, skip it" | Answer it in `review/revision_log.md` with a reason. Silent dismissal reads as sloppiness. |
 | "I'll sync the fix into the Ukrainian version too" | No. It is frozen. Two diverging sources is worse than one stale one. |
 | "The build warning is cosmetic" | The template prints headings over paragraphs when the page is tight. Check the PDF. |
-| "I'll re-copy the template, it's cleaner" | It carries three bugs. The annotated fixes are in `latex/VisnykAMI.tex`; a fresh copy reintroduces a build crash and a heading printed over a paragraph. |
+| "I'll re-copy the template, it's cleaner" | It carries two bugs. The annotated fixes are in `latex/VisnykAMI.tex`; a fresh copy reintroduces a build crash and a heading printed over a paragraph. |
 
 ## What the script cannot check
 
 Plagiarism report; no second article by the same author in the same issue; article length and
-deadline confirmed with the editors (journal No. 69 publishes neither); the three template bugs
+deadline confirmed with the editors (journal No. 69 publishes neither); the two template bugs
 reported to the editors — see `latex/README.md`.

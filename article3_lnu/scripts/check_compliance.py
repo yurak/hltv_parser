@@ -364,7 +364,7 @@ def main() -> int:
     print(f"\n{len(results) - len(failed)}/{len(results)} checks passed  [{TEX.name}]")
     print("Not machine-checkable — left to the author: plagiarism report; no other article by the "
           "same author in this issue; article length and submission deadline confirmed with the "
-          "editors; the three template bugs reported to them (see latex/README.md).")
+          "editors; the two template bugs reported to them (see latex/README.md).")
     return 1 if failed else 0
 
 
