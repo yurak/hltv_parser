@@ -1,0 +1,4 @@
+# згенеровані друковані артефакти — робляться з `cd latex && make supervisor`
+compliance_report_*.tex
+compliance_report_*.aux
+compliance_report_*.log

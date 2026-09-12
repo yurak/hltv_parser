@@ -34,7 +34,8 @@ LATEX = ROOT / "latex"
 TABLES = ROOT / "outputs" / "tables"
 ORIGINAL = ROOT / "references" / "journal_guidelines" / "VISNYK2019_original"
 
-LANG = (sys.argv[1] if len(sys.argv) > 1 else "en").lower()
+args = [a for a in sys.argv[1:] if not a.startswith("-")]
+LANG = (args[0] if args else "en").lower()
 if LANG not in ("uk", "en"):
     raise SystemExit(f"unknown version: {LANG!r} (expected 'en' or 'uk')")
 TEX = LATEX / ("article_en.tex" if LANG == "en" else "article.tex")
@@ -47,11 +48,24 @@ CYRILLIC = re.compile(r"[\u0400-\u04FF]")
 # \texttt{damage\us{}per\us{}kill} — the body holds balanced {} pairs, so a plain [^}]* fails
 TEXTT = r"\\texttt\{((?:[^{}]|\{\})*)\}"
 
-results: list[tuple[bool, str]] = []
+results: list[tuple[bool, str, str]] = []
+group_name = ""
+
+GROUPS = {                     # друковані назви груп для звіту керівникові
+    "BUILD": "Збирання документа",
+    "JOURNAL": "Вимоги видання №69 і цілісність шаблону",
+    "CONSISTENCY": "Внутрішня узгодженість",
+    "PROVENANCE": "Походження чисел (звірка з outputs/)",
+}
+
+
+def group(name: str) -> None:
+    global group_name
+    group_name = name
 
 
 def check(ok: bool, message: str) -> None:
-    results.append((bool(ok), message))
+    results.append((bool(ok), message, group_name))
 
 
 def feat(s: str) -> str:
@@ -79,6 +93,79 @@ def orcid_valid(orcid: str) -> bool:
     remainder = total % 11
     expected = (12 - remainder) % 11
     return ("X" if expected == 10 else str(expected)) == digits[-1].upper()
+
+
+REPORT_DIR = ROOT / "review"
+
+LATEX_ESCAPE = {"\\": r"\textbackslash{}", "&": r"\&", "%": r"\%", "$": r"\$", "#": r"\#",
+                "_": r"\_", "{": r"\{", "}": r"\}", "~": r"\textasciitilde{}",
+                "^": r"\textasciicircum{}"}
+
+
+def tex_escape(text: str) -> str:
+    out = "".join(LATEX_ESCAPE.get(ch, ch) for ch in text)
+    return out.replace("—", "---").replace("×", r"$\times$").replace("η²", r"$\eta^2$")
+
+
+def write_report() -> Path:
+    """Render the run as a print-ready A4 PDF for the supervisor (who reads on paper)."""
+    REPORT_DIR.mkdir(exist_ok=True)
+    stem = REPORT_DIR / f"compliance_report_{LANG}"
+    commit = subprocess.run(["git", "log", "-1", "--format=%h %ad", "--date=short"],
+                            cwd=ROOT, capture_output=True, text=True).stdout.strip() or "—"
+    stamp = subprocess.run(["date", "+%Y-%m-%d %H:%M"], capture_output=True, text=True).stdout.strip()
+    failed = [r for r in results if not r[0]]
+
+    body = [r"\documentclass[11pt,a4paper]{article}",
+            r"\usepackage[utf8]{inputenc}", r"\usepackage[T2A]{fontenc}",
+            r"\usepackage[english,ukrainian]{babel}",
+            r"\usepackage[top=2cm,bottom=2cm,left=2.2cm,right=1.8cm]{geometry}",
+            r"\usepackage{longtable}", r"\pagestyle{plain}",
+            r"\setlength{\parindent}{0pt}", r"\begin{document}",
+            r"\begin{center}\large\bfseries Звіт про відповідність вимогам оформлення\\[2pt]",
+            r"\normalsize\mdseries Стаття 3 --- інваріантність ознак CS2/CSGO\\",
+            r"Видання №69 «Вісник Львівського університету. Серія прикладна математика "
+            r"та інформатика»\end{center}",
+            r"\vspace{4pt}\hrule\vspace{6pt}",
+            rf"Файл: \texttt{{{tex_escape(TEX.name)}}} \hfill Сформовано: {stamp}\\",
+            rf"Коміт: \texttt{{{tex_escape(commit)}}} \hfill "
+            rf"Результат: \textbf{{{len(results) - len(failed)}/{len(results)}}} перевірок пройдено",
+            r"\vspace{6pt}\hrule\vspace{10pt}"]
+
+    if failed:
+        body += [r"\textbf{Не пройдено:}\begin{itemize}\setlength{\itemsep}{0pt}"]
+        body += [rf"\item {tex_escape(m)}" for _, m, _ in failed]
+        body += [r"\end{itemize}\vspace{6pt}"]
+    else:
+        body += [r"\textbf{Зауважень немає — усі перевірки пройдено.}\vspace{8pt}", ""]
+
+    for tag, title in GROUPS.items():
+        rows = [(ok, m) for ok, m, g in results if g == tag]
+        if not rows:
+            continue
+        passed = sum(1 for ok, _ in rows if ok)
+        body += [rf"\subsection*{{{title} \normalfont\small({passed}/{len(rows)})}}",
+                 r"\begin{longtable}{@{}p{1.1cm}p{14.5cm}@{}}"]
+        for ok, message in rows:
+            mark = r"\textsf{OK}" if ok else r"\textbf{\textsf{FAIL}}"
+            body.append(rf"{mark} & {tex_escape(message)} \\")
+        body += [r"\end{longtable}"]
+
+    body += [r"\vspace{6pt}\hrule\vspace{6pt}",
+             r"\textbf{Перевірити вручну (машині не доступне):} звіт про плагіат; відсутність "
+             r"другої статті того самого автора в цьому ж випуску; обсяг статті та дедлайн "
+             r"випуску, уточнені в редакції (видання їх не публікує); повідомлення редакції про "
+             r"два баги їхнього шаблону.",
+             r"\end{document}"]
+
+    stem.with_suffix(".tex").write_text("\n".join(body) + "\n", encoding="utf-8")
+    subprocess.run(["pdflatex", "-interaction=nonstopmode", stem.with_suffix(".tex").name],
+                   cwd=REPORT_DIR, capture_output=True, text=True, errors="replace")
+    for junk in (".aux", ".log", ".out"):
+        stem.with_suffix(junk).unlink(missing_ok=True)
+    if stem.with_suffix(".pdf").exists():
+        stem.with_suffix(".tex").unlink(missing_ok=True)   # generated, not source
+    return stem.with_suffix(".pdf")
 
 
 def overlapping_lines(path: Path) -> list[tuple]:
@@ -135,6 +222,7 @@ def main() -> int:
     src = TEX.read_text(encoding="utf-8")
 
     # ------------------------------------------------------------------ BUILD
+    group("BUILD")
     # -B forces a full rebuild. Without it make skips a PDF that is newer than its sources, and the
     # whole run then validates a stale PDF — that is how a broken article_en.pdf once passed 77/77.
     build = subprocess.run(["make", "-B", "en" if LANG == "en" else "uk"],
@@ -171,6 +259,7 @@ def main() -> int:
                     "(journal No. 69 publishes no limit — confirm with the editors)")
 
     # ---------------------------------------------------------------- JOURNAL
+    group("JOURNAL")
     for kw_macro, limit_name in ((r"\KeywordsEng", "Key words"), (r"\KeywordsUkr", "Ключові слова")):
         block = re.search(re.escape(kw_macro) + r"(.*?)\\end\{Abstract\}", src, re.S)
         if not block:
@@ -258,6 +347,7 @@ def main() -> int:
             check(generated.exists(), f"{inc} has a generated counterpart in outputs/")
 
     # ------------------------------------------------------------ CONSISTENCY
+    group("CONSISTENCY")
     labels = set(re.findall(r"\\label\{((?:fig|tab):[^}]+)\}", src))
     refs = set(re.findall(r"\\ref\{((?:fig|tab):[^}]+)\}", src))
     orphan_floats = sorted(labels - refs)
@@ -292,6 +382,7 @@ def main() -> int:
     check(not missing, "IMRAD structure complete" + (f" — missing: {missing}" if missing else ""))
 
     # ------------------------------------------------------------- PROVENANCE
+    group("PROVENANCE")
     summary = {r["dimension"]: r for r in load("invariant_features_summary.csv")}
     by_version = {r["version"]: r for r in load("map_invariance_by_version.csv")}
     version_rows = load("version_invariance.csv")
@@ -394,13 +485,15 @@ def main() -> int:
           + (f" — unaccounted: {invented}" if invented else ""))
 
     # ------------------------------------------------------------------ report
-    failed = [m for ok, m in results if not ok]
-    for ok, message in results:
+    failed = [m for ok, m, _ in results if not ok]
+    for ok, message, _ in results:
         print(f"  {'PASS' if ok else 'FAIL'}  {message}")
     print(f"\n{len(results) - len(failed)}/{len(results)} checks passed  [{TEX.name}]")
     print("Not machine-checkable — left to the author: plagiarism report; no other article by the "
           "same author in this issue; article length and submission deadline confirmed with the "
           "editors; the two template bugs reported to them (see latex/README.md).")
+    if "--pdf" in sys.argv:
+        print("\nprinted report:", write_report())
     return 1 if failed else 0
 
 

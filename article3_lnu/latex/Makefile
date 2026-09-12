@@ -25,3 +25,15 @@ distclean: clean
 	rm -f article.pdf article_en.pdf
 
 .PHONY: all en uk clean distclean
+
+# Друкований пакет для наукового керівника (він читає на папері, не в GitHub).
+#   make report      -> review/compliance_report_en.pdf   (звіт про відповідність, 3 с.)
+#   make supervisor  -> review/supervisor_package_en.pdf  (звіт + сама стаття, один файл на друк)
+report:
+	cd .. && python3 scripts/check_compliance.py en --pdf
+
+supervisor: report article_en.pdf
+	pdfunite ../review/compliance_report_en.pdf article_en.pdf ../review/supervisor_package_en.pdf
+	@echo "на друк: review/supervisor_package_en.pdf"
+
+.PHONY: report supervisor

@@ -36,6 +36,10 @@ script does not check it, add the check to the script rather than to the review.
 
 Every FAIL is fixed before phase 2. A failing build makes the rest of the review meaningless.
 
+When the result is for the supervisor, build the printed package — he reads on paper, not on
+GitHub: `cd latex && make supervisor` produces `review/supervisor_package_en.pdf` (compliance
+report with commit hash and date, followed by the article itself).
+
 ## Phase 2 — judgement review
 
 Only what the script cannot decide. Write to `review/reviewer_N.md`, one numbered comment per
