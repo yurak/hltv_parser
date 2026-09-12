@@ -81,6 +81,36 @@ def orcid_valid(orcid: str) -> bool:
     return ("X" if expected == 10 else str(expected)) == digits[-1].upper()
 
 
+def overlapping_lines(path: Path) -> list[tuple]:
+    """Pages where two text lines sit on top of each other (page, text, text).
+
+    A line pair counts as overlapping only when it shares most of its height AND more than a
+    quarter of the narrower box's width — pdftotext splits some justified lines into fragments
+    that share a baseline but barely touch horizontally, and those are not defects.
+    """
+    xml = subprocess.run([shutil.which("pdftotext"), "-bbox-layout", str(path), "-"],
+                         capture_output=True).stdout.decode("utf-8", "replace")
+    found = []
+    line_re = re.compile(r'<line xMin="([\d.]+)" yMin="([\d.]+)" xMax="([\d.]+)" yMax="([\d.]+)">'
+                         r'(.*?)</line>', re.S)
+    for page_no, page in enumerate(re.findall(r"<page[^>]*>(.*?)</page>", xml, re.S), 1):
+        lines = []
+        for x0, y0, x1, y1, inner in line_re.findall(page):
+            text = " ".join(re.sub(r"<[^>]+>", " ", inner).split())
+            if text:
+                lines.append((float(y0), float(y1), float(x0), float(x1), text))
+        for i, (ay0, ay1, ax0, ax1, at) in enumerate(lines):
+            for by0, by1, bx0, bx1, bt in lines[i + 1:]:
+                height = min(ay1 - ay0, by1 - by0)
+                width = min(ax1 - ax0, bx1 - bx0)
+                if not height or not width:
+                    continue
+                if (min(ay1, by1) - max(ay0, by0)) > 0.5 * height \
+                        and (min(ax1, bx1) - max(ax0, bx0)) > 0.25 * width:
+                    found.append((page_no, at[:40], bt[:40]))
+    return found
+
+
 def pdf_content(path: Path) -> bytes:
     """PDF bytes without the timestamp and file id — matplotlib stamps a new one on every run,
     so a plain byte comparison would flag every rebuild as a stale copy."""
@@ -105,9 +135,11 @@ def main() -> int:
     src = TEX.read_text(encoding="utf-8")
 
     # ------------------------------------------------------------------ BUILD
-    build = subprocess.run(["make", "en" if LANG == "en" else "uk"],
-                           cwd=LATEX, capture_output=True, text=True)
-    check(build.returncode == 0, f"pdflatex builds {TEX.name} without errors")
+    # -B forces a full rebuild. Without it make skips a PDF that is newer than its sources, and the
+    # whole run then validates a stale PDF — that is how a broken article_en.pdf once passed 77/77.
+    build = subprocess.run(["make", "-B", "en" if LANG == "en" else "uk"],
+                           cwd=LATEX, capture_output=True, text=True, errors="replace")
+    check(build.returncode == 0, f"pdflatex rebuilds {TEX.name} from scratch without errors")
     if build.returncode != 0:
         tail = (build.stdout or build.stderr).strip().splitlines()[-6:]
         for line in tail:
@@ -131,6 +163,10 @@ def main() -> int:
         check(size and abs(float(size.group(1)) - 595.276) < 1.5
               and abs(float(size.group(2)) - 841.89) < 1.5,
               f"A4 page size ({size.group(1)} x {size.group(2)} pts)" if size else "A4 page size")
+        # The journal template used to print a heading on top of the preceding paragraph when the
+        # page ran tight. Catch that class directly instead of trusting the source fix to hold.
+        check(not overlapping_lines(PDF), "no two text lines overlap on the page"
+              + (f" — {overlapping_lines(PDF)[:2]}" if overlapping_lines(PDF) else ""))
         check(True, f"length: {pages.group(1)} pages "
                     "(journal No. 69 publishes no limit — confirm with the editors)")
 

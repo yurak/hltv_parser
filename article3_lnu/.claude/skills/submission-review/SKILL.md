@@ -24,7 +24,11 @@ integrity** — `.sty` files byte-identical to the journal's copy, every edit to
 annotated, the three bugfixes still applied, page geometry untouched, shipped figures equal to the
 current `build_figures.py` output), CONSISTENCY, PROVENANCE (every share, count and effect size
 recomputed from `outputs/tables/`; Table 1 rebuilt from the CSVs). Exit 0 = clean.
-Currently 77 checks for `article_en.tex`, 75 for `article.tex`.
+Currently 78 checks for `article_en.tex`, 76 for `article.tex`.
+
+The script always rebuilds with `make -B`. Never check a PDF that `make` decided was up to date:
+a PDF built from since-reverted sources will pass every source-level check while the page is
+visibly broken. One such `article_en.pdf` was committed before this was enforced.
 
 **Do not review by eye anything the script checks.** If you find yourself counting keywords or
 comparing a number against a CSV by hand, stop and run the script. If a rule is checkable and the
@@ -73,6 +77,8 @@ Check for:
 | "The reviewer is wrong, skip it" | Answer it in `review/revision_log.md` with a reason. Silent dismissal reads as sloppiness. |
 | "I'll sync the fix into the Ukrainian version too" | No. It is frozen. Two diverging sources is worse than one stale one. |
 | "The build warning is cosmetic" | The template prints headings over paragraphs when the page is tight. Check the PDF. |
+| "Sources are fixed, the PDF must be fine" | Only if it was rebuilt. `make` skips a PDF newer than its sources; the checker forces `-B` for exactly this reason. |
+| "I restored the file after testing, done" | Restoring a source does not rebuild what it produced. Re-run the checker, then look at the page. |
 | "I'll re-copy the template, it's cleaner" | It carries two bugs. The annotated fixes are in `latex/VisnykAMI.tex`; a fresh copy reintroduces a build crash and a heading printed over a paragraph. |
 
 ## What the script cannot check
