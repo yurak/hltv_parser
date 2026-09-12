@@ -19,9 +19,12 @@ python3 scripts/check_compliance.py        # English submission version
 python3 scripts/check_compliance.py uk     # Ukrainian reference version (optional)
 ```
 
-The script rebuilds the PDF and checks four groups: BUILD, JOURNAL (No. 69 rules), CONSISTENCY,
-PROVENANCE (every share, count and effect size recomputed from `outputs/tables/`; Table 1 rebuilt
-from the CSVs). Exit 0 = clean.
+The script rebuilds the PDF and checks four groups: BUILD, JOURNAL (No. 69 rules **and template
+integrity** — `.sty` files byte-identical to the journal's copy, every edit to `VisnykAMI.tex`
+annotated, the three bugfixes still applied, page geometry untouched, shipped figures equal to the
+current `build_figures.py` output), CONSISTENCY, PROVENANCE (every share, count and effect size
+recomputed from `outputs/tables/`; Table 1 rebuilt from the CSVs). Exit 0 = clean.
+Currently 77 checks for `article_en.tex`, 75 for `article.tex`.
 
 **Do not review by eye anything the script checks.** If you find yourself counting keywords or
 comparing a number against a CSV by hand, stop and run the script. If a rule is checkable and the
@@ -70,6 +73,7 @@ Check for:
 | "The reviewer is wrong, skip it" | Answer it in `review/revision_log.md` with a reason. Silent dismissal reads as sloppiness. |
 | "I'll sync the fix into the Ukrainian version too" | No. It is frozen. Two diverging sources is worse than one stale one. |
 | "The build warning is cosmetic" | The template prints headings over paragraphs when the page is tight. Check the PDF. |
+| "I'll re-copy the template, it's cleaner" | It carries three bugs. The annotated fixes are in `latex/VisnykAMI.tex`; a fresh copy reintroduces a build crash and a heading printed over a paragraph. |
 
 ## What the script cannot check
 

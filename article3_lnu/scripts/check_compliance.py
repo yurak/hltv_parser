@@ -8,7 +8,10 @@ Four groups of checks:
   BUILD       pdflatex succeeds; no unresolved \\ref/\\cite; no text spilling past the measure; A4.
   JOURNAL     rules of journal No. 69 that can be verified mechanically — LaTeX source, figures as
               separate PDF files, <=7 keywords, both metadata blocks, ORCID (with MOD 11-2 check
-              digit), one bibliography, full URLs.
+              digit), one bibliography, full URLs; plus template integrity — the .sty files
+              byte-identical to the journal's own copy, every edit to VisnykAMI.tex annotated, the
+              three bugfixes still applied, page geometry untouched, and the shipped figures equal
+              to the current output of build_figures.py.
   CONSISTENCY every float referenced, every source cited, no untranslated Cyrillic in the English body.
   PROVENANCE  every share, count and effect size in the text recomputed from outputs/tables/;
               Table 1 rebuilt from the CSVs and compared row by row.
@@ -18,6 +21,8 @@ Exit code 0 = all passed, 1 = at least one failure, 2 = cannot run (missing file
 from __future__ import annotations
 
 import csv
+import difflib
+import hashlib
 import re
 import shutil
 import subprocess
@@ -27,6 +32,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 LATEX = ROOT / "latex"
 TABLES = ROOT / "outputs" / "tables"
+ORIGINAL = ROOT / "references" / "journal_guidelines" / "VISNYK2019_original"
 
 LANG = (sys.argv[1] if len(sys.argv) > 1 else "en").lower()
 if LANG not in ("uk", "en"):
@@ -73,6 +79,14 @@ def orcid_valid(orcid: str) -> bool:
     remainder = total % 11
     expected = (12 - remainder) % 11
     return ("X" if expected == 10 else str(expected)) == digits[-1].upper()
+
+
+def pdf_content(path: Path) -> bytes:
+    """PDF bytes without the timestamp and file id — matplotlib stamps a new one on every run,
+    so a plain byte comparison would flag every rebuild as a stale copy."""
+    raw = path.read_bytes()
+    raw = re.sub(rb"/CreationDate \([^)]*\)", b"", raw)
+    return re.sub(rb"/ID \[[^\]]*\]", b"", raw)
 
 
 def load(name: str) -> list[dict]:
@@ -154,9 +168,58 @@ def main() -> int:
         check(path.exists(), f"figure file present: {inc}")
         check(path.suffix == ".pdf", f"figure is PDF (journal requirement): {inc}")
 
-    urls = re.findall(r"Access mode:|Режим доступу:", src)
-    check(not urls or re.search(r"https?://", src),
-          "internet sources carry a full URL")
+    # the journal asks for full URLs — check each internet source, not merely that one URL exists
+    for m in re.finditer(r"(Access mode:|Режим доступу:)", src):
+        tail = src[m.end(): m.end() + 200]
+        check(bool(re.search(r"https?://", tail)),
+              f"internet source after {m.group(1)!r} carries a full URL")
+
+    # --- template integrity: the editors typeset with their own copy, so ours must not drift
+    if ORIGINAL.is_dir():
+        for sty in ("stdclsdv.sty", "tocloft.sty"):
+            ours, theirs = LATEX / sty, ORIGINAL / sty
+            check(ours.exists() and theirs.exists()
+                  and hashlib.sha256(ours.read_bytes()).digest()
+                  == hashlib.sha256(theirs.read_bytes()).digest(),
+                  f"{sty} byte-identical to the journal template")
+
+        orig = (ORIGINAL / "VisnykAMI.tex").read_bytes().decode("cp1251").splitlines()
+        mine = (LATEX / "VisnykAMI.tex").read_text(encoding="utf-8").splitlines()
+        undocumented = []
+        for tag, _, _, j1, j2 in difflib.SequenceMatcher(None, orig, mine).get_opcodes():
+            if tag == "equal":
+                continue
+            hunk = "\n".join(mine[j1:j2])
+            if "BUGFIX" not in hunk and "original" not in hunk and "оригінал" not in hunk.lower():
+                undocumented.append(mine[j1:j2][:1] or ["<deleted lines>"])
+        check(not undocumented,
+              "every change to VisnykAMI.tex is annotated (BUGFIX / original)"
+              + (f" — undocumented: {undocumented[:3]}" if undocumented else ""))
+
+        # the three fixes must still be there: re-copying the template would reintroduce the crash.
+        # Search the ACTIVE code only — the fixes keep the buggy originals as comments beside them.
+        tpl = (LATEX / "VisnykAMI.tex").read_text(encoding="utf-8")
+        code = "\n".join(re.sub(r"(?<!\\)%.*$", "", line) for line in tpl.splitlines())
+        check(r"\vspace*{0pt}\vspace*\begin{flushleft}" not in code,
+              "UdcUkr bugfix still applied (stray \\vspace* removed)")
+        check(r"\@plus -1ex" not in code,
+              "section spacing bugfix still applied (no negative stretch on a positive beforeskip)")
+        check(r"\usepackage[utf8]{inputenc}" in tpl, "inputenc switched to utf8")
+
+        for key in (r"\textwidth = 13.5cm", r"\textheight = 20.4cm",
+                    r"\oddsidemargin = 1.96cm", r"\topmargin = 1.42cm",
+                    r"\documentclass[10pt,a4paper,twoside,openany]{report}"):
+            check(key in tpl, f"page geometry untouched: {key}")
+
+    # --- figures in latex/ must be the current build products, not stale copies
+    for inc in re.findall(r"\\includegraphics\[[^\]]*\]\{([^}]+)\}", src):
+        shipped = LATEX / inc
+        generated = ROOT / "outputs" / Path(inc).parent.name / Path(inc).name
+        if shipped.exists() and generated.exists():
+            check(pdf_content(shipped) == pdf_content(generated),
+                  f"{inc} matches the current output of build_figures.py (not a stale copy)")
+        else:
+            check(generated.exists(), f"{inc} has a generated counterpart in outputs/")
 
     # ------------------------------------------------------------ CONSISTENCY
     labels = set(re.findall(r"\\label\{((?:fig|tab):[^}]+)\}", src))
