@@ -1,0 +1,138 @@
+\input{VisnykAMI.tex}
+
+\Headers{Petrenko\,P., Sydorenko\,S.}
+
+\begin{UdcEng}
+519.6
+\end{UdcEng}
+
+\begin{Title}
+TITLE
+\end{Title}
+
+\begin{Authors}
+P.\,Petrenko$^{1}$, S.\,Sydorenko$^{1,2}$
+\end{Authors}
+
+\addcontentschapter{Petrenko\,P., Sydorenko\,S.}
+{Title}
+
+\begin{Organization}
+$^{1}$Organization1,\\
+adress, e-mail: \href{petrenko@gmail.com}\\
+$^{2}$Organization2,\\
+adress, e-mail: \href{sydorenko@gmail.com}
+\end{Organization}
+
+\begin{Abstract}
+In this paper we use scaling of the independent variable to introduce similarity criteria of P?clet and Strouhal
+as indicators of singular perturbations of considered diffusion-advection-reaction equation with Robin boundary conditions.
+In the terms of these criteria, we analyze the corresponding variational problem for well posedness and establish sufficient
+conditions for this. Finally we transform the original problem to the equivalent problem of minimization  for quadratic functional.
+Furthermore we introduce hp-adaptive finite element scheme for solving the considered problem. Constructed scheme combines classic
+explicit and implicit error estimators for selecting elements for refinement and making decision for each selected element about
+its bisection or incrementing of polynomial order on it respectively. In the end we present some numerical examples and comparison
+with the results, obtained using reference solution algorithm.
+\KeywordsEng
+diffusion-advection-reaction boundary value problem, P?clet criteria, Strouhal criteria,
+well-posedness of variational problem, symmetrization, minimization of quadratic functional,
+finite element method, condensation of internal degrees of freedom, a posteriori error estimator,
+\textit{hp}-adaptive scheme, reference solution.
+\end{Abstract}
+
+
+\section{Introduction}
+Finite element method is an universal tool for solving boundary value problems for partial differential equations (see \cite{Brenner-S}).
+It is applicable for problems on very complex domains in 2- and 3-dimensional spaces. During last years the main focus is on
+the adaptive algorithms for FEM. The main idea is to adapt mesh (h-adaptivity), element polynomial order ($p$-adaptivity)
+or both mesh and order ($hp$-adaptivity) to minimize computational cost needed for solving the given problem.
+Such algorithms are implemented using local a posteriori error estimators. It's naturally to interpret hp-schemes
+as most advanced as they give us most wide approximation capabilities.
+Theoretically it is proven that they can produce exponentially convergent sequences of approximations to original solution
+of boundary value problem \cite{Schwab-Ch}.
+
+\subsection{Model problem}
+We consider the following boundary value problem for diffusion-advection-reaction equation
+
+\subsection{Scaling of variables}
+In order to show specific of the boundary value problem ...
+\begin{equation}\label{boundary-value-problem}
+\left\{
+\begin{array}{l}
+\text{find function} \quad u=u(t) \quad \text{such that}\\[0.5\baselineskip]
+- (\nu, u') + Pe[\beta u' + Sh \sigma u] = f \quad \text{in} \quad \Omega = (0,1)\\[0.5\baselineskip]
+(\nu u' - \alpha u)\vert_{t = 0} =g_{0}, \quad (-\nu u' - \gamma u)\vert_{t = 1} =g_{1}.
+\end{array}
+\right.
+\end{equation}
+where ...
+
+\section{Well-posedness of variational problem}
+We are able to prove the well-posedness of variational problem (4).
+\begin{proposition}\label{Well-posedness} Let data of the problem (1) satisfies the following conditions
+\begin{equation}\nonumber
+\left\{
+\begin{array}{l}
+\nu \in L^{\infty}(\Omega),\\[0.5\baselineskip]
+\nu(x)\geq \nu_{0}=\const \quad \text{a.e} \in \Omega,
+\end{array}
+\right.
+\end{equation}
+Then ...
+\end{proposition}
+\begin{proof}
+Let us define the linear function ...
+
+Taking into account Lax-Milgram-Vyshyk lemma \cite{}[8], we can simply prove that
+the variational problem (\ref{boundary-value-problem}) has unique solution ...
+\end{proof}
+
+
+\begin{thebibliography}{99}
+\begin{small}
+
+\bibitem{Brenner-S}
+Brenner\,S.\
+The Mathematical Theory of Finite Element Methods
+/\,S.\,Brenner, L.\,Scott.\,-- Springer, 2008, 3ed.\,-- 404\,p.
+
+\bibitem{Schwab-Ch}
+Schwab\,Ch.\
+$p$ and $hp$-Finite Element Methods.\,-- Clarendon Press, 1998.
+
+\end{small}
+\end{thebibliography}
+
+
+\begin{Title}
+НАЗВА СТАТТІ
+\end{Title}
+
+\begin{Authors}
+П.\,Петренко$^{1}$, С.\,Сидоренко$^{1,2}$
+\end{Authors}
+
+\addcontentschapter{Petrenko\,P., Sydorenko\,S.}
+{Назва статті}
+
+\begin{Organization}
+$^{1}$Організація1,,\\
+адреса, e-mail: \href{petrenko@gmail.com}\\
+$^{2}$Організація2,\\
+адреса, e-mail: \href{sydorenko@gmail.com}
+\end{Organization}
+
+\begin{Abstract}
+За допомогою масштабування незалежної змінної вводяться критерії подібності Пекле і Струхаля, які сигналізують
+про сингулярну збуреність розглядуваної крайової задачі дифузії-адвекції-реакції з крайовими умовами Робена.
+В термінах цих критеріїв проаналізовано відповідну варіаційну задачу щодо коректності її формулювання,
+визначено достатні для цього умови на ці задачі. Ми симетризуємо останню задачу і подаємо еквівалентну
+їй задачу мінімізації квадратичного функціонала.
+\KeywordsUkr
+крайова задача дифузії-адвекції-реакції, критерій Пекле, критерій Струхаля, коректність варіаційної задачі,
+симетризація, мінімізація квадратичного функціонала, метод скінченних елементів, конденсація внутрішніх параметрів,
+апосте\-ріорний оцінювач похибки, hp-адаптивна схема, взірцевий розв’язок.
+\end{Abstract}
+
+
+\end{document}

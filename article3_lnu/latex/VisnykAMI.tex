@@ -1,0 +1,275 @@
+\documentclass[10pt,a4paper,twoside,openany]{report}
+%\usepackage[cp1251]{inputenc}  % original; source kept in UTF-8 instead
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+%\usepackage[T1,T2A]{fontenc}
+\usepackage[ukrainian,english]{babel}
+\usepackage{amsfonts,amsmath,amssymb,amscd,amsthm,amsbsy,graphicx,latexsym}
+%\usepackage{mathtext}
+%\usepackage[mathcal]{eucal}
+%\usepackage[dvips]{graphicx}
+%\usepackage{psfrag}
+%\usepackage{psfig}
+\usepackage{epsfig}
+\usepackage{layout}
+\usepackage{cite}
+\usepackage{indentfirst}
+\usepackage[titles]{tocloft}
+\usepackage[centerlast,small]{caption2}
+\usepackage{srcltx}
+\usepackage{color}
+%\usepackage[colorlinks,bookmarksopen,bookmarksnumbered,citecolor=red,urlcolor=red]{hyperref}
+
+\textwidth = 13.5cm
+\textheight = 20.4cm
+\topmargin = 1.42cm % 3.96cm - 2.54cm
+\headheight = 0cm
+\evensidemargin = 1.96cm % 4.5cm - 2.54cm
+\oddsidemargin = 1.96cm % 4.5cm - 2.54cm
+\headsep = 0cm
+\footskip = 15pt
+\tolerance=500
+\fboxsep=0pt
+
+\addtocontents{toc}{\protect\thispagestyle{empty}}
+%\AtBeginDocument{\renewcommand{\figurename}{Рис.}}
+\AtBeginDocument{\renewcommand{\figurename}{Fig.}}
+%\AtBeginDocument{\renewcommand{\tablename}{Таблиця\,}}
+\AtBeginDocument{\renewcommand{\tablename}{Table\,}}
+%\AtBeginDocument{\renewcommand{\contentsname}{З\,М\,І\,С\,Т}}
+\AtBeginDocument{\renewcommand{\contentsname}{C\,O\,N\,T\,E\,N\,T\,S}}
+%\AtBeginDocument{\renewcommand{\refname}{\sc Список використаної літератури}}
+\AtBeginDocument{\renewcommand{\refname}{\sc References}}
+%\AtBeginDocument{\renewcommand{\bibname}{~}}
+%
+\renewcommand{\captionlabeldelim}{.}
+\renewcommand{\topfraction}{1}
+\setcounter{tocdepth}{0}
+%
+\renewcommand{\thesection}{\arabic{section}.}
+\renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}.}
+\renewcommand{\thesubsubsection}{\arabic{section}.\arabic{subsection}.\arabic{subsubsection}.}
+%\renewcommand{\thetable}{\arabic{section}.\arabic{table}}
+\renewcommand{\thetable}{\arabic{table}}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+\theoremstyle{plain}
+%\theoremstyle{definition}
+%\newtheorem{theorem}{Теорема}
+%\newtheorem{theorem}{Theorem}
+\newtheorem{theorem}{Theorem}[section]
+%\newtheorem{lemma}{Лема}
+%\newtheorem{lemma}{Lemma}
+\newtheorem{lemma}[theorem]{Lemma}
+%\newtheorem{corollary}{Наслідок}
+%\newtheorem{corollary}{Corollary}
+\newtheorem{corollary}[theorem]{Corollary}
+%\newtheorem{proposition}{Твердження}
+%\newtheorem{proposition}{Proposition}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{statement}[theorem]{Statement}
+%\newtheorem{example}{Приклад}
+%\newtheorem{example}{Example}
+\newtheorem{example}[theorem]{Example}
+%\newtheorem{definition}{Означення}
+%\newtheorem{definition}{Definition}
+\newtheorem{definition}[theorem]{Definition}
+%\newtheorem{remark}{Зауваження}
+%\newtheorem{remark}{Remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\renewcommand{\thetheorem}{\arabic{theorem}}
+\renewcommand{\theequation}{\arabic{equation}}
+
+\makeatletter
+%
+\renewenvironment{thebibliography}[1]{ %\section*{\centerline{\rm\textsc{Bibliography}}}%
+\@mkboth{\MakeUppercase\refname}{\MakeUppercase\refname}%
+\list{\@biblabel{\@arabic\c@enumiv}}%
+{\settowidth\labelwidth{\@biblabel{#1}}%
+\leftmargin\labelwidth%
+\advance\leftmargin\labelsep%
+\@openbib@code%
+\usecounter{enumiv}%
+\let\p@enumiv\@empty%
+\renewcommand\theenumiv{\@arabic\c@enumiv}}%
+\sloppy%
+\clubpenalty4000%
+\@clubpenalty \clubpenalty%
+\widowpenalty4000%
+\sfcode`\.\@m%
+\setlength{\itemsep}{-0.1cm}}%
+{\def\@noitemerr{\@latex@warning{Empty 'thebibliography' environment}}\endlist}
+
+%\renewcommand{\@biblabel}[1]{#1.\hfill}
+\renewcommand{\@biblabel}[1]{#1.}
+\newcommand{\l@abcd}{\@dottedtocline{0}{1.5em}{2.3em}}
+
+% Redefine \chapter
+\renewcommand{\@makeschapterhead}[1]{%
+\vspace*{10 pt} % pre \vspace*{50 pt}.%
+{\parindent=0pt \raggedright%
+\normalfont\large\bfseries \centerline{#1}\par % pre \Huge.%
+\nopagebreak%
+\vspace{10 pt}}} % pre \vspace{40 pt}%
+%
+\renewcommand\chapter{
+%\if@openright\cleardoublepage\else\clearpage\fi%
+%\thispagestyle{empty}%
+\thispagestyle{plain}%
+\global\@topnum\z@%
+\@afterindentfalse%
+\secdef\@chapter\@schapter}
+%
+% Redefine \section.
+\renewcommand\section{\@startsection {section}{1}{\z@}%
+%{-3.5ex \@plus -1ex \@minus -.2ex}
+{6pt \@plus -1ex \@minus -.2ex}
+%{2.3ex \@plus.2ex}
+{3pt \@plus.2ex}
+{\vspace*{3pt}\hspace*{0cm}\normalfont\large\sc}} % pre \Large
+%{\normalfont\large\bfseries}} % pre \Large
+%
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+{6pt \@plus -1ex \@minus -.2ex}
+{3pt \@plus.2ex}
+{\vspace*{3pt}\hspace*{0cm}\normalfont\large\sc}} % pre \Large
+%
+\renewcommand\subsubsection{\@startsection{subsubsection}{2}{\z@}%
+{6pt \@plus -1ex \@minus -.2ex}
+{3pt \@plus.2ex}
+{\vspace*{3pt}\hspace*{0cm}\normalfont\large\sc}} % pre \Large
+%
+\makeatother % restore @.
+
+% BUGFIX: у шаблоні видання тут зайвий \vspace* без аргументу -> 'Missing \endcsname'.
+% Оригінал: \newenvironment{UdcUkr}{\vspace*{0pt}\vspace*\begin{flushleft}\small УДК}{\end{flushleft}}
+\newenvironment{UdcUkr}{\vspace*{0pt}\begin{flushleft}\small УДК}{\end{flushleft}}
+\newenvironment{UdcEng}{\vspace*{0pt}\begin{flushleft}\small UDC}{\end{flushleft}}
+\newenvironment{Title}{\begin{quotation}\begin{center}\bf}{\end{center}\end{quotation}}
+\newenvironment{Authors}{\begin{center}\bf}{\end{center}}
+\newenvironment{Organization}{\vspace*{-6pt}\begin{center}\it}{\end{center}}
+\newenvironment{Abstract}{\begin{quote}\footnotesize}{\end{quote}}
+
+\newcommand{\KeywordsUkr}{\vspace*{3pt}\newline\textit{Ключові слова}:~}
+\newcommand{\KeywordsEng}{\vspace*{3pt}\newline\textit{Key words}:~}
+\newcommand{\Headlines}{~}
+\newcommand{\Headers}[1]{\renewcommand{\Headlines}{#1}}
+% Top Header.
+\makeatletter
+\renewcommand{\@oddhead}%{{\small \aut} \hfill \thepage}
+{\raisebox{0pt}[\headheight][0pt]{% start block
+\vbox{\hbox to\textwidth{\strut
+{\small ~\Headlines}\hfil \thepage ~}\hrule}}% end block
+}% end odd macro
+\renewcommand{\@evenhead}%{\thepage \hfill {\small \Headers}}
+{\raisebox{0pt}[\headheight][0pt]{% start block
+\vbox{\hbox to\textwidth{~\thepage \hfil \strut
+{\small \Headlines ~}}\hrule}}% end block
+}% end even macro
+\renewcommand{\@oddfoot}{}
+\renewcommand{\@evenfoot}{}
+\makeatother
+
+%\setcounter{equation}{0}
+%\setcounter{figure}{0}
+%\setcounter{table}{0}
+%\setcounter{footnote}{0}
+\setcounter{section}{0}
+%\setcounter{subsection}{0}
+%\setcounter{theorem}{0}
+%\setcounter{lemma}{0}
+%\setcounter{defin}{0}
+%\setcounter{example}{0}
+
+\newcommand{\href}[1]{{\color{blue}\underline{#1}}}
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}} % Enable dot leaders for chapter-level entries in the ToC.
+\renewcommand{\cftchapfont}{\mdseries} % Set normal-weight (non-bold) chapter-level entries and page numbers.
+\renewcommand{\cftchappagefont}{\mdseries}
+%\newcommand{\addcontentssection}[1]{\addcontentsline{toc}{section}{#1}}
+\newcommand{\addcontentschapter}[2]{\addcontentsline{toc}{chapter}%
+%{\hspace*{-1.8mm}\textit{#1}~\\{#2}\dotfill}}
+{\textit{#1}~{#2}}}
+
+\newcommand{\inputarticle}[1]{% \newpage
+\setcounter{equation}{0}
+\setcounter{figure}{0}
+\setcounter{table}{0}
+\setcounter{footnote}{0}
+\setcounter{section}{0}
+\setcounter{subsection}{0}
+\setcounter{subsubsection}{0}
+\setcounter{theorem}{0}
+%\setcounter{lemma}{0}
+%\setcounter{corollary}{0}
+%\setcounter{proposition}{0}
+%\setcounter{definition}{0}
+%\setcounter{defin}{0}
+%\setcounter{remark}{0}
+%\setcounter{example}{0}
+\input{#1}}
+
+%\newcommand\real{{\rm I\! R}}
+%\newcommand\real{\Bbb R}
+\newcommand\real{\mathbb{R}}
+%\newcommand\nat{{\rm I\! N}}
+%\newcommand\nat{\Bbb N}
+%\newcommand\cmplx{\Bbb C}
+%\newcommand\integer{{\rm Z \!\! Z}}
+\newcommand{\const}{\mbox{const}}
+\newcommand{\Range}{\mbox{Range}}
+\newcommand{\rank}{\mbox{rank}}
+\newcommand{\Ker}{\mbox{Ker}}
+
+%\def\const{\mbox{\rm const}}
+\def\d{\mbox{\rm d}}
+\def\e{\mbox{\rm e}}
+\def\divv{\mbox{\rm div\,}}
+\def\dist{\mbox{\rm dist\,}}
+\def\sign{\mbox{\rm sign\,}}
+\def\supp{\mbox{\rm supp\,}}
+\def\diam{\mbox{\rm diam\,}}
+\def\rank{\mbox{\rm rank\,}}
+\def\diag{\mbox{\rm diag}}
+\def\arctan{\hbox {\rm \,arctan\,}}
+%
+\def\re{\mbox{\rm Re}}
+\def\im{\mbox{\rm Im}}
+%
+%\newcommand{\R}{\mathbb{R}}
+%\newcommand{\N}{\mathbb{N}}
+%\newcommand{\Z}{\mathbb{Z}}
+%\newcommand{\Q}{\mathbb{Q}}
+
+%\def\R{\mathbb R}
+%\def\C{\mathbb C}
+%\def\N{\mathbb N}
+
+%\newcommand{\e}{{\rm e}}
+%\newcommand{\cF}{{\mathcal {F}}}
+%\newcommand{\cI}{{\mathcal {I}}}
+%\newcommand{\R}{\mathbb{R}}
+%\newcommand{\norm}[1]{\left\Vert#1\right\Vert}
+\providecommand{\norm}[1]{\lVert #1\rVert}
+\newcommand{\abs}[1]{\left\vert#1\right\vert}
+
+\def\bql#1{\begin{equation}\label{#1}}
+\def\bq{\begin{equation}}
+\def\eq{\end{equation}}
+\def\eref#1{{\rm (\ref{#1})}}
+
+\newcommand\beweisende{\ \hfill$\Box$\break}
+\newcommand\beweis{\ \hfill$\Box$}
+%\newcommand\proo{{\noindent \it Proof.\ }}
+
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+\begin{document}
+%\input{Visnyk2019.hyp}
+
+%\thispagestyle{plain}
+%\thispagestyle{empty}
+%\pagestyle{plain}
+%\pagestyle{empty}
+%
+\setcounter{page}{1}

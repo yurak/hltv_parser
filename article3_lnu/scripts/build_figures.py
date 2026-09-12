@@ -5,8 +5,11 @@ Invariance is encoded by effect size (the same criterion as tables/text):
 green = invariant, red = variant. Figures are grayscale-tolerant (hatching + labels).
 
 Inputs : data/processed/combined_clean.csv, outputs/tables/*.csv
-Outputs: outputs/figures/{invariance_summary,pca_projection,side_comparison,feature_distributions}.png
+Outputs: outputs/figures/{invariance_summary,pca_projection,side_comparison,feature_distributions}.{png,pdf}
          + outputs/figures/captions.md
+
+PDF copies are the submission format for journal No. 69 (Visnyk LNU), which requires
+figures as separate PDF files alongside the LaTeX source.
 """
 import os
 import pandas as pd
@@ -22,8 +25,19 @@ PROCESSED = os.path.join(ROOT, "data", "processed")
 TABLES = os.path.join(ROOT, "outputs", "tables")
 FIGS = os.path.join(ROOT, "outputs", "figures")
 os.makedirs(FIGS, exist_ok=True)
-plt.rcParams.update({"figure.dpi": 150, "font.size": 10, "axes.grid": True,
-                     "grid.alpha": 0.3, "savefig.bbox": "tight"})
+# Друковані розміри: смуга набору видання №69 — 13,5 см (5,3 in), висота 20,4 см (8,0 in).
+# Фігури будуємо в масштабі 1:1, щоб у PDF шрифти лишалися читабельними без стиснення.
+PRINT_W = 5.3
+plt.rcParams.update({"figure.dpi": 150, "pdf.fonttype": 42, "font.size": 7, "axes.grid": True,
+                     "grid.alpha": 0.3, "savefig.bbox": "tight",
+                     "axes.titlesize": 8, "axes.labelsize": 7,
+                     "xtick.labelsize": 6, "ytick.labelsize": 6, "legend.fontsize": 6})
+
+def save(fig, stem):
+    """Write both the PNG (drafting/DOCX) and the vector PDF (journal No. 69 submission)."""
+    for ext in ("png", "pdf"):
+        fig.savefig(os.path.join(FIGS, f"{stem}.{ext}"))
+    plt.close(fig)
 
 INV_C, VAR_C = "#2ca02c", "#d62728"
 META = ["full_url", "player_name", "game_version", "map", "age",
@@ -33,7 +47,7 @@ def bars(ax, d, valcol, thr, title, xlabel):
     d = pd.concat([d.head(10), d.tail(10)])
     colors = [INV_C if inv else VAR_C for inv in d["invariant"]]
     ax.barh(range(len(d)), d[valcol], color=colors, alpha=0.85)
-    ax.set_yticks(range(len(d))); ax.set_yticklabels(d["feature"], fontsize=7)
+    ax.set_yticks(range(len(d))); ax.set_yticklabels(d["feature"], fontsize=5.5)
     ax.axvline(thr, color="gray", ls="--", lw=1)
     ax.set_xlabel(xlabel); ax.set_title(title, fontsize=10)
     ax.invert_yaxis()
@@ -42,14 +56,15 @@ def fig_summary():
     mp = pd.read_csv(os.path.join(TABLES, "map_invariance.csv"))
     vr = pd.read_csv(os.path.join(TABLES, "version_invariance.csv"))
     sd = pd.read_csv(os.path.join(TABLES, "side_invariance.csv"))
-    fig, ax = plt.subplots(1, 3, figsize=(16, 7))
+    # Три панелі одна під одною: у ряд вони стискаються до нечитабельних 4,5 см на панель.
+    fig, ax = plt.subplots(3, 1, figsize=(PRINT_W, 7.2))
     bars(ax[0], mp, "eta_squared", 0.06, "Карти (ANOVA)", "η² (розмір ефекту)")
     bars(ax[1], vr, "cohens_d", 0.5, "Версія CS2 vs CSGO (Mann–Whitney)", "Cohen's d")
     bars(ax[2], sd, "cohens_d", 0.5, "Сторона T vs CT (парний t)", "Cohen's d")
     fig.suptitle("Інваріантність ознак за розміром ефекту "
-                 "(зелений = інваріантна, червоний = варіантна)", fontsize=12)
-    fig.tight_layout(rect=[0, 0, 1, 0.96])
-    fig.savefig(os.path.join(FIGS, "invariance_summary.png")); plt.close(fig)
+                 "(зелений = інваріантна, червоний = варіантна)", fontsize=8)
+    fig.tight_layout(rect=[0, 0, 1, 0.975])
+    save(fig, "invariance_summary")
 
 def fig_pca():
     df = pd.read_csv(os.path.join(PROCESSED, "combined_clean.csv"))
@@ -60,46 +75,46 @@ def fig_pca():
     Xs = StandardScaler().fit_transform(X)
     pca = PCA(n_components=2); P = pca.fit_transform(Xs)
     ev = pca.explained_variance_ratio_ * 100
-    fig, ax = plt.subplots(1, 2, figsize=(13, 5.5))
+    fig, ax = plt.subplots(1, 2, figsize=(PRINT_W, 2.7))
     for m in sorted(df["map"].unique()):
         msk = (df["map"] == m).values
-        ax[0].scatter(P[msk, 0], P[msk, 1], s=12, alpha=0.5, label=m.replace("de_", ""))
-    ax[0].set_title("PCA за картою"); ax[0].legend(fontsize=7, ncol=2)
+        ax[0].scatter(P[msk, 0], P[msk, 1], s=3, alpha=0.5, label=m.replace("de_", ""))
+    ax[0].set_title("PCA за картою"); ax[0].legend(fontsize=5, ncol=2)
     for v, c in [("cs2", "#1f77b4"), ("csgo", "#ff7f0e")]:
         msk = (df["game_version"] == v).values
-        ax[1].scatter(P[msk, 0], P[msk, 1], s=12, alpha=0.45, label=v.upper(), color=c)
-    ax[1].set_title("PCA за версією гри"); ax[1].legend(fontsize=9)
+        ax[1].scatter(P[msk, 0], P[msk, 1], s=3, alpha=0.45, label=v.upper(), color=c)
+    ax[1].set_title("PCA за версією гри"); ax[1].legend(fontsize=6)
     for a in ax:
         a.set_xlabel(f"PC1 ({ev[0]:.1f}%)"); a.set_ylabel(f"PC2 ({ev[1]:.1f}%)")
-    fig.tight_layout(); fig.savefig(os.path.join(FIGS, "pca_projection.png")); plt.close(fig)
+    fig.tight_layout(); save(fig, "pca_projection")
     return ev
 
 def fig_side():
     sd = pd.read_csv(os.path.join(TABLES, "side_invariance.csv"))
     d = sd.sort_values("ct_mean", ascending=False).head(20)
     y = np.arange(len(d)); w = 0.4
-    fig, ax = plt.subplots(figsize=(9, 10))
+    fig, ax = plt.subplots(figsize=(PRINT_W, 5.2))
     ax.barh(y - w/2, d["ct_mean"], w, label="CT", color="#1f77b4", alpha=0.8)
     ax.barh(y + w/2, d["t_mean"], w, label="T", color="#ff7f0e", alpha=0.8)
-    ax.set_yticks(y); ax.set_yticklabels(d["feature"], fontsize=8); ax.invert_yaxis()
+    ax.set_yticks(y); ax.set_yticklabels(d["feature"], fontsize=6); ax.invert_yaxis()
     ax.set_xlabel("Середнє значення"); ax.set_title("Порівняння CT vs T (топ-20 ознак за CT)")
     ax.legend()
-    fig.tight_layout(); fig.savefig(os.path.join(FIGS, "side_comparison.png")); plt.close(fig)
+    fig.tight_layout(); save(fig, "side_comparison")
 
 def fig_dist():
     df = pd.read_csv(os.path.join(PROCESSED, "combined_clean.csv"))
     keys = ["kills_per_round", "damage_per_round", "rating_3.0",
             "opening_kills_per_round", "utility_damage_per_round", "1on1_win_percentage"]
-    fig, ax = plt.subplots(2, 3, figsize=(15, 9))
+    fig, ax = plt.subplots(3, 2, figsize=(PRINT_W, 5.4))
     for i, f in enumerate(keys):
-        a = ax[i // 3, i % 3]
+        a = ax[i // 2, i % 2]
         for v, c in [("cs2", "#1f77b4"), ("csgo", "#ff7f0e")]:
             data = df[df.game_version == v][f].dropna()
             a.hist(data, bins=30, density=True, alpha=0.5, label=v.upper(), color=c)
-        a.set_title(f); a.set_xlabel(f); a.set_ylabel("Щільність"); a.legend(fontsize=8)
-    fig.suptitle("Розподіли ключових ознак: CS2 vs CSGO", fontsize=12)
+        a.set_title(f); a.set_xlabel(f); a.set_ylabel("Щільність"); a.legend(fontsize=5)
+    fig.suptitle("Розподіли ключових ознак: CS2 vs CSGO", fontsize=8)
     fig.tight_layout(rect=[0, 0, 1, 0.97])
-    fig.savefig(os.path.join(FIGS, "feature_distributions.png")); plt.close(fig)
+    save(fig, "feature_distributions")
 
 def main():
     fig_summary()

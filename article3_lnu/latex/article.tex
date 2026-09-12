@@ -1,0 +1,413 @@
+% =====================================================================
+%  Стаття 3 публікаційної лінії — подання у видання №69
+%  «Вісник Львівського університету. Серія прикладна математика та інформатика»
+%
+%  Збирання:  make        (pdflatex × 2)
+%  Шаблон:    VisnykAMI.tex — офіційний VISNYK2019.rar видання,
+%             змінено лише inputenc: cp1251 -> utf8 (рядок був у шаблоні,
+%             закоментований авторами). Оригінал: ../references/journal_guidelines/VISNYK2019_original/
+%  Джерело тексту: ../paper/manuscript_revised.md
+%  Числа: усі з ../outputs/tables/ та ../outputs/logs/ (див. Provenance у рукописі)
+% =====================================================================
+\input{VisnykAMI.tex}
+
+\selectlanguage{ukrainian}
+% T2A містить і латиницю, тож тримаємо одне кодування на весь документ: інакше
+% babel перемикає англомовний блок на OT1, і кирилиця у колонтитулі ламає збирання.
+\makeatletter\def\latinencoding{T2A}\makeatother
+\renewcommand{\figurename}{Рис.}
+\renewcommand{\tablename}{Таблиця}
+\newcommand{\ab}{\allowbreak}
+% Довгі імена ознак (opening\_deaths\_per\_round) не переносяться і лізуть за поле —
+% дозволяємо розрив рядка після кожного підкреслення.
+\newcommand{\us}{\_\allowbreak}
+% Змішані латинсько-кириличні слова (version-інваріантних) не переносяться взагалі.
+\emergencystretch=2em
+% Стаття float-насичена (4 великі рисунки + таблиця на 6 сторінок тексту):
+% послаблюємо обмеження LaTeX, інакше таблицю відносить за чотири сторінки від посилання.
+\setcounter{topnumber}{3}\setcounter{bottomnumber}{2}\setcounter{totalnumber}{4}
+\renewcommand{\textfraction}{0.05}\renewcommand{\bottomfraction}{0.7}
+\renewcommand{\floatpagefraction}{0.75}
+
+\Headers{Кужій\,Ю., Фургала\,Ю.}
+
+\begin{UdcUkr}
+004.85:519.237.8
+\end{UdcUkr}
+
+\begin{Title}
+ІДЕНТИФІКАЦІЯ КОНТЕКСТНО-ІНВАРІАНТНИХ МЕТРИК МАЙСТЕРНОСТІ ГРАВЦЯ
+У КІБЕРСПОРТІ НА ОСНОВІ АНАЛІЗУ РОЗМІРІВ ЕФЕКТУ
+\end{Title}
+
+\begin{Authors}
+Ю.\,І.\,Кужій$^{1}$, Ю.\,М.\,Фургала$^{1}$
+\end{Authors}
+
+\addcontentschapter{Кужій\,Ю., Фургала\,Ю.}
+{Ідентифікація контекстно-інваріантних метрик майстерності гравця у кіберспорті}
+
+\begin{Organization}
+$^{1}$Львівський національний університет імені Івана Франка,\\
+вул. Університетська, 1, Львів, 79000,\\
+e-mail: \texttt{yurii.kuzhii@lnu.edu.ua}\\
+ORCID: 0009-0001-7890-8575 (Ю.\,І.\,Кужій), 0000-0001-7316-7424 (Ю.\,М.\,Фургала)
+\end{Organization}
+
+\begin{Abstract}
+Оцінювання індивідуальної майстерності гравця у командних кіберспортивних дисциплінах
+ускладнюється тим, що спостережувані метрики продуктивності залежать від контексту матчу ---
+конкретної карти, версії гри та сторони. У роботі досліджено інваріантність 46 метрик
+продуктивності гравців Counter-Strike за трьома вимірами на наборі з 3486 спостережень
+<<гравець\,$\times$\,карта>> (1820 --- Counter-Strike~2, період 2023--2025; 1666 ---
+Counter-Strike: Global Offensive, період 2012--2023), зібраному з відкритого ресурсу HLTV.org
+для восьми карт. Інваріантність визначено за розміром ефекту, а не за $p$-значенням, оскільки
+за вибірок у кілька тисяч спостережень останнє вказує на значущість навіть за практично
+незначних відмінностей. Застосовано однофакторний дисперсійний аналіз з $\eta^2$ (карти),
+критерій Манна--Уітні з Cohen's~$d$ (версії) та парний $t$-критерій з Cohen's~$d$ (сторони).
+Встановлено, що 76,1\,\% метрик інваріантні до карти, 93,5\,\% --- до версії гри і лише
+47,8\,\% --- до сторони, тобто сторона є найсильнішим джерелом контекстного зміщення.
+Шістнадцять метрик виявилися інваріантними одночасно за всіма трьома вимірами; цей
+<<триінваріантний>> набір (загальний рейтинг, вогнева міць, метрики відкриваючих дуелей і
+клатчів, снайперські мультікіли) відображає внутрішні здібності гравця і придатний для побудови
+робастних моделей оцінювання майстерності та скаутингу. Аналіз чутливості підтвердив стійкість
+висновків у межах кожної версії гри: усі 33 map-інваріантні в CS2 метрики залишаються
+інваріантними і в CSGO.
+\KeywordsUkr
+кіберспорт, розпізнавання образів, інваріантність ознак, розмір ефекту, відбір ознак,
+оцінювання майстерності, дисперсійний аналіз.
+\end{Abstract}
+
+\section{Вступ}
+
+Кіберспортивна аналітика дедалі ширше використовує методи машинного навчання та розпізнавання
+образів для оцінювання індивідуальної майстерності гравців і відбору ознак, що характеризують
+продуктивність~\cite{Bishop}. Counter-Strike --- одна з найпопулярніших командних дисциплін, для
+якої доступні детальні статистичні профілі гравців на рівні окремих карт. Однак спостережувані
+метрики продуктивності формуються не лише індивідуальними здібностями гравця, а й контекстом
+матчу: конкретною картою, версією гри (перехід від Counter-Strike: Global Offensive до
+Counter-Strike~2) та стороною (атака --- терористи, оборона --- контр-терористи).
+
+Для побудови робастних моделей оцінювання майстерності критично відокремити
+\textbf{контекстно-інваріантні} метрики, що відображають стабільні здібності гравця, від
+\textbf{контекстно-залежних}, які радше характеризують ситуацію, ніж гравця. Така постановка
+належить до класичної задачі відбору ознак~\cite{Guyon} та узгоджується з проблемою зсуву
+розподілу даних (dataset shift), коли властивості простору ознак змінюються між умовами
+спостереження~\cite{Quinonero}.
+
+Мета роботи --- ідентифікувати метрики продуктивності гравця Counter-Strike, інваріантні щодо
+карти, версії гри та сторони, і виокремити підмножину, інваріантну одночасно за всіма трьома
+вимірами. На відміну від поширеного підходу, що спирається на статистичну значущість, ми
+визначаємо інваріантність через \textbf{розмір ефекту}, оскільки за обсягу вибірки в кілька тисяч
+спостережень навіть практично незначні відмінності стають статистично
+значущими~\cite{Cohen,Sullivan}.
+
+\section{Матеріали і методи}
+
+\subsection{Набір даних}
+
+Дані зібрано з відкритого ресурсу HLTV.org --- статистичні профілі гравців на рівні карт. Кожне
+спостереження відповідає парі <<гравець\,$\times$\,карта>> і містить агрегований профіль метрик
+загалом та окремо для сторін CT і T. Після об'єднання двох версій гри, фільтрації валідних карт
+(назви з префіксом \texttt{de\us{}}) та вилучення записів без позначки версії отримано
+\textbf{3486 спостережень} (CS2 --- 1820, період 2023-09-27\,\ldots\,2025-12-31; CSGO --- 1666,
+період 2012-08-21\,\ldots\,2023-09-26) для \textbf{8 карт}: \texttt{de\us{}ancient},
+\texttt{de\us{}anubis}, \texttt{de\us{}dust2}, \texttt{de\us{}inferno}, \texttt{de\us{}mirage},
+\texttt{de\us{}nuke}, \texttt{de\us{}train}, \texttt{de\us{}vertigo}.
+
+Проаналізовано \textbf{46 базових (overall) метрик} продуктивності, що відповідають семи
+атрибутам стилю гри за класифікацією HLTV~\cite{HLTV}: вогнева міць (firepower), ентрі
+(entrying), трейдинг (trading), відкриваючі дуелі (opening), клатчі (clutching), снайпінг
+(sniping) та використання утиліт (utility). Усі числові стовпці приведено до числового типу з
+коректним обробленням маркерів пропусків.
+
+\subsection{Визначення інваріантності}
+
+Метрику вважаємо \textbf{інваріантною} до виміру, якщо розмір ефекту відмінностей між групами не
+перевищує помірного порогу за класифікацією Коена~\cite{Cohen}. $p$-значення наводимо довідково,
+але не використовуємо як критерій, оскільки за $n \approx 3486$ воно майже завжди вказує на
+значущість незалежно від практичної величини відмінностей~\cite{Cohen,Sullivan}.
+
+\subsection{Статистичні методи}
+
+\textit{Карти (8 груп, незалежні).} Однофакторний дисперсійний аналіз (ANOVA) з розміром ефекту
+$\eta^2 = SS_{between} / SS_{total}$. Поріг інваріантності: $\eta^2 < 0{,}06$ (менш ніж середній
+ефект).
+
+\textit{Версія гри (2 групи, незалежні).} Непараметричний критерій Манна--Уітні (стійкий до
+порушень нормальності й викидів, типових для ігрової статистики) з розміром ефекту
+Cohen's $d = |\mu_1 - \mu_2| / \sigma_{pooled}$, де
+$\sigma_{pooled} = \sqrt{(\sigma_1^2 + \sigma_2^2)/2}$. Поріг: $d < 0{,}5$. Зауважимо, що тест є
+ранговим, а Cohen's~$d$ --- параметричним показником; ми свідомо поєднуємо їх задля єдиної шкали
+розміру ефекту в усіх трьох вимірах, усвідомлюючи, що ранговий показник (наприклад, $\delta$
+Кліффа) був би строго узгодженішим.
+
+\textit{Сторона (2 групи, парні).} Кожен гравець має парні спостереження CT і T у межах того
+самого профілю, тож застосовано парний $t$-критерій з парним
+Cohen's $d = |\mu_{diff}| / \sigma_{diff}$ (внутрішньосуб'єктна форма). Порогові значення
+запозичено з конвенцій Коена для незалежних вибірок; для парного $d$ це робить оцінки величини
+ефекту дещо консервативнішими, що слід враховувати при інтерпретації саме виміру сторони.
+
+\textit{Оброблення пропусків.} Кожен тест використовує наявні спостереження для відповідної
+метрики (попарне видалення), тому обсяг вибірки залежить від метрики: для більшості метрик частка
+пропусків не перевищувала 1\,\%, сягаючи 9--21\,\% лише для похідних снайперських відсоткових
+метрик (наприклад, \texttt{1on1\us{}win\us{}percentage} має $n_{CS2} = 1754$; для парного аналізу
+сторін \texttt{1on1\us{}win\us{}percentage} дає 3026 пар проти 3486 для повних метрик). Усі значення
+$n$ фіксуються у вихідних таблицях.
+
+\textit{Зниження розмірності.} Аналіз головних компонент (PCA) на стандартизованих
+overall-метриках для візуалізації роздільності груп за картою та версією~\cite{Jolliffe}.
+
+\textit{Перетини.} <<Універсально інваріантний>> набір --- перетин map- та version-інваріантних
+метрик; <<триінваріантний>> --- додатковий перетин зі side-інваріантними.
+
+\textit{Аналіз чутливості.} Оскільки під час аналізу карт версія гри є потенційним змішувальним
+фактором (конфаундером; дані об'єднано), map-інваріантність додатково обчислено окремо в межах
+кожної версії.
+
+Усі обчислення виконано відтворюваними скриптами (Python: pandas, numpy, scipy, scikit-learn,
+matplotlib); вихідні таблиці й рисунки згенеровано автоматично.
+
+\section{Результати}
+
+\subsection{Інваріантність до карти}
+
+З 46 метрик \textbf{35 (76,1\,\%)} інваріантні до карти ($\eta^2 < 0{,}06$). Найвища
+інваріантність --- у метрик відкриваючих дуелей (\texttt{opening\us{}deaths\us{}per\us{}round},
+\texttt{opening\us{}attempts}) та дуелей 1-в-1 (\texttt{1on1\us{}win\us{}percentage}), усі з
+$\eta^2 < 0{,}001$. Найбільша залежність від карти --- у метрик, пов'язаних з утилітами:
+\texttt{utility} ($\eta^2 = 0{,}247$), \texttt{utility\us{}damage\us{}per\us{}round}
+($\eta^2 = 0{,}243$), \texttt{flashes\us{}thrown\us{}per\us{}round} ($\eta^2 = 0{,}209$). Розподіл розмірів ефекту за всіма трьома вимірами наведено
+на рис.~\ref{fig:inv}.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth]{figures/invariance_summary.pdf}
+\caption{Розміри ефектів для трьох вимірів інваріантності (по 10 найбільш та 10 найменш
+інваріантних ознак на панель). Зелений --- інваріантна ($\eta^2 < 0{,}06$ для карт;
+Cohen's $d < 0{,}5$ для версії та сторони), червоний --- варіантна. Пунктир --- поріг}
+\label{fig:inv}
+\end{figure}
+
+\subsection{Інваріантність до версії гри (CS2 проти CSGO)}
+
+\textbf{43 з 46 метрик (93,5\,\%)} інваріантні до версії (Cohen's $d < 0{,}5$). Найстабільніші:
+\texttt{opening\us{}deaths\us{}per\us{}round} ($d = 0{,}003$), \texttt{utility} ($d = 0{,}004$),
+\texttt{last\us{}alive\us{}percentage} ($d = 0{,}015$). Найбільші відмінності --- у метриках командної
+взаємодії: \texttt{assisted\us{}kills\us{}percentage} ($d = 2{,}51$; 27,1\,\% у CS2 проти 17,8\,\% у
+CSGO), \texttt{assists\us{}per\us{}round} ($d = 1{,}80$), \texttt{support\us{}rounds} ($d = 0{,}96$). Розподіли ключових ознак для двох версій
+показано на рис.~\ref{fig:dist}.
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=\textwidth]{figures/feature_distributions.pdf}
+\caption{Розподіли (щільність) ключових ознак для CS2 та CSGO}
+\label{fig:dist}
+\end{figure}
+
+\subsection{Інваріантність до сторони (T проти CT)}
+
+Сторона має найсильніший вплив: лише \textbf{22 з 46 метрик (47,8\,\%)} інваріантні.
+Найстабільніші: \texttt{opening\us{}attempts} ($d = 0{,}001$), \texttt{entrying} ($d = 0{,}005$),
+\texttt{pistol\us{}round\us{}rating} ($d = 0{,}009$). Найбільш залежні від сторони:
+\texttt{saves\us{}per\us{}round\us{}loss} ($d = 1{,}96$), \texttt{trade\us{}kills\us{}percentage}
+($d = 1{,}00$), \texttt{saved\us{}by\us{}teammate\us{}per\us{}round} ($d = 0{,}98$),
+\texttt{flashes\us{}thrown\us{}per\us{}round} ($d = 0{,}97$). Порівняння середніх значень
+за сторонами наведено на рис.~\ref{fig:side}.
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=\textwidth]{figures/side_comparison.pdf}
+\caption{Середні значення ознак для сторін CT та T (топ-20 ознак за CT). Найбільші розриви ---
+у метриках збереження зброї та утиліт; opening- і clutch-метрики майже збігаються}
+\label{fig:side}
+\end{figure}
+
+\subsection{Триінваріантні метрики}
+
+Перетин трьох вимірів дає \textbf{33 універсально інваріантні} (карта + версія) і
+\textbf{16 триінваріантних} метрик (карта + версія + сторона), наведених у табл.~\ref{tab:tri}.
+
+\begin{table}[!ht]
+\caption{Триінваріантні метрики (інваріантні до карти, версії та сторони)}
+\label{tab:tri}
+\vspace*{3pt}
+\centering\footnotesize
+% пакет array у шаблоні не підключено, тож \raggedright ставимо в комірках,
+% а рядки завершуємо \tabularnewline (інакше \\ конфліктує з \raggedright)
+\begin{tabular}{@{}p{3.9cm}p{9.1cm}@{}}
+\hline
+\raggedright\textit{Категорія (атрибут HLTV)} & \textit{Метрики} \tabularnewline
+\hline
+\raggedright Вогнева міць (firepower) & \texttt{firepower}; \texttt{damage\us{}per\us{}kill} \tabularnewline
+\raggedright Ентрі (entrying) & \texttt{entrying}; \texttt{traded\us{}deaths\us{}percentage};
+  \texttt{opening\us{}deaths\us{}traded\us{}percentage} \tabularnewline
+\raggedright Відкриваючі дуелі (opening) & \texttt{opening}; \texttt{opening\us{}attempts};
+  \texttt{win\us{}after\us{}opening\us{}kill} \tabularnewline
+\raggedright Клатчі (clutching) & \texttt{clutching}; \texttt{clutch\us{}points\us{}per\us{}round};
+  \texttt{1on1\us{}win\us{}percentage} \tabularnewline
+\raggedright Снайпінг (sniping) & \texttt{sniping}; \texttt{sniper\us{}multi\us{}kill\us{}rounds};
+  \texttt{sniper\us{}opening\us{}kills\us{}per\us{}round} \tabularnewline
+\raggedright Загальні / ситуативні (поза сімома атрибутами HLTV) & \texttt{rating\us{}3.0};
+  \texttt{pistol\us{}round\us{}rating} \tabularnewline
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{PCA та аналіз чутливості}
+
+Перші дві головні компоненти пояснюють 23,1\,\% і 18,2\,\% дисперсії (разом 41,3\,\%). На
+проєкції PCA групи за картою та за версією значно перекриваються (рис.~\ref{fig:pca}), що
+візуально підтверджує переважну інваріантність простору ознак. Аналіз чутливості показав близькі
+частки map-інваріантних метрик у межах кожної версії --- 71,7\,\% (CS2, 33/46) і 76,1\,\%
+(CSGO, 35/46) проти 76,1\,\% на об'єднаних даних. Важливо, що ці частки є окремою величиною від
+частки універсально інваріантного набору (також 33/46), яка з ними чисельно збігається. Набори
+стабільні за складом: усі 33 map-інваріантні в CS2 метрики також інваріантні в CSGO (різниця ---
+лише дві додаткові метрики в CSGO: \texttt{assisted\us{}kills\us{}percentage},
+\texttt{attacks\us{}per\us{}round}), отже, об'єднання версій не спотворює висновків щодо карт.
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=\textwidth]{figures/pca_projection.pdf}
+\caption{Проєкція PCA простору стандартизованих overall-ознак на дві головні компоненти
+(PC1 --- 23,1\,\%, PC2 --- 18,2\,\%). Ліворуч --- за картою, праворуч --- за версією гри}
+\label{fig:pca}
+\end{figure}
+
+\section{Обговорення}
+
+Отримані результати окреслюють чітку ієрархію впливу контексту: найслабший --- версія гри
+(7\,\% варіантних метрик), помірний --- карта (24\,\%), найсильніший --- сторона (52\,\%). Це
+означає, що для міжконтекстного оцінювання майстерності сторона є визначальним джерелом зміщення,
+і метрики слід або нормувати за стороною, або обмежуватися side-інваріантним набором.
+
+Картина результатів узгоджується з ігровою логікою. Висока залежність утиліт від карти
+пояснюється тим, що різні карти потребують різних гранатних стратегій, тоді як стабільність
+метрик відкриваючих дуелей відображає індивідуальну майстерність у перших боях. Переважна
+інваріантність до версії свідчить, що базові механічні навички переносяться між CSGO та CS2, а
+найбільші відмінності зосереджені в метриках асистів і підтримки, що може бути пов'язано зі
+змінами механіки CS2; це твердження має кореляційний характер і потребує окремої перевірки.
+Залежність метрик збереження зброї (saves) та утиліт від сторони відповідає різним економічним і
+позиційним завданням CT та T.
+
+Триінваріантні метрики переважно стосуються індивідуальних навичок прицілювання та прийняття
+рішень у ключових ситуаціях (перші бої, клатчі, пістолетні раунди), а не командної координації
+(асисти, підтримка, сейви), яка очікувано залежить від ролі та сторони. Це робить їх природними
+кандидатами для ознак у моделях оцінювання майстерності та скаутингу (пошуку талантів).
+
+Порівняно з поширеним підходом на основі статистичної значущості, визначення інваріантності за
+розміром ефекту дає змістовно інші результати: за $n \approx 3486$ переважна більшість метрик
+<<значуще>> відрізняється ($p < 0{,}05$) навіть за нехтовних відмінностей, тож критерій
+значущості тут непридатний.
+
+\textit{Обмеження.} (1)~Дані агреговані на рівні карти, без розрізнення суперників і періоду
+форми гравця. (2)~Період CS2 коротший за CSGO, що може спричиняти зсув складу гравців.
+(3)~Частина снайперських відсоткових метрик має до 21\,\% пропусків. (4)~Аналіз кореляційний;
+причинні твердження про механіку гри потребують додаткової перевірки. (5)~Довірчі інтервали для
+$\eta^2$ та Cohen's~$d$ не обчислювалися; їх додавання (наприклад, бутстреп) посилило б
+центральний аргумент про розміри ефекту.
+
+\section{Висновки}
+
+1.~Ідентифіковано контекстно-інваріантні метрики продуктивності гравців Counter-Strike на наборі
+з 3486 спостережень за трьома вимірами на основі розмірів ефекту.
+
+2.~Інваріантними є 76,1\,\% метрик до карти, 93,5\,\% --- до версії гри, 47,8\,\% --- до сторони;
+сторона --- найсильніше джерело контекстного зміщення.
+
+3.~Виокремлено 16 триінваріантних метрик, що відображають внутрішні здібності гравця і придатні
+для робастного відбору ознак.
+
+4.~Показано перевагу критерію розміру ефекту над статистичною значущістю для великих вибірок;
+аналіз чутливості підтвердив стійкість висновків у межах кожної версії гри.
+
+5.~Перспектива --- застосування триінваріантного набору у моделях оцінювання майстерності та
+виявлення аномальних патернів поведінки гравців як наступного етапу серії публікацій.
+
+\vspace*{6pt}
+\centerline{\normalfont\large\sc Список використаної літератури}
+\vspace*{3pt}
+
+\begin{thebibliography}{99}
+\begin{small}
+
+\bibitem{Bishop}
+Bishop\,C.\,M.\ Pattern Recognition and Machine Learning.\,--- New York: Springer, 2006.\,--- 738\,p.
+
+\bibitem{Guyon}
+Guyon\,I.\ An introduction to variable and feature selection /\,I.\,Guyon, A.\,Elisseeff
+//\,Journal of Machine Learning Research.\,--- 2003.\,--- Vol.\,3.\,--- P.\,1157--1182.
+
+\bibitem{Quinonero}
+Dataset Shift in Machine Learning /\,eds.: J.\,Qui\~nonero-Candela, M.\,Sugiyama,
+A.\,Schwaighofer, N.\,D.\,Lawrence.\,--- Cambridge, MA: MIT Press, 2009.\,--- 248\,p.
+
+\bibitem{Jolliffe}
+Jolliffe\,I.\,T.\ Principal Component Analysis.\,--- 2nd ed.\,--- New York: Springer,
+2002.\,--- 487\,p.
+
+\bibitem{Cohen}
+Cohen\,J.\ Statistical Power Analysis for the Behavioral Sciences.\,--- 2nd ed.\,---
+Hillsdale, NJ: Lawrence Erlbaum Associates, 1988.\,--- 567\,p.
+
+\bibitem{Sullivan}
+Sullivan\,G.\,M.\ Using effect size --- or why the $p$ value is not enough /\,G.\,M.\,Sullivan,
+R.\,Feinn //\,Journal of Graduate Medical Education.\,--- 2012.\,--- Vol.\,4, No.\,3.\,---
+P.\,279--282.
+
+\bibitem{HLTV}
+Introducing HLTV attributes [Електронний ресурс] //\,HLTV.org.\,--- Режим доступу:
+\texttt{https://\ab www.hltv.org/\ab news/\ab 39672/\ab introducing-hltv-attributes}
+(дата звернення: 29.06.2026).
+
+\end{small}
+\end{thebibliography}
+
+% =====================================================================
+%  Англомовний блок метаданих (за структурою шаблону видання)
+% =====================================================================
+\selectlanguage{english}
+
+\begin{Title}
+IDENTIFICATION OF CONTEXT-INVARIANT PLAYER SKILL METRICS IN ESPORTS
+THROUGH EFFECT-SIZE ANALYSIS
+\end{Title}
+
+\begin{Authors}
+Yu.\,I.\,Kuzhii$^{1}$, Yu.\,M.\,Furgala$^{1}$
+\end{Authors}
+
+\addcontentschapter{Kuzhii\,Yu., Furgala\,Yu.}
+{Identification of context-invariant player skill metrics in esports}
+
+\begin{Organization}
+$^{1}$Ivan Franko National University of Lviv,\\
+Universytetska Str., 1, Lviv, 79000,\\
+e-mail: \texttt{yurii.kuzhii@lnu.edu.ua}\\
+ORCID: 0009-0001-7890-8575 (Yu.\,I.\,Kuzhii), 0000-0001-7316-7424 (Yu.\,M.\,Furgala)
+\end{Organization}
+
+\begin{Abstract}
+Assessing individual player skill in team-based esports is complicated by the dependence of
+observed performance metrics on match context --- the particular map, the game version, and the
+side played. This study examines the invariance of 46 Counter-Strike player performance metrics
+across three dimensions, using 3486 player\,$\times$\,map observations (1820 from
+Counter-Strike~2, period 2023--2025; 1666 from Counter-Strike: Global Offensive, period
+2012--2023) collected from the public resource HLTV.org across eight maps. Invariance is defined
+by effect size rather than by the $p$-value, because for samples of several thousand observations
+the latter indicates significance even for practically negligible differences. One-way ANOVA with
+$\eta^2$ (maps), the Mann--Whitney U test with Cohen's~$d$ (versions), and a paired $t$-test with
+Cohen's~$d$ (sides) are applied. We find that 76.1\,\% of metrics are invariant to the map,
+93.5\,\% to the game version, and only 47.8\,\% to the side, so that the side is the strongest
+source of contextual bias. Sixteen metrics are simultaneously invariant across all three
+dimensions; this ``triple-invariant'' set (overall rating, firepower, opening-duel and clutch
+metrics, sniper multi-kills) reflects intrinsic player ability and is suitable for building robust
+skill-assessment and scouting models. A sensitivity analysis confirms the robustness of the
+conclusions within each game version: all 33 metrics that are map-invariant in CS2 remain
+invariant in CSGO as well.
+\KeywordsEng
+esports, pattern recognition, feature invariance, effect size, feature selection,
+skill assessment, analysis of variance.
+\end{Abstract}
+
+\end{document}
