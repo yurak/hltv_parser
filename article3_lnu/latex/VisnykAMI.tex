@@ -124,19 +124,31 @@
 % Redefine \section.
 \renewcommand\section{\@startsection {section}{1}{\z@}%
 %{-3.5ex \@plus -1ex \@minus -.2ex}
-{6pt \@plus -1ex \@minus -.2ex}
+% BUGFIX: у шаблоні beforeskip зроблено додатним (6pt), але від'ємні stretch/shrink
+% лишилися з book.cls, де beforeskip був від'ємним (-3.5ex). На щільній сторінці TeX
+% стискає цей клей у мінус і заголовок наїжджає на попередній абзац.
+% Оригінал: {6pt \@plus -1ex \@minus -.2ex}
+{6pt \@plus 1ex \@minus .2ex}
 %{2.3ex \@plus.2ex}
 {3pt \@plus.2ex}
 {\vspace*{3pt}\hspace*{0cm}\normalfont\large\sc}} % pre \Large
 %{\normalfont\large\bfseries}} % pre \Large
 %
 \renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
-{6pt \@plus -1ex \@minus -.2ex}
+% BUGFIX: у шаблоні beforeskip зроблено додатним (6pt), але від'ємні stretch/shrink
+% лишилися з book.cls, де beforeskip був від'ємним (-3.5ex). На щільній сторінці TeX
+% стискає цей клей у мінус і заголовок наїжджає на попередній абзац.
+% Оригінал: {6pt \@plus -1ex \@minus -.2ex}
+{6pt \@plus 1ex \@minus .2ex}
 {3pt \@plus.2ex}
 {\vspace*{3pt}\hspace*{0cm}\normalfont\large\sc}} % pre \Large
 %
 \renewcommand\subsubsection{\@startsection{subsubsection}{2}{\z@}%
-{6pt \@plus -1ex \@minus -.2ex}
+% BUGFIX: у шаблоні beforeskip зроблено додатним (6pt), але від'ємні stretch/shrink
+% лишилися з book.cls, де beforeskip був від'ємним (-3.5ex). На щільній сторінці TeX
+% стискає цей клей у мінус і заголовок наїжджає на попередній абзац.
+% Оригінал: {6pt \@plus -1ex \@minus -.2ex}
+{6pt \@plus 1ex \@minus .2ex}
 {3pt \@plus.2ex}
 {\vspace*{3pt}\hspace*{0cm}\normalfont\large\sc}} % pre \Large
 %

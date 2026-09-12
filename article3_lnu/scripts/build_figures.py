@@ -5,13 +5,14 @@ Invariance is encoded by effect size (the same criterion as tables/text):
 green = invariant, red = variant. Figures are grayscale-tolerant (hatching + labels).
 
 Inputs : data/processed/combined_clean.csv, outputs/tables/*.csv
-Outputs: outputs/figures/{invariance_summary,pca_projection,side_comparison,feature_distributions}.{png,pdf}
+Outputs: outputs/figures{,_en}/{invariance_summary,pca_projection,side_comparison,feature_distributions}.{png,pdf}
          + outputs/figures/captions.md
 
 PDF copies are the submission format for journal No. 69 (Visnyk LNU), which requires
 figures as separate PDF files alongside the LaTeX source.
 """
 import os
+import sys
 import pandas as pd
 import numpy as np
 import matplotlib
@@ -23,8 +24,39 @@ from sklearn.decomposition import PCA
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROCESSED = os.path.join(ROOT, "data", "processed")
 TABLES = os.path.join(ROOT, "outputs", "tables")
-FIGS = os.path.join(ROOT, "outputs", "figures")
+# Мова написів усередині рисунків: "uk" -> latex/article.tex, "en" -> latex/article_en.tex.
+# `python scripts/build_figures.py en` або FIG_LANG=en.
+LANG = (sys.argv[1] if len(sys.argv) > 1 else os.environ.get("FIG_LANG", "uk")).lower()
+if LANG not in ("uk", "en"):
+    raise SystemExit(f"unknown figure language: {LANG!r} (expected 'uk' or 'en')")
+FIGS = os.path.join(ROOT, "outputs", "figures_en" if LANG == "en" else "figures")
 os.makedirs(FIGS, exist_ok=True)
+
+_EN = {
+    "Карти (ANOVA)": "Maps (ANOVA)",
+    "η² (розмір ефекту)": "η² (effect size)",
+    "Версія CS2 vs CSGO (Mann–Whitney)": "Version CS2 vs CSGO (Mann–Whitney)",
+    "Сторона T vs CT (парний t)": "Side T vs CT (paired t)",
+    "Cohen's d": "Cohen's d",
+    "Інваріантність ознак за розміром ефекту "
+    "(зелений = інваріантна, червоний = варіантна)":
+        "Feature invariance by effect size (green = invariant, red = variant)",
+    "PCA за картою": "PCA by map",
+    "PCA за версією гри": "PCA by game version",
+    "Порівняння CT vs T (топ-20 ознак за CT)": "CT vs T comparison (top-20 features by CT)",
+    "Середнє значення": "Mean value",
+    "Щільність": "Density",
+    "Розподіли ключових ознак: CS2 vs CSGO": "Distributions of key features: CS2 vs CSGO",
+}
+
+
+def tr(s):
+    """Український рядок рисунка → поточна мова рисунків."""
+    if LANG == "uk":
+        return s
+    if s not in _EN:
+        raise KeyError(f"no English rendering for figure string: {s!r}")
+    return _EN[s]
 # Друковані розміри: смуга набору видання №69 — 13,5 см (5,3 in), висота 20,4 см (8,0 in).
 # Фігури будуємо в масштабі 1:1, щоб у PDF шрифти лишалися читабельними без стиснення.
 PRINT_W = 5.3
@@ -49,7 +81,7 @@ def bars(ax, d, valcol, thr, title, xlabel):
     ax.barh(range(len(d)), d[valcol], color=colors, alpha=0.85)
     ax.set_yticks(range(len(d))); ax.set_yticklabels(d["feature"], fontsize=5.5)
     ax.axvline(thr, color="gray", ls="--", lw=1)
-    ax.set_xlabel(xlabel); ax.set_title(title, fontsize=10)
+    ax.set_xlabel(tr(xlabel)); ax.set_title(tr(title), fontsize=10)
     ax.invert_yaxis()
 
 def fig_summary():
@@ -61,8 +93,8 @@ def fig_summary():
     bars(ax[0], mp, "eta_squared", 0.06, "Карти (ANOVA)", "η² (розмір ефекту)")
     bars(ax[1], vr, "cohens_d", 0.5, "Версія CS2 vs CSGO (Mann–Whitney)", "Cohen's d")
     bars(ax[2], sd, "cohens_d", 0.5, "Сторона T vs CT (парний t)", "Cohen's d")
-    fig.suptitle("Інваріантність ознак за розміром ефекту "
-                 "(зелений = інваріантна, червоний = варіантна)", fontsize=8)
+    fig.suptitle(tr("Інваріантність ознак за розміром ефекту "
+                    "(зелений = інваріантна, червоний = варіантна)"), fontsize=8)
     fig.tight_layout(rect=[0, 0, 1, 0.975])
     save(fig, "invariance_summary")
 
@@ -79,11 +111,11 @@ def fig_pca():
     for m in sorted(df["map"].unique()):
         msk = (df["map"] == m).values
         ax[0].scatter(P[msk, 0], P[msk, 1], s=3, alpha=0.5, label=m.replace("de_", ""))
-    ax[0].set_title("PCA за картою"); ax[0].legend(fontsize=5, ncol=2)
+    ax[0].set_title(tr("PCA за картою")); ax[0].legend(fontsize=5, ncol=2)
     for v, c in [("cs2", "#1f77b4"), ("csgo", "#ff7f0e")]:
         msk = (df["game_version"] == v).values
         ax[1].scatter(P[msk, 0], P[msk, 1], s=3, alpha=0.45, label=v.upper(), color=c)
-    ax[1].set_title("PCA за версією гри"); ax[1].legend(fontsize=6)
+    ax[1].set_title(tr("PCA за версією гри")); ax[1].legend(fontsize=6)
     for a in ax:
         a.set_xlabel(f"PC1 ({ev[0]:.1f}%)"); a.set_ylabel(f"PC2 ({ev[1]:.1f}%)")
     fig.tight_layout(); save(fig, "pca_projection")
@@ -97,7 +129,8 @@ def fig_side():
     ax.barh(y - w/2, d["ct_mean"], w, label="CT", color="#1f77b4", alpha=0.8)
     ax.barh(y + w/2, d["t_mean"], w, label="T", color="#ff7f0e", alpha=0.8)
     ax.set_yticks(y); ax.set_yticklabels(d["feature"], fontsize=6); ax.invert_yaxis()
-    ax.set_xlabel("Середнє значення"); ax.set_title("Порівняння CT vs T (топ-20 ознак за CT)")
+    ax.set_xlabel(tr("Середнє значення"))
+    ax.set_title(tr("Порівняння CT vs T (топ-20 ознак за CT)"))
     ax.legend()
     fig.tight_layout(); save(fig, "side_comparison")
 
@@ -111,8 +144,8 @@ def fig_dist():
         for v, c in [("cs2", "#1f77b4"), ("csgo", "#ff7f0e")]:
             data = df[df.game_version == v][f].dropna()
             a.hist(data, bins=30, density=True, alpha=0.5, label=v.upper(), color=c)
-        a.set_title(f); a.set_xlabel(f); a.set_ylabel("Щільність"); a.legend(fontsize=5)
-    fig.suptitle("Розподіли ключових ознак: CS2 vs CSGO", fontsize=8)
+        a.set_title(f); a.set_xlabel(f); a.set_ylabel(tr("Щільність")); a.legend(fontsize=5)
+    fig.suptitle(tr("Розподіли ключових ознак: CS2 vs CSGO"), fontsize=8)
     fig.tight_layout(rect=[0, 0, 1, 0.97])
     save(fig, "feature_distributions")
 
@@ -121,21 +154,36 @@ def main():
     ev = fig_pca()
     fig_side()
     fig_dist()
-    captions = f"""# Підписи до фігур (чернетка)
+    # Нумерація — за порядком першого посилання в latex/article{,_en}.tex.
+    captions_uk = f"""# Підписи до рисунків (звірка з latex/article.tex)
 
-**Рис. 1. invariance_summary.png** — Розміри ефектів для трьох вимірів інваріантності
+**Рис. 1 — invariance_summary** — Розміри ефектів для трьох вимірів інваріантності
 (по 10 найбільш та 10 найменш інваріантних ознак на панель). Зелений — інваріантна
 (η²<0.06 для карт; Cohen's d<0.5 для версії та сторони), червоний — варіантна. Пунктир — поріг.
 
-**Рис. 2. pca_projection.png** — Проєкція PCA простору overall-ознак (стандартизованих) на дві
+**Рис. 2 — feature_distributions** — Розподіли (щільність) ключових ознак для CS2 та CSGO.
+
+**Рис. 3 — side_comparison** — Середні значення ознак для сторін CT та T (топ-20 ознак за CT).
+Найбільші розриви — у метриках збереження зброї та утиліт; opening- і clutch-метрики майже збігаються.
+
+**Рис. 4 — pca_projection** — Проєкція PCA простору стандартизованих overall-ознак на дві
 головні компоненти (PC1 {ev[0]:.1f}%, PC2 {ev[1]:.1f}%). Ліворуч — за картою, праворуч — за версією.
-Значне перекриття груп узгоджується з переважною інваріантністю ознак.
-
-**Рис. 3. side_comparison.png** — Середні значення для сторін CT та T (топ-20 ознак за CT).
-Найбільші розриви — у saves та utility-метриках; opening/clutch-метрики майже збігаються.
-
-**Рис. 4. feature_distributions.png** — Розподіли (щільність) ключових ознак для CS2 vs CSGO.
 """
+    captions_en = f"""# Figure captions (cross-check against latex/article_en.tex)
+
+**Fig. 1 — invariance_summary** — Effect sizes for the three invariance dimensions
+(the 10 most and 10 least invariant features per panel). Green — invariant
+(η²<0.06 for maps; Cohen's d<0.5 for version and side), red — variant. Dashed line — threshold.
+
+**Fig. 2 — feature_distributions** — Distributions (density) of key features for CS2 and CSGO.
+
+**Fig. 3 — side_comparison** — Mean feature values for the CT and T sides (top-20 features by CT).
+The largest gaps are in save and utility metrics; opening and clutch metrics nearly coincide.
+
+**Fig. 4 — pca_projection** — PCA projection of the standardised overall feature space onto two
+principal components (PC1 {ev[0]:.1f}%, PC2 {ev[1]:.1f}%). Left — by map, right — by game version.
+"""
+    captions = captions_uk if LANG == "uk" else captions_en
     with open(os.path.join(FIGS, "captions.md"), "w") as f:
         f.write(captions)
     print("Figures + captions saved to", FIGS)

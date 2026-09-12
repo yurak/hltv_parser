@@ -3,10 +3,23 @@
 Видання приймає **лише LaTeX**; рисунки — окремими файлами PDF.
 Повні вимоги: `../paper/journal_requirements.md`.
 
+## Дві версії
+
+| Файл | Роль |
+|------|------|
+| `article_en.tex` → `article_en.pdf` | **ВЕРСІЯ ДЛЯ ПОДАННЯ.** Англійський текст + український блок метаданих |
+| `article.tex` → `article.pdf` | Довідкова українська версія (англійські метадані в кінці) |
+
+Видання приймає обидві мови. Обрано англійську.
+**Зауваження рецензента вносити ЛИШЕ в `article_en.tex`** — українська версія заморожена
+як довідкова, синхронізувати її назад не потрібно.
+
 ## Збирання
 
 ```
-make          # pdflatex × 2 -> article.pdf
+make          # обидві версії
+make en       # лише article_en.pdf (версія для подання)
+make uk       # лише article.pdf
 make clean    # прибрати .aux/.log
 ```
 
@@ -19,8 +32,10 @@ make clean    # прибрати .aux/.log
 |------|------------|
 | `VisnykAMI.tex` | шаблон видання, дві задокументовані зміни (нижче) |
 | `stdclsdv.sty`, `tocloft.sty` | з шаблону, без змін |
-| `article.tex` | рукопис; текст із `../paper/manuscript_revised.md` |
-| `figures/*.pdf` | копії з `../outputs/figures/`, генерує `../scripts/build_figures.py` |
+| `article_en.tex` | рукопис англійською — версія для подання |
+| `article.tex` | рукопис українською; текст із `../paper/manuscript_revised.md` |
+| `figures_en/*.pdf` | рисунки з англійськими написами (`build_figures.py en`) |
+| `figures/*.pdf` | рисунки з українськими написами (`build_figures.py`) |
 
 Незайманий оригінал шаблону: `../references/journal_guidelines/VISNYK2019_original/`,
 архів як завантажено: `../references/journal_guidelines/VISNYK2019.rar`.
@@ -31,7 +46,14 @@ make clean    # прибрати .aux/.log
    закоментований авторами — це санкціонована ними альтернатива.
 2. Виправлено баг в `UdcUkr`: зайвий `\vspace*` без аргументу давав фатальну помилку
    `Missing \endcsname`. В `UdcEng` бага немає, тому в англомовному зразку видання він не
-   виявлявся. **Повідомити редакцію при поданні.**
+   виявлявся.
+3. Виправлено `beforeskip` у `\section`/`\subsection`/`\subsubsection`: у шаблоні відступ
+   зроблено додатним (`6pt`), але від'ємні `\@plus -1ex \@minus -.2ex` лишилися з `book.cls`,
+   де `beforeskip` був від'ємним (`-3.5ex`). На щільній сторінці TeX стискав цей клей у мінус —
+   заголовок «4. Discussion» друкувався **поверх** попереднього абзацу. Виявилося лише на
+   англійській версії, бо в неї інша розбивка сторінок.
+
+**Усі три варто повідомити редакції при поданні.**
 
 ## Обхідні рішення в `article.tex` (шаблон не чіпають)
 
@@ -47,8 +69,12 @@ make clean    # прибрати .aux/.log
 ## Оновлення рисунків
 
 ```
-../../.venv/bin/python ../scripts/build_figures.py && cp ../outputs/figures/*.pdf figures/
+../../.venv/bin/python ../scripts/build_figures.py     && cp ../outputs/figures/*.pdf figures/
+../../.venv/bin/python ../scripts/build_figures.py en  && cp ../outputs/figures_en/*.pdf figures_en/
 ```
+
+Написи всередині рисунків перекладаються словником `_EN` у `build_figures.py`; якщо додати
+новий рядок і забути переклад, збирання `en` впаде з `KeyError` — це навмисно.
 
 Рисунки будуються в масштабі 1:1 під смугу набору 13,5 см (`PRINT_W` у скрипті), щоб підписи
 лишалися читабельними без стиснення.

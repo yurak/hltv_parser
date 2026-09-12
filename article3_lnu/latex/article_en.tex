@@ -1,0 +1,426 @@
+% =====================================================================
+%  Article 3 of the publication line — submission to journal No. 69
+%  «Visnyk of Lviv University. Series Applied Mathematics and Informatics»
+%
+%  THIS IS THE SUBMISSION VERSION (English body, Ukrainian metadata block).
+%  article.tex (Ukrainian body) is kept as the reference version and is frozen:
+%  reviewer comments are applied HERE only.
+%
+%  Build:    make            (builds both article.pdf and article_en.pdf)
+%            make en         (this file only)
+%  Figures:  figures_en/*.pdf — python scripts/build_figures.py en
+%  Template: VisnykAMI.tex — the journal's own VISNYK2019 template, two documented
+%            changes; original in ../references/journal_guidelines/VISNYK2019_original/
+% =====================================================================
+\input{VisnykAMI.tex}
+
+\selectlanguage{english}
+% T2A carries Latin as well, so one encoding covers the whole document: otherwise babel
+% flips the Ukrainian block and the Cyrillic running head breaks the build.
+\makeatletter\def\latinencoding{T2A}\makeatother
+% \figurename / \tablename stay at the template defaults (Fig. / Table) for the English body.
+\newcommand{\ab}{\allowbreak}
+% Long feature names (opening\_deaths\_per\_round) do not hyphenate and overrun the
+% measure — allow a break after every underscore.
+\newcommand{\us}{\_\allowbreak}
+% Mixed Latin–Cyrillic words do not hyphenate at all.
+\emergencystretch=2em
+% Float-heavy paper (4 large figures + a table over 6 pages of text): relax LaTeX's
+% limits, otherwise the table drifts four pages away from its reference.
+\setcounter{topnumber}{3}\setcounter{bottomnumber}{2}\setcounter{totalnumber}{4}
+\renewcommand{\textfraction}{0.05}\renewcommand{\bottomfraction}{0.7}
+\renewcommand{\floatpagefraction}{0.75}
+
+\Headers{Kuzhii\,Yu., Furgala\,Yu.}
+
+\begin{UdcEng}
+004.85:519.237.8
+\end{UdcEng}
+
+\begin{Title}
+IDENTIFICATION OF CONTEXT-INVARIANT PLAYER SKILL METRICS
+IN ESPORTS THROUGH EFFECT-SIZE ANALYSIS
+\end{Title}
+
+\begin{Authors}
+Yu.\,I.\,Kuzhii$^{1}$, Yu.\,M.\,Furgala$^{1}$
+\end{Authors}
+
+\addcontentschapter{Kuzhii\,Yu., Furgala\,Yu.}
+{Identification of context-invariant player skill metrics in esports}
+
+\begin{Organization}
+$^{1}$Ivan Franko National University of Lviv,\\
+Universytetska Str., 1, Lviv, 79000,\\
+e-mail: \texttt{yurii.kuzhii@lnu.edu.ua}\\
+ORCID: 0009-0001-7890-8575 (Yu.\,I.\,Kuzhii), 0000-0001-7316-7424 (Yu.\,M.\,Furgala)
+\end{Organization}
+
+\begin{Abstract}
+Assessing individual player skill in team-based esports is complicated by the dependence of
+observed performance metrics on match context --- the particular map, the game version, and the
+side played. This study examines the invariance of 46 Counter-Strike player performance metrics
+across three dimensions, using 3486 player\,$\times$\,map observations (1820 from
+Counter-Strike~2, period 2023--2025; 1666 from Counter-Strike: Global Offensive, period
+2012--2023) collected from the public resource HLTV.org across eight maps. Invariance is defined
+by effect size rather than by the $p$-value, because for samples of several thousand observations
+the latter indicates significance even for practically negligible differences. One-way ANOVA with
+$\eta^2$ (maps), the Mann--Whitney U test with Cohen's~$d$ (versions), and a paired $t$-test with
+Cohen's~$d$ (sides) are applied. We find that 76.1\,\% of metrics are invariant to the map,
+93.5\,\% to the game version, and only 47.8\,\% to the side, so that the side is the strongest
+source of contextual bias. Sixteen metrics are simultaneously invariant across all three
+dimensions; this ``triple-invariant'' set (overall rating, firepower, opening-duel and clutch
+metrics, sniper multi-kills) reflects intrinsic player ability and is suitable for building robust
+skill-assessment and scouting models. A sensitivity analysis confirms the robustness of the
+conclusions within each game version: all 33 metrics that are map-invariant in CS2 remain
+invariant in CSGO as well.
+\KeywordsEng
+esports, pattern recognition, feature invariance, effect size, feature selection,
+skill assessment, analysis of variance.
+\end{Abstract}
+
+\section{Introduction}
+
+Esports analytics increasingly relies on machine learning and pattern recognition methods to
+assess individual player skill and to select the features that characterise
+performance~\cite{Bishop}. Counter-Strike is one of the most popular team disciplines, and
+detailed per-map statistical profiles of its players are publicly available. Observed performance
+metrics, however, are shaped not only by a player's individual ability but also by match context:
+the particular map, the game version (the transition from Counter-Strike: Global Offensive to
+Counter-Strike~2), and the side played (attack --- terrorists, defence --- counter-terrorists).
+
+Building robust skill-assessment models requires separating \textbf{context-invariant} metrics,
+which reflect stable player ability, from \textbf{context-dependent} ones, which describe the
+situation rather than the player. This formulation belongs to the classical feature-selection
+problem~\cite{Guyon} and is consistent with the dataset-shift problem, in which the properties of
+the feature space change between observation conditions~\cite{Quinonero}.
+
+The aim of this work is to identify Counter-Strike player performance metrics that are invariant
+with respect to the map, the game version, and the side, and to isolate the subset that is
+invariant across all three dimensions simultaneously. Unlike the common approach based on
+statistical significance, we define invariance through \textbf{effect size}, because at a sample
+size of several thousand observations even practically negligible differences become statistically
+significant~\cite{Cohen,Sullivan}.
+
+\section{Materials and methods}
+
+\subsection{Dataset}
+
+The data were collected from the public resource HLTV.org --- per-map statistical profiles of
+players. Each observation corresponds to a player\,$\times$\,map pair and contains an aggregated
+profile of metrics overall and separately for the CT and T sides. After merging the two game
+versions, filtering valid maps (names with the \texttt{de\us{}} prefix) and discarding records
+without a version label, \textbf{3486 observations} were obtained (CS2 --- 1820, period
+2023-09-27\,\ldots\,2025-12-31; CSGO --- 1666, period 2012-08-21\,\ldots\,2023-09-26) for
+\textbf{8 maps}: \texttt{de\us{}ancient}, \texttt{de\us{}anubis}, \texttt{de\us{}dust2},
+\texttt{de\us{}inferno}, \texttt{de\us{}mirage}, \texttt{de\us{}nuke}, \texttt{de\us{}train},
+\texttt{de\us{}vertigo}.
+
+\textbf{Forty-six baseline (overall) performance metrics} were analysed, corresponding to the
+seven play-style attributes of the HLTV taxonomy~\cite{HLTV}: firepower, entrying, trading,
+opening duels, clutching, sniping, and utility usage. All numeric columns were cast to a numeric
+type with correct handling of missing-value markers.
+
+\subsection{Definition of invariance}
+
+A metric is considered \textbf{invariant} with respect to a dimension if the effect size of the
+between-group differences does not exceed the moderate threshold of Cohen's
+classification~\cite{Cohen}. $p$-values are reported for reference but are not used as a
+criterion, because at $n \approx 3486$ they almost always indicate significance regardless of the
+practical magnitude of the differences~\cite{Cohen,Sullivan}.
+
+\subsection{Statistical methods}
+
+\textit{Maps (8 groups, independent).} One-way analysis of variance (ANOVA) with effect size
+$\eta^2 = SS_{between} / SS_{total}$. Invariance threshold: $\eta^2 < 0.06$ (below a medium
+effect).
+
+\textit{Game version (2 groups, independent).} The non-parametric Mann--Whitney U test (robust to
+the departures from normality and to the outliers typical of game statistics) with effect size
+Cohen's $d = |\mu_1 - \mu_2| / \sigma_{pooled}$, where
+$\sigma_{pooled} = \sqrt{(\sigma_1^2 + \sigma_2^2)/2}$. Threshold: $d < 0.5$. Note that the test
+is rank-based whereas Cohen's~$d$ is a parametric measure; we combine them deliberately in order
+to keep a single effect-size scale across all three dimensions, while acknowledging that a
+rank-based measure (Cliff's $\delta$, for instance) would be strictly more consistent.
+
+\textit{Side (2 groups, paired).} Every player has paired CT and T observations within the same
+profile, so a paired $t$-test was applied with the paired
+Cohen's $d = |\mu_{diff}| / \sigma_{diff}$ (the within-subject form). The threshold values are
+borrowed from Cohen's conventions for independent samples; for the paired $d$ this makes the
+effect-size estimates somewhat more conservative, which should be taken into account when
+interpreting the side dimension specifically.
+
+\textit{Handling of missing values.} Each test uses the observations available for the
+corresponding metric (pairwise deletion), so the sample size depends on the metric: for most
+metrics the share of missing values did not exceed 1\,\%, reaching 9--21\,\% only for derived
+sniper percentage metrics (for example, \texttt{1on1\us{}win\us{}percentage} has
+$n_{CS2} = 1754$; for the paired side analysis \texttt{1on1\us{}win\us{}percentage} yields 3026
+pairs against 3486 for complete metrics). All $n$ values are recorded in the output tables.
+
+\textit{Dimensionality reduction.} Principal component analysis (PCA) on the standardised overall
+metrics, used to visualise the separability of groups by map and by version~\cite{Jolliffe}.
+
+\textit{Intersections.} The ``universally invariant'' set is the intersection of the map- and
+version-invariant metrics; the ``triple-invariant'' set adds the intersection with the
+side-invariant ones.
+
+\textit{Sensitivity analysis.} Because the game version is a potential confounder in the map
+analysis (the data are pooled), map invariance was additionally computed separately within each
+version.
+
+All computations were carried out by reproducible scripts (Python: pandas, numpy, scipy,
+scikit-learn, matplotlib); the output tables and figures are generated automatically.
+
+\section{Results}
+
+\subsection{Invariance to the map}
+
+Of the 46 metrics, \textbf{35 (76.1\,\%)} are invariant to the map ($\eta^2 < 0.06$). Invariance
+is highest for the opening-duel metrics (\texttt{opening\us{}deaths\us{}per\us{}round},
+\texttt{opening\us{}attempts}) and for 1-on-1 duels
+(\texttt{1on1\us{}win\us{}percentage}), all with $\eta^2 < 0.001$. The strongest map dependence is
+found in utility-related metrics: \texttt{utility} ($\eta^2 = 0.247$),
+\texttt{utility\us{}damage\us{}per\us{}round} ($\eta^2 = 0.243$),
+\texttt{flashes\us{}thrown\us{}per\us{}round} ($\eta^2 = 0.209$). The distribution of effect sizes
+across all three dimensions is shown in Fig.~\ref{fig:inv}.
+
+\subsection{Invariance to the game version (CS2 vs CSGO)}
+
+\textbf{Forty-three of the 46 metrics (93.5\,\%)} are invariant to the version
+(Cohen's $d < 0.5$). The most stable are \texttt{opening\us{}deaths\us{}per\us{}round}
+($d = 0.003$), \texttt{utility} ($d = 0.004$), \texttt{last\us{}alive\us{}percentage}
+($d = 0.015$). The largest differences appear in team-interaction metrics:
+\texttt{assisted\us{}kills\us{}percentage} ($d = 2.51$; 27.1\,\% in CS2 against 17.8\,\% in CSGO),
+\texttt{assists\us{}per\us{}round} ($d = 1.80$), \texttt{support\us{}rounds} ($d = 0.96$). The
+distributions of key features for the two versions are shown in Fig.~\ref{fig:dist}.
+
+\subsection{Invariance to the side (T vs CT)}
+
+The side has the strongest influence: only \textbf{22 of the 46 metrics (47.8\,\%)} are invariant.
+The most stable are \texttt{opening\us{}attempts} ($d = 0.001$), \texttt{entrying}
+($d = 0.005$), \texttt{pistol\us{}round\us{}rating} ($d = 0.009$). The most side-dependent are
+\texttt{saves\us{}per\us{}round\us{}loss} ($d = 1.96$),
+\texttt{trade\us{}kills\us{}percentage} ($d = 1.00$),
+\texttt{saved\us{}by\us{}teammate\us{}per\us{}round} ($d = 0.98$),
+\texttt{flashes\us{}thrown\us{}per\us{}round} ($d = 0.97$). A comparison of the mean values by
+side is given in Fig.~\ref{fig:side}.
+
+\subsection{Triple-invariant metrics}
+
+The intersection of the three dimensions yields \textbf{33 universally invariant} metrics
+(map + version) and \textbf{16 triple-invariant} ones (map + version + side), listed in
+Table~\ref{tab:tri}.
+
+\begin{table}[!ht]
+\caption{Triple-invariant metrics (invariant to the map, the version and the side)}
+\label{tab:tri}
+\vspace*{3pt}
+\centering\footnotesize
+% the array package is not loaded by the template, so \raggedright goes inside the cells
+% and rows end with \tabularnewline (\\ would clash with \raggedright)
+\begin{tabular}{@{}p{3.9cm}p{9.1cm}@{}}
+\hline
+\raggedright\textit{Category (HLTV attribute)} & \textit{Metrics} \tabularnewline
+\hline
+\raggedright Firepower & \texttt{firepower}; \texttt{damage\us{}per\us{}kill} \tabularnewline
+\raggedright Entrying & \texttt{entrying}; \texttt{traded\us{}deaths\us{}percentage};
+  \texttt{opening\us{}deaths\us{}traded\us{}percentage} \tabularnewline
+\raggedright Opening duels & \texttt{opening}; \texttt{opening\us{}attempts};
+  \texttt{win\us{}after\us{}opening\us{}kill} \tabularnewline
+\raggedright Clutching & \texttt{clutching}; \texttt{clutch\us{}points\us{}per\us{}round};
+  \texttt{1on1\us{}win\us{}percentage} \tabularnewline
+\raggedright Sniping & \texttt{sniping}; \texttt{sniper\us{}multi\us{}kill\us{}rounds};
+  \texttt{sniper\us{}opening\us{}kills\us{}per\us{}round} \tabularnewline
+\raggedright Overall / situational (outside the seven HLTV attributes) &
+  \texttt{rating\us{}3.0}; \texttt{pistol\us{}round\us{}rating} \tabularnewline
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth]{figures_en/invariance_summary.pdf}
+\caption{Effect sizes for the three invariance dimensions (the 10 most and the 10 least invariant
+features per panel). Green --- invariant ($\eta^2 < 0.06$ for maps; Cohen's $d < 0.5$ for version
+and side), red --- variant. Dashed line --- threshold}
+\label{fig:inv}
+\end{figure}
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=\textwidth]{figures_en/feature_distributions.pdf}
+\caption{Distributions (density) of key features for CS2 and CSGO}
+\label{fig:dist}
+\end{figure}
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=\textwidth]{figures_en/side_comparison.pdf}
+\caption{Mean feature values for the CT and T sides (top-20 features by CT). The largest gaps are
+in save and utility metrics; opening and clutch metrics nearly coincide}
+\label{fig:side}
+\end{figure}
+
+\begin{figure}[tbp]
+\centering
+\includegraphics[width=\textwidth]{figures_en/pca_projection.pdf}
+\caption{PCA projection of the standardised overall feature space onto two principal components
+(PC1 --- 23.1\,\%, PC2 --- 18.2\,\%). Left --- by map, right --- by game version}
+\label{fig:pca}
+\end{figure}
+
+\subsection{PCA and sensitivity analysis}
+
+The first two principal components explain 23.1\,\% and 18.2\,\% of the variance (41.3\,\%
+together). In the PCA projection the groups by map and by version overlap substantially
+(Fig.~\ref{fig:pca}), which visually confirms the predominant invariance of the feature space. The
+sensitivity analysis produced similar shares of map-invariant metrics within each version ---
+71.7\,\% (CS2, 33/46) and 76.1\,\% (CSGO, 35/46) against 76.1\,\% on the pooled data.
+Importantly, these shares are a quantity distinct from the share of the universally invariant set
+(also 33/46), with which they coincide numerically. The sets are stable in composition: all 33
+metrics that are map-invariant in CS2 are also invariant in CSGO (the difference amounts to two
+additional metrics in CSGO: \texttt{assisted\us{}kills\us{}percentage},
+\texttt{attacks\us{}per\us{}round}), so pooling the versions does not distort the conclusions
+about maps.
+
+\section{Discussion}
+
+The results outline a clear hierarchy of contextual influence: the weakest is the game version
+(7\,\% of variant metrics), moderate is the map (24\,\%), and the strongest is the side
+(52\,\%). This means that for cross-context skill assessment the side is the decisive source of
+bias, and metrics should either be normalised by side or restricted to the side-invariant set.
+
+The pattern of results is consistent with game logic. The strong map dependence of utility usage
+is explained by the different grenade strategies that different maps require, whereas the
+stability of the opening-duel metrics reflects individual skill in the first engagements. The
+predominant invariance to the version indicates that basic mechanical skills transfer between
+CSGO and CS2, while the largest differences are concentrated in assist and support metrics, which
+may be related to the mechanical changes introduced in CS2; this statement is correlational and
+requires separate verification. The dependence of save and utility metrics on the side matches
+the different economic and positional tasks of CT and T.
+
+The triple-invariant metrics mostly concern individual aiming and decision-making skills in key
+situations (first engagements, clutches, pistol rounds) rather than team coordination (assists,
+support, saves), which is expected to depend on role and side. This makes them natural candidates
+for features in skill-assessment and scouting models.
+
+Compared with the common approach based on statistical significance, defining invariance by
+effect size yields substantively different results: at $n \approx 3486$ the overwhelming majority
+of metrics differ ``significantly'' ($p < 0.05$) even for negligible differences, so the
+significance criterion is not applicable here.
+
+\textit{Limitations.} (1)~The data are aggregated at the map level, without distinguishing
+opponents or a player's period of form. (2)~The CS2 period is shorter than the CSGO one, which may
+induce a shift in the player pool. (3)~Some sniper percentage metrics have up to 21\,\% missing
+values. (4)~The analysis is correlational; causal statements about game mechanics require
+additional verification. (5)~Confidence intervals for $\eta^2$ and Cohen's~$d$ were not computed;
+adding them (by bootstrap, for instance) would strengthen the central argument about effect sizes.
+
+\section{Conclusions}
+
+1.~Context-invariant performance metrics of Counter-Strike players were identified on a set of
+3486 observations across three dimensions on the basis of effect sizes.
+
+2.~Invariance holds for 76.1\,\% of the metrics with respect to the map, 93.5\,\% with respect to
+the game version, and 47.8\,\% with respect to the side; the side is the strongest source of
+contextual bias.
+
+3.~Sixteen triple-invariant metrics were isolated; they reflect intrinsic player ability and are
+suitable for robust feature selection.
+
+4.~The advantage of the effect-size criterion over statistical significance was demonstrated for
+large samples; the sensitivity analysis confirmed the robustness of the conclusions within each
+game version.
+
+5.~A prospective direction is the application of the triple-invariant set in skill-assessment
+models and in the detection of anomalous player behaviour patterns, as the next stage of the
+publication series.
+
+\vspace*{6pt}
+\centerline{\normalfont\large\sc References}
+\vspace*{3pt}
+
+\begin{thebibliography}{99}
+\begin{small}
+
+\bibitem{Bishop}
+Bishop\,C.\,M.\ Pattern Recognition and Machine Learning.\,--- New York: Springer, 2006.\,--- 738\,p.
+
+\bibitem{Guyon}
+Guyon\,I.\ An introduction to variable and feature selection /\,I.\,Guyon, A.\,Elisseeff
+//\,Journal of Machine Learning Research.\,--- 2003.\,--- Vol.\,3.\,--- P.\,1157--1182.
+
+\bibitem{Quinonero}
+Dataset Shift in Machine Learning /\,eds.: J.\,Qui\~nonero-Candela, M.\,Sugiyama,
+A.\,Schwaighofer, N.\,D.\,Lawrence.\,--- Cambridge, MA: MIT Press, 2009.\,--- 248\,p.
+
+\bibitem{Jolliffe}
+Jolliffe\,I.\,T.\ Principal Component Analysis.\,--- 2nd ed.\,--- New York: Springer,
+2002.\,--- 487\,p.
+
+\bibitem{Cohen}
+Cohen\,J.\ Statistical Power Analysis for the Behavioral Sciences.\,--- 2nd ed.\,---
+Hillsdale, NJ: Lawrence Erlbaum Associates, 1988.\,--- 567\,p.
+
+\bibitem{Sullivan}
+Sullivan\,G.\,M.\ Using effect size --- or why the $p$ value is not enough /\,G.\,M.\,Sullivan,
+R.\,Feinn //\,Journal of Graduate Medical Education.\,--- 2012.\,--- Vol.\,4, No.\,3.\,---
+P.\,279--282.
+
+\bibitem{HLTV}
+Introducing HLTV attributes [Electronic resource] //\,HLTV.org.\,--- Access mode:
+\texttt{https://\ab www.hltv.org/\ab news/\ab 39672/\ab introducing-hltv-attributes}
+(accessed: 29.06.2026).
+
+\end{small}
+\end{thebibliography}
+
+% =====================================================================
+%  Ukrainian metadata block (per the journal template's structure)
+% =====================================================================
+\selectlanguage{ukrainian}
+
+\begin{Title}
+ІДЕНТИФІКАЦІЯ КОНТЕКСТНО-ІНВАРІАНТНИХ МЕТРИК МАЙСТЕРНОСТІ ГРАВЦЯ
+У КІБЕРСПОРТІ НА ОСНОВІ АНАЛІЗУ РОЗМІРІВ ЕФЕКТУ
+\end{Title}
+
+\begin{Authors}
+Ю.\,І.\,Кужій$^{1}$, Ю.\,М.\,Фургала$^{1}$
+\end{Authors}
+
+\addcontentschapter{Кужій\,Ю., Фургала\,Ю.}
+{Ідентифікація контекстно-інваріантних метрик майстерності гравця у кіберспорті}
+
+\begin{Organization}
+$^{1}$Львівський національний університет імені Івана Франка,\\
+вул. Університетська, 1, Львів, 79000,\\
+e-mail: \texttt{yurii.kuzhii@lnu.edu.ua}\\
+ORCID: 0009-0001-7890-8575 (Ю.\,І.\,Кужій), 0000-0001-7316-7424 (Ю.\,М.\,Фургала)
+\end{Organization}
+
+\begin{Abstract}
+Оцінювання індивідуальної майстерності гравця у командних кіберспортивних дисциплінах
+ускладнюється тим, що спостережувані метрики продуктивності залежать від контексту матчу ---
+конкретної карти, версії гри та сторони. У роботі досліджено інваріантність 46 метрик
+продуктивності гравців Counter-Strike за трьома вимірами на наборі з 3486 спостережень
+<<гравець\,$\times$\,карта>> (1820 --- Counter-Strike~2, період 2023--2025; 1666 ---
+Counter-Strike: Global Offensive, період 2012--2023), зібраному з відкритого ресурсу HLTV.org
+для восьми карт. Інваріантність визначено за розміром ефекту, а не за $p$-значенням, оскільки
+за вибірок у кілька тисяч спостережень останнє вказує на значущість навіть за практично
+незначних відмінностей. Застосовано однофакторний дисперсійний аналіз з $\eta^2$ (карти),
+критерій Манна--Уітні з Cohen's~$d$ (версії) та парний $t$-критерій з Cohen's~$d$ (сторони).
+Встановлено, що 76,1\,\% метрик інваріантні до карти, 93,5\,\% --- до версії гри і лише
+47,8\,\% --- до сторони, тобто сторона є найсильнішим джерелом контекстного зміщення.
+Шістнадцять метрик виявилися інваріантними одночасно за всіма трьома вимірами; цей
+<<триінваріантний>> набір (загальний рейтинг, вогнева міць, метрики відкриваючих дуелей і
+клатчів, снайперські мультікіли) відображає внутрішні здібності гравця і придатний для побудови
+робастних моделей оцінювання майстерності та скаутингу. Аналіз чутливості підтвердив стійкість
+висновків у межах кожної версії гри: усі 33 map-інваріантні в CS2 метрики залишаються
+інваріантними і в CSGO.
+\KeywordsUkr
+кіберспорт, розпізнавання образів, інваріантність ознак, розмір ефекту, відбір ознак,
+оцінювання майстерності, дисперсійний аналіз.
+\end{Abstract}
+
+\end{document}
