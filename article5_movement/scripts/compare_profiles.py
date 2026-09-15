@@ -23,14 +23,16 @@
 impostor-пари вважаються "різні ролі невідомі" і об'єднуються.
 
 Usage:
-    # перевірка механіки на одній демці (блок = половина матчу):
+    # перевірка механіки (блок = половина матчу):
     /usr/bin/python3 article5_movement/scripts/compare_profiles.py \
-        outputs/pilot_mirage_features.csv --events outputs/pilot_mirage_event_features.csv \
+        article5_movement/outputs/dataset/features.parquet \
+        --events article5_movement/outputs/dataset/event_features.parquet \
         --split-half --side both
     # реальний режим (блок = матч):
     /usr/bin/python3 article5_movement/scripts/compare_profiles.py \
-        outputs/dataset_features.csv --events outputs/dataset_event_features.csv \
-        --roster data/roster.csv --pair ropz s1mple
+        article5_movement/outputs/dataset/features.parquet \
+        --events article5_movement/outputs/dataset/event_features.parquet \
+        --roster article5_movement/data/roster.csv --pair ropz ZywOo
 """
 from __future__ import annotations
 

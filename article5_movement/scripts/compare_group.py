@@ -15,8 +15,9 @@ data/roles_manual.csv, який має приоритет.
 
 Usage:
     /usr/bin/python3 article5_movement/scripts/compare_group.py \
-        outputs/dataset_features.csv --events outputs/dataset_event_features.csv \
-        --players ropz s1mple ZywOo flameZ
+        article5_movement/outputs/dataset/features.parquet \
+        --events article5_movement/outputs/dataset/event_features.parquet \
+        --players ropz ZywOo flameZ mezii
 """
 from __future__ import annotations
 

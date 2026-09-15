@@ -15,8 +15,9 @@
 
 Usage:
     /usr/bin/python3 article5_movement/scripts/player_map_profile.py \
-        outputs/dataset_features.csv --events outputs/dataset_event_features.csv \
-        --player s1mple
+        article5_movement/outputs/dataset/features.parquet \
+        --events article5_movement/outputs/dataset/event_features.parquet \
+        --player ZywOo
 """
 from __future__ import annotations
 

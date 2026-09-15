@@ -15,7 +15,8 @@ permutation-нулем (перемішані мітки гравців у меж
 
 Usage:
     /usr/bin/python3 article5_movement/scripts/cross_match.py \
-        outputs/dataset_features.csv --events outputs/dataset_event_features.csv
+        article5_movement/outputs/dataset/features.parquet \
+        --events article5_movement/outputs/dataset/event_features.parquet
 """
 from __future__ import annotations
 
