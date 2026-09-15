@@ -1,0 +1,389 @@
+<title>Руховий підпис гравця</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap">
+<style>
+  :root {
+    --ground: #f5f6f9;
+    --surface: #ffffff;
+    --surface-2: #eef1f6;
+    --ink: #11151b;
+    --muted: #58606d;
+    --line: #d9dee6;
+    --accent: #2b4fd8;
+    --accent-soft: #e7ecfb;
+    --warm: #8e5a00;
+    --good: #1c7047;
+    --shadow: 0 1px 2px rgba(17, 21, 27, .06), 0 8px 24px rgba(17, 21, 27, .04);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0f1216;
+      --surface: #161a20;
+      --surface-2: #1c2129;
+      --ink: #e7eaf1;
+      --muted: #98a1ae;
+      --line: #262c35;
+      --accent: #8aa4ff;
+      --accent-soft: #1a2233;
+      --warm: #d8a557;
+      --good: #55c08b;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 8px 24px rgba(0, 0, 0, .3);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0f1216;
+    --surface: #161a20;
+    --surface-2: #1c2129;
+    --ink: #e7eaf1;
+    --muted: #98a1ae;
+    --line: #262c35;
+    --accent: #8aa4ff;
+    --accent-soft: #1a2233;
+    --warm: #d8a557;
+    --good: #55c08b;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .5), 0 8px 24px rgba(0, 0, 0, .3);
+  }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 56px 28px 96px; }
+  .col { max-width: 68ch; }
+
+  h1 {
+    font-family: "IBM Plex Serif", Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(2rem, 4.5vw, 2.9rem);
+    line-height: 1.12;
+    letter-spacing: -.015em;
+    margin: 0 0 .5rem;
+    text-wrap: balance;
+  }
+  h2 {
+    font-family: "IBM Plex Serif", Georgia, serif;
+    font-weight: 600;
+    font-size: 1.45rem;
+    line-height: 1.25;
+    margin: 0 0 .35rem;
+    text-wrap: balance;
+  }
+  h3 {
+    font-size: 1.02rem;
+    font-weight: 600;
+    margin: 0 0 .3rem;
+  }
+  p { margin: 0 0 1rem; }
+  a { color: var(--accent); }
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .72rem;
+    font-weight: 500;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 .55rem;
+  }
+  .lede { font-size: 1.12rem; color: var(--muted); max-width: 62ch; }
+  .meta {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .82rem;
+    color: var(--muted);
+    margin-top: 1.4rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--line);
+  }
+
+  section { margin-top: 3.4rem; }
+  .head { display: flex; flex-direction: column; margin-bottom: 1.2rem; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 2.2rem 0 0;
+  }
+  .stat { background: var(--surface); padding: 1.05rem 1.15rem; }
+  .stat .n {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 1.6rem;
+    font-weight: 500;
+    letter-spacing: -.02em;
+    display: block;
+  }
+  .stat .l { font-size: .84rem; color: var(--muted); display: block; margin-top: .18rem; }
+
+  .scroll { overflow-x: auto; margin: 1.3rem 0 .6rem; border: 1px solid var(--line); border-radius: 3px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+  caption {
+    caption-side: bottom;
+    text-align: left;
+    font-size: .82rem;
+    color: var(--muted);
+    padding: .7rem .9rem 0;
+  }
+  th, td { padding: .5rem .85rem; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  thead th {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .74rem;
+    font-weight: 500;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--surface-2);
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.num, th.num { text-align: right; font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+  td.name { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .84rem; }
+  tr.hi td { background: var(--accent-soft); }
+  .fam {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .7rem;
+    letter-spacing: .04em;
+    color: var(--muted);
+  }
+  .up { color: var(--good); }
+  .down { color: var(--warm); }
+
+  .note {
+    border-left: 2px solid var(--accent);
+    padding: .1rem 0 .1rem 1.05rem;
+    margin: 1.5rem 0;
+    color: var(--muted);
+    max-width: 64ch;
+  }
+  ul, ol { margin: 0 0 1rem; padding-left: 1.3rem; max-width: 66ch; }
+  li { margin-bottom: .45rem; }
+  code {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .87em;
+    background: var(--surface-2);
+    padding: .08em .32em;
+    border-radius: 2px;
+  }
+  .ladder { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 3px; margin: 1.3rem 0; }
+  .rung { background: var(--surface); padding: .85rem 1.1rem; display: grid; grid-template-columns: 2.2rem 1fr auto; gap: 1rem; align-items: baseline; }
+  .rung .tag { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .8rem; color: var(--accent); }
+  .rung .val { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 1.05rem; font-weight: 500; }
+  .rung .sub { font-size: .84rem; color: var(--muted); }
+  footer { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--line); font-size: .86rem; color: var(--muted); }
+</style>
+
+<div class="wrap">
+
+  <header class="col">
+    <p class="eyebrow">Заявка на дослідження · CS2 · поведінкова біометрія</p>
+    <h1>Руховий підпис гравця</h1>
+    <p class="lede">Чи можна впізнати конкретну людину за тим, як вона тисне клавіші й гасить швидкість
+      у Counter-Strike 2 — і чи впізнається вона в іншому матчі та на іншій мапі.</p>
+    <p class="meta">13 офіційних GOTV-демок · 40 гравців · 6 мап · 2913 спостережень · 69 928 подій</p>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><span class="n">43.3%</span><span class="l">ідентифікація між матчами<br>(випадковий рівень 2.9%)</span></div>
+    <div class="stat"><span class="n">0.183</span><span class="l">EER розділення<br>«свій / чужий»</span></div>
+    <div class="stat"><span class="n">0.42</span><span class="l">свій профіль в іншому матчі<br>проти 0.70–0.82 у чужих</span></div>
+    <div class="stat"><span class="n">0.063</span><span class="l">втрата точності keydyn<br>від зміни матчу</span></div>
+  </div>
+
+  <section class="col">
+    <div class="head"><p class="eyebrow">Гіпотеза</p><h2>Що саме перевіряємо</h2></div>
+    <p><strong>H1.</strong> Моторика гравця в CS2 — тривалість утримання клавіш, латентність між
+      протилежними стрейф-клавішами, темп зміни комбінацій, техніка гасіння швидкості — утворює
+      стійкий індивідуальний підпис, за яким гравця можна ідентифікувати.</p>
+    <p><strong>H2.</strong> Цей підпис інваріантний до контексту: він переживає зміну суперника,
+      сервера й турніру (інший матч) та зміну ігрового простору (інша мапа).</p>
+    <p><strong>H3.</strong> Внесок ролі в команді (лурк, ентрі, AWP) у міжгравцеву відстань є
+      меншим, ніж внесок індивідуальної моторики, тобто підпис не зводиться до тактичної функції.</p>
+    <div class="note">Гіпотеза фальсифікована. Якщо відстань профілю гравця до себе в іншому матчі
+      не менша за відстань до інших гравців — підпису немає, і конструкція падає незалежно від
+      будь-яких інших результатів.</div>
+  </section>
+
+  <section>
+    <div class="head col"><p class="eyebrow">Метод</p><h2>Простір ознак</h2>
+      <p>Одиниця спостереження — <em>(гравець, сторона, раунд)</em>, лише «живі» тіки в межах раунду.
+        З демки обчислюється 108 ознак у пʼятьох родинах. Розділення на родини принципове: воно
+        показує, <em>що саме</em> ідентифікує людину, і які ознаки переносяться між мапами.</p></div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Родина</th><th>Що описує</th><th>Приклади ознак</th><th class="num">Ознак</th><th class="num">Між матчами</th><th class="num">Деградація</th></tr></thead>
+        <tbody>
+          <tr class="hi"><td class="name">keydyn</td><td>клавіатурна динаміка: утримання, латентність, комбінації</td><td class="name">dwell_A_ms, strafe_flight_ms, combo_switch_per_s</td><td class="num">29</td><td class="num">0.324</td><td class="num up">0.063</td></tr>
+          <tr><td class="name">micro</td><td>механіка руху: контрстрейфи, швидкість, динаміка погляду</td><td class="name">counterstrafe_per_s, flick_per_s, frac_walkkey</td><td class="num">26</td><td class="num">0.262</td><td class="num">0.140</td></tr>
+          <tr><td class="name">habit</td><td>звички обігу зі зброєю: перемикання, Q-switch, глушник</td><td class="name">switch_per_s, qswitch_per_s, knife_run_frac</td><td class="num">14</td><td class="num">0.135</td><td class="num down">0.213</td></tr>
+          <tr><td class="name">event</td><td>дискретні події: техніка стопу, типи піків</td><td class="name">stop_counterstrafe_frac, peek_depth_mean</td><td class="num">31</td><td class="num">0.126</td><td class="num">0.159</td></tr>
+          <tr><td class="name">macro</td><td>просторовий слід (залежить від мапи й ролі)</td><td class="name">path_efficiency, radius_gyration</td><td class="num">8</td><td class="num">0.060</td><td class="num up">0.034</td></tr>
+        </tbody>
+        <caption>Точність ідентифікації 35 гравців за одним раундом при навчанні на одних матчах і
+          перевірці на інших (випадковий рівень 0.029). «Деградація» — різниця з точністю в межах
+          матчу. Клавіатурна динаміка втрачає найменше, звички зі зброєю — найбільше.</caption>
+      </table>
+    </div>
+  </section>
+
+  <section class="col">
+    <div class="head"><p class="eyebrow">Метод · вимірювання</p><h2>Сигнали й їхня валідація</h2>
+      <p>Різні демки віддають різні поля: офіційні GOTV-демки не містять ні маски кнопок, ні
+        швидкості. Тому всі сигнали обчислюються зі спільного знаменника — однаково для будь-якого
+        джерела, інакше профілі непорівнянні. Кожну підміну перевірено на демках, де є нативний
+        сигнал.</p></div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Сигнал</th><th>Як обчислюється</th><th>Перевірка</th></tr></thead>
+        <tbody>
+          <tr><td class="name">W / S / A / D, ЛКМ, ПКМ</td><td>іменовані пропи демки</td><td class="num">Jaccard 1.00 проти маски кнопок</td></tr>
+          <tr><td class="name">SHIFT</td><td><code>is_walking</code></td><td class="num">Jaccard 0.95</td></tr>
+          <tr><td class="name">CTRL</td><td><code>duck_amount &gt; 0.1</code></td><td class="num">події: precision / recall 0.99</td></tr>
+          <tr><td class="name">швидкість</td><td>різниця позицій зі зсувом 1 тік</td><td class="num">Pearson 0.9998, MAE 0.01 u/s</td></tr>
+          <tr class="hi"><td class="name">SPACE</td><td>відрив від землі з піком vz &gt; 200 u/s</td><td class="num">маска ⊂ кінематика (99.2%)</td></tr>
+        </tbody>
+        <caption>Окремий випадок — стрибки. Через subtick-модель CS2 натискання коротше за тік у
+          маску кнопок не потрапляє: маска бачить 390 стрибків там, де кінематика знаходить 1168,
+          і 99.2% її натискань є підмножиною кінематичних. Тому для стрибків нативна маска —
+          ненадійний еталон, а не джерело істини.</caption>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="head col"><p class="eyebrow">Результат · H1, H2</p><h2>Драбина відстаней</h2>
+      <p>Профіль гравця — усереднення ознак по раундах одного матчу, нормалізація в межах матчу
+        (щоб зняти ефект сервера й рівня опонентів), 39 ознак з ICC ≥ 0.10. Усього 250 профілів
+        і 15 500 пар.</p></div>
+    <div class="ladder">
+      <div class="rung"><span class="tag">C</span><span>той самий гравець, та сама мапа, інший матч<br><span class="sub">n = 35</span></span><span class="val">0.420</span></div>
+      <div class="rung"><span class="tag">C′</span><span>той самий гравець, <strong>інша мапа</strong><br><span class="sub">n = 400</span></span><span class="val">0.438</span></div>
+      <div class="rung"><span class="tag">B</span><span>різні гравці, та сама роль<br><span class="sub">n = 6305</span></span><span class="val">0.766</span></div>
+      <div class="rung"><span class="tag">A</span><span>різні гравці, різні ролі<br><span class="sub">n = 3200</span></span><span class="val">0.818</span></div>
+    </div>
+    <p class="col">Порядок збігся з передбаченим: <code>свій &lt; чужий тієї ж ролі &lt; чужий іншої ролі</code>.
+      Розділення «свій / чужий» дає AUC 0.907, EER 0.183, d′ = 1.73. Головне в цій таблиці —
+      що <strong>C′ не гірше за C</strong>: свій профіль на іншій мапі настільки ж близький, як на
+      тій самій, і міжмапова точність ідентифікації (0.441) не відрізняється від міжматчевої
+      (0.433). Роль додає до відстані 0.05, тоді як різниця «свій проти чужого» — 0.33, тобто
+      H3 виконується: роль вторинна.</p>
+  </section>
+
+  <section>
+    <div class="head col"><p class="eyebrow">Результат · приклад</p><h2>Чотири гравці в одному просторі</h2>
+      <p>Значення — середні по раундах у природних одиницях. η² — частка дисперсії, що
+        обʼясняється належністю до гравця в межах цієї четвірки.</p></div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Ознака</th><th>Родина</th><th class="num">η²</th><th class="num">ropz<br>лурк</th><th class="num">s1mple<br>AWP</th><th class="num">ZywOo<br>AWP</th><th class="num">flameZ<br>ентрі</th></tr></thead>
+        <tbody>
+          <tr class="hi"><td class="name">combo_trans_entropy</td><td class="fam">keydyn</td><td class="num">0.589</td><td class="num">0.814</td><td class="num">0.630</td><td class="num">0.498</td><td class="num">0.657</td></tr>
+          <tr class="hi"><td class="name">combo_switch_per_s</td><td class="fam">keydyn</td><td class="num">0.557</td><td class="num">6.055</td><td class="num">4.182</td><td class="num">3.240</td><td class="num">4.322</td></tr>
+          <tr class="hi"><td class="name">presses_total_per_s</td><td class="fam">keydyn</td><td class="num">0.515</td><td class="num">3.679</td><td class="num">2.553</td><td class="num">2.228</td><td class="num">2.843</td></tr>
+          <tr><td class="name">strafe_overlap_frac</td><td class="fam">keydyn</td><td class="num">0.504</td><td class="num">0.369</td><td class="num">0.373</td><td class="num">0.270</td><td class="num">0.535</td></tr>
+          <tr><td class="name">dwell_A_ms</td><td class="fam">keydyn</td><td class="num">0.462</td><td class="num">260.6</td><td class="num">357.0</td><td class="num">456.6</td><td class="num">437.5</td></tr>
+          <tr><td class="name">strafe_switch_per_s</td><td class="fam">micro</td><td class="num">0.452</td><td class="num">2.319</td><td class="num">1.469</td><td class="num">1.286</td><td class="num">1.596</td></tr>
+          <tr><td class="name">presses_D_per_s</td><td class="fam">keydyn</td><td class="num">0.443</td><td class="num">1.246</td><td class="num">0.734</td><td class="num">0.656</td><td class="num">0.794</td></tr>
+          <tr><td class="name">dwell_D_ms</td><td class="fam">keydyn</td><td class="num">0.424</td><td class="num">240.4</td><td class="num">316.6</td><td class="num">408.7</td><td class="num">379.3</td></tr>
+          <tr><td class="name">fwd_switch_per_s</td><td class="fam">micro</td><td class="num">0.362</td><td class="num">0.917</td><td class="num">0.728</td><td class="num">0.539</td><td class="num">0.759</td></tr>
+          <tr class="hi"><td class="name">counterstrafe_per_s</td><td class="fam">micro</td><td class="num">0.359</td><td class="num">1.058</td><td class="num">0.605</td><td class="num">0.467</td><td class="num">0.759</td></tr>
+          <tr><td class="name">combo_AD</td><td class="fam">keydyn</td><td class="num">0.332</td><td class="num">0.010</td><td class="num">0.008</td><td class="num">0.007</td><td class="num">0.021</td></tr>
+          <tr><td class="name">qswitch_per_s</td><td class="fam">habit</td><td class="num">0.314</td><td class="num">0.035</td><td class="num">0.102</td><td class="num">0.097</td><td class="num">0.175</td></tr>
+          <tr><td class="name">switch_per_s</td><td class="fam">habit</td><td class="num">0.312</td><td class="num">0.161</td><td class="num">0.382</td><td class="num">0.302</td><td class="num">0.429</td></tr>
+          <tr><td class="name">wpn_sniper_frac</td><td class="fam">habit</td><td class="num">0.242</td><td class="num">0.011</td><td class="num">0.236</td><td class="num">0.288</td><td class="num">0.001</td></tr>
+          <tr><td class="name">combo_persistence</td><td class="fam">keydyn</td><td class="num">0.236</td><td class="num">0.794</td><td class="num">0.826</td><td class="num">0.863</td><td class="num">0.846</td></tr>
+          <tr><td class="name">yaw_rate_p95</td><td class="fam">micro</td><td class="num">0.192</td><td class="num">218.0</td><td class="num">206.6</td><td class="num">191.4</td><td class="num">304.5</td></tr>
+          <tr><td class="name">flick_per_s</td><td class="fam">micro</td><td class="num">0.191</td><td class="num">1.752</td><td class="num">1.397</td><td class="num">1.552</td><td class="num">2.437</td></tr>
+        </tbody>
+        <caption>Виділені рядки — ознаки з найвищою внутрішньогравцевою стабільністю (ICC ≥ 0.5 по
+          всій когорті). Час утримання клавіші A різниться між гравцями майже вдвічі (261 мс проти
+          457 мс) — і це не про швидкість реакції, а про індивідуальний спосіб керування.</caption>
+      </table>
+    </div>
+    <div class="scroll" style="max-width:760px">
+      <table>
+        <thead><tr><th>Відстань профілів</th><th class="num">ropz</th><th class="num">s1mple</th><th class="num">ZywOo</th><th class="num">flameZ</th></tr></thead>
+        <tbody>
+          <tr><td class="name">ropz</td><td class="num">[0.352]</td><td class="num">0.672 <span class="fam">52%</span></td><td class="num">1.123 <span class="fam">95%</span></td><td class="num">0.822 <span class="fam">77%</span></td></tr>
+          <tr><td class="name">s1mple</td><td class="num">0.672 <span class="fam">52%</span></td><td class="num">[0.299]</td><td class="num">0.648 <span class="fam">48%</span></td><td class="num">0.716 <span class="fam">61%</span></td></tr>
+          <tr><td class="name">ZywOo</td><td class="num">1.123 <span class="fam">95%</span></td><td class="num">0.648 <span class="fam">48%</span></td><td class="num">[0.401]</td><td class="num">0.828 <span class="fam">77%</span></td></tr>
+          <tr><td class="name">flameZ</td><td class="num">0.822 <span class="fam">77%</span></td><td class="num">0.716 <span class="fam">61%</span></td><td class="num">0.828 <span class="fam">77%</span></td><td class="num">[0.323]</td></tr>
+        </tbody>
+        <caption>На діагоналі у дужках — відстань гравця до себе в інших матчах; поруч із кожною
+          відстанню — її перцентиль у розподілі 8150 пар різних гравців когорти. Найбільш різні —
+          ropz і ZywOo (95-й перцентиль), попри те що вони одноклубники. Найбільш схожі — двоє
+          AWP-гравців, s1mple і ZywOo (48-й перцентиль).</caption>
+      </table>
+    </div>
+    <p class="col">Підпис кожного, у стандартних відхиленнях від когорти: <strong>ropz</strong> —
+      найшвидші руки (<code>presses_D</code> +2.8 SD) при найкоротших утриманнях
+      (<code>dwell_D</code> −2.0 SD) і майже без перемикань зброї; <strong>ZywOo</strong> —
+      найбільше часу в прицілі (+1.9 SD) і найменше бокових реверсів (−1.5 SD), тобто тримає
+      позицію нерухомо; <strong>flameZ</strong> — найшвидша мишка (<code>flick_per_s</code> +2.2 SD);
+      <strong>s1mple</strong> — AWP із активним тумблером приціла, майже без присідань (−1.5 SD).</p>
+  </section>
+
+  <section class="col">
+    <div class="head"><p class="eyebrow">Результат · стабільність</p><h2>Розкид власних демок</h2>
+      <p>Вісім матчів на гравця дозволяють подивитися, наскільки профіль стабільний від матчу до
+        матчу — це нижня межа, до якої треба порівнювати міжгравцеві відстані.</p></div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Гравець</th><th class="num">Матчів</th><th class="num">Свої пари</th><th class="num">Розкид</th><th class="num">Та сама мапа</th><th class="num">Інші мапи</th></tr></thead>
+        <tbody>
+          <tr><td class="name">ropz</td><td class="num">8</td><td class="num">0.352</td><td class="num">0.198–0.559</td><td class="num">0.346</td><td class="num">0.353</td></tr>
+          <tr><td class="name">ZywOo</td><td class="num">8</td><td class="num">0.401</td><td class="num">0.219–0.611</td><td class="num">0.333</td><td class="num">0.407</td></tr>
+          <tr><td class="name" style="color:var(--muted)">чужі пари когорти</td><td class="num">—</td><td class="num">0.691</td><td class="num">медіана 0.659</td><td class="num">0.702</td><td class="num">0.704</td></tr>
+        </tbody>
+        <caption>Мапа не додає до розкиду нічого: для ropz свої пари на тій самій мапі (0.346) і на
+          різних (0.353) не відрізняються. Але хвости розподілів перекриваються — окремий матч може
+          дати профіль на відстані 0.56–0.61, що вже близько до чужих пар; саме тому EER = 0.183,
+          а не нуль.</caption>
+      </table>
+    </div>
+  </section>
+
+  <section class="col">
+    <div class="head"><p class="eyebrow">Обмеження</p><h2>Що поки не доведено</h2></div>
+    <ul>
+      <li><strong>Часовий проміжок.</strong> Усі демки — з інтервалу липень–серпень 2026. Чи
+        тримається підпис через півроку, не перевірено.</li>
+      <li><strong>Один рівень гри.</strong> Тільки офіційні матчі топ-команд. Порівняння того самого
+        гравця в іншому змагальному контексті (FACEIT-пуг) — наступний крок.</li>
+      <li><strong>Роздільна здатність вимірювання.</strong> Демка зберігає стан покадрово, тому
+        тривалості вимірюються з кроком 15.6 мс (64 тік). Subtick-часи натискань у GOTV-демках
+        недоступні, огляд зброї (F) також не фіксується.</li>
+      <li><strong>Ролі частково приписані.</strong> Роль AWP визначається з даних (частка
+        снайперки розподілена строго бімодально), решта ролей — експертно.</li>
+      <li><strong>Обсяг на гравця.</strong> Для надійності профілю 0.9 (Spearman–Brown) потрібно
+        ≈28 раундів на сторону; цей порог проходять 10 гравців із 40.</li>
+    </ul>
+  </section>
+
+  <section class="col">
+    <div class="head"><p class="eyebrow">Далі</p><h2>Наступні кроки</h2></div>
+    <ol>
+      <li>Демки того самого гравця з розривом у 6–12 місяців — тест часової стабільності.</li>
+      <li>FACEIT-демка s1mple проти його ж офіційних матчів — тест на зміну змагального контексту.</li>
+      <li>Модель дисперсії з компонентами «гравець / матч / мапа / раунд» замість роздільних
+        порівнянь.</li>
+      <li>Прикладна частина: та сама рамка як детектор зміни особи за клавіатурою (акаунт-шеринг,
+        буст), із оцінкою FAR/FRR на робочому порозі.</li>
+    </ol>
+  </section>
+
+  <footer>
+    Ю. Кужій · відтворюваний пайплайн: <code>article5_movement/</code> — витяг тіків, ознаки,
+    детектор подій, міжматчева й міжмапова валідація, обґрунтування обсягу вибірки.
+    Усі числа в документі отримані з цих скриптів.
+  </footer>
+
+</div>

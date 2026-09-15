@@ -1,0 +1,13 @@
+{
+  "feat_ver": "f9e3df1acf",
+  "demos": 108,
+  "series": 48,
+  "players": 201,
+  "observations": 22672,
+  "events": 559660,
+  "n_features": 96,
+  "cohort_core": 32,
+  "cohort_core_strict": 11,
+  "min_sessions": 3,
+  "min_rounds": 24
+}

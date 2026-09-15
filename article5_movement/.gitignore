@@ -1,0 +1,33 @@
+# ---------------------------------------------------------------------------
+# Дані статті 5. Джерело істини для сирих даних — бакет s3://democs2phd,
+# синхронізація: collection/sync_s3.sh {up|down} {raw|processed}.
+# Локально вони одноразові: викачав, прогнав пайплайн, видалив.
+# ---------------------------------------------------------------------------
+
+# Сирі демки (~39 ГБ) і архіви — тільки з S3
+data/raw/*.dem
+data/raw/*.zip
+data/raw/*.rar
+data/raw/_archives/
+
+# Потікові parquet з extract_ticks (~2.9 ГБ) — тільки з S3
+data/processed/*.parquet
+
+# Гарячий ярус ознак (~46 МБ) — перераховується scripts/featurize.py
+data/features/
+
+# Зібраний датасет (~33 МБ) — перераховується scripts/assemble.py
+outputs/dataset/*.parquet
+
+# Заморожені прогони: parquet важкі, CSV/JSON зі статистикою лишаємо в git
+outputs/runs/**/*.parquet
+
+# Проміжні таблиці аналізу
+outputs/profile_pairs_*.csv
+
+# Сміття
+.DS_Store
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+collection/_probe_dump.html

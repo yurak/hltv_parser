@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/yuriikuzhii/projects/hltv_parser/article5_movement/scripts/calibrate_buttons.py", line 73, in <module>
+    main(a.demo, a.every_n, a.max_bit)
+  File "/Users/yuriikuzhii/projects/hltv_parser/article5_movement/scripts/calibrate_buttons.py", line 32, in main
+    d = d[d["is_alive"] == True].dropna(subset=["buttons"]).iloc[::every_n]
+  File "/Users/yuriikuzhii/Library/Python/3.9/lib/python/site-packages/pandas/core/frame.py", line 6670, in dropna
+    raise KeyError(np.array(subset)[check].tolist())
+KeyError: ['buttons']
