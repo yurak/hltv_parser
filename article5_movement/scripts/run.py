@@ -90,20 +90,82 @@ def cohort_slice(a, out: Path) -> tuple[Path, Path]:
     import pandas as pd
     feats = pd.read_parquet(DATASET / "features.parquet")
     evs = pd.read_parquet(DATASET / "event_features.parquet")
+    coh = pd.read_csv(DATASET / "cohort.csv")
+    before = feats.player.nunique()
+    why = []
+
     if a.cohort != "all":
-        coh = pd.read_csv(DATASET / "cohort.csv")
         col = "in_core_strict" if a.cohort == "strict" else "in_core"
-        keep = set(coh.loc[coh[col], "steamid"])
-        before = feats.player.nunique()
-        feats = feats[feats.steamid.isin(keep)].copy()
-        evs = evs[evs.steamid.isin(keep)].copy()
-        print(f"когорта '{a.cohort}': {feats.player.nunique()} гравців із {before}, "
-              f"{len(feats)} спостережень")
-    fp = out / f"features_{a.cohort}.parquet"
-    ep = out / f"event_features_{a.cohort}.parquet"
+        coh = coh[coh[col]]
+        why.append(f"{a.cohort} (S>={a.min_sessions})")
+    if a.teams:
+        want = {t.strip().lower() for t in a.teams.split(",") if t.strip()}
+        coh = coh[coh.team.fillna("").str.lower().isin(want)]
+        why.append(f"команди: {a.teams}")
+    if a.players:
+        sys.path.insert(0, str(SCRIPTS))
+        from registry import nkey
+        want = {nkey(x) for x in a.players.split(",") if x.strip()}
+        coh = coh[coh.nick_canonical.map(lambda n: nkey(n) in want)]
+        why.append(f"поіменно: {a.players}")
+    if a.top_players:
+        # найбільше незалежних сесій = найбільше genuine-пар на гравця, тобто
+        # найвужчий довірчий інтервал на EER. Це і є найкорисніша підвибірка,
+        # коли треба швидкий прогін замість повного.
+        coh = coh.sort_values("n_sessions", ascending=False).head(a.top_players)
+        why.append(f"топ-{a.top_players} за числом сесій")
+
+    keep = set(coh.steamid)
+    feats = feats[feats.steamid.isin(keep)].copy()
+    evs = evs[evs.steamid.isin(keep)].copy()
+
+    if a.map_filter:
+        # Фільтр по мапі ріже рядки, а не гравців, тож пороги когорти вже не
+        # діють: гравець із 3 серіями впоперек мап може мати на цій мапі одну.
+        # Перевіряємо заново вже всередині мапи, інакше в знаменнику 1/N сидять
+        # гравці з парою раундів і завищують складність задачі.
+        feats = feats[feats["map"] == a.map_filter].copy()
+        ok = (feats.groupby("steamid")
+                   .agg(rounds=("round", "size"), ser=("series_id", "nunique")))
+        ok = ok[(ok.rounds >= int(a.min_rounds)) & (ok.ser >= int(a.min_sessions))]
+        survived = set(ok.index)
+        dropped = sorted(set(feats.steamid) - survived)
+        feats = feats[feats.steamid.isin(survived)].copy()
+        # у event_features немає колонки map — відбираємо за демками, які
+        # лишились у зрізі ознак
+        evs = evs[evs.steamid.isin(survived) & evs.demo.isin(set(feats.demo))].copy()
+        coh = coh[coh.steamid.isin(survived)]
+        why.append(f"мапа {a.map_filter}")
+        print(f"мапа {a.map_filter}: лишилось {len(survived)} гравців "
+              f"(відсіялось {len(dropped)} — не набрали "
+              f"S>={a.min_sessions} і >={a.min_rounds} раундів на цій мапі)")
+
+    tag = cohort_tag(a)
+    print(f"когорта [{'; '.join(why) or 'усі'}]: "
+          f"{feats.player.nunique()} гравців із {before}, {len(feats)} спостережень")
+    if feats.player.nunique() <= 40:
+        print("  " + ", ".join(sorted(feats.player.unique())))
+    coh.to_csv(out / f"cohort_{tag}.csv", index=False)
+    fp = out / f"features_{tag}.parquet"
+    ep = out / f"event_features_{tag}.parquet"
     feats.to_parquet(fp, index=False)
     evs.to_parquet(ep, index=False)
     return fp, ep
+
+
+def cohort_tag(a) -> str:
+    """Короткий ярлик зрізу — щоб прогони з різними когортами не перезаписували
+    файли один одного в межах одного run_id."""
+    t = a.cohort
+    if a.teams:
+        t += "-" + "".join(w[:3].lower() for w in a.teams.replace(",", " ").split())
+    if a.players:
+        t += "-named"
+    if a.top_players:
+        t += f"-top{a.top_players}"
+    if a.map_filter:
+        t += "-" + a.map_filter.replace("de_", "")
+    return t
 
 
 def stage_analyze(a) -> int:
@@ -117,9 +179,9 @@ def stage_analyze(a) -> int:
 
     jobs = [
         ("analyze", [PY, SCRIPTS / "analyze.py", feats, "--events", evs,
-                     "--side", a.side, "--outdir", out]),
+                     "--side", a.side, "--group-by", a.group_by, "--outdir", out]),
         ("cross_match_series", [PY, SCRIPTS / "cross_match.py", feats, "--events", evs,
-                                "--side", a.side, "--group", "series_id",
+                                "--side", a.side, "--group", a.group_by if a.group_by != "round" else "series_id",
                                 "--z-by", "match", "--outdir", out]),
         # та сама перевірка з групуванням за мапою — щоб бачити ціну витоку
         ("cross_match_map", [PY, SCRIPTS / "cross_match.py", feats, "--events", evs,
@@ -173,6 +235,10 @@ def git_sha() -> str:
 def write_manifest(a, out: Path, failed: list[str]) -> None:
     man = {"run_id": a.run_id, "built_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
            "git_sha": git_sha(), "params": {"side": a.side, "cohort": a.cohort,
+                                            "top_players": a.top_players,
+                                            "teams": a.teams, "players": a.players,
+                                            "map": a.map_filter,
+                                            "group_by": a.group_by,
                                             "min_sessions": a.min_sessions,
                                             "min_rounds": a.min_rounds},
            "failed_stages": failed}
@@ -217,6 +283,18 @@ def main() -> int:
     ap.add_argument("--side", default="both", choices=["both", "T", "CT"])
     ap.add_argument("--cohort", default="core", choices=["core", "strict", "all"],
                     help="на кому рахувати протоколи (типово ядро когорти)")
+    ap.add_argument("--top-players", type=int, default=None, dest="top_players",
+                    help="лишити N гравців із найбільшим числом сесій")
+    ap.add_argument("--teams", default=None,
+                    help="лишити лише ці команди, через кому (напр. Vitality)")
+    ap.add_argument("--players", default=None,
+                    help="лишити лише цих гравців за ніком, через кому")
+    ap.add_argument("--map", default=None, dest="map_filter",
+                    help="лишити тільки цю мапу (de_dust2); пороги min-rounds/"
+                         "min-sessions перевіряються заново вже всередині мапи")
+    ap.add_argument("--group-by", default="series_id", dest="group_by",
+                    choices=["series_id", "match_id", "round"],
+                    help="одиниця групування сплітів")
     ap.add_argument("--run-id", default=None)
     a = ap.parse_args()
 

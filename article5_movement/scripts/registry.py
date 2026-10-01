@@ -27,6 +27,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PROC = ROOT / "data" / "processed"
 REG = ROOT / "data" / "registry"
 COLLECT = ROOT / "collection"
+FEAT = ROOT / "data" / "features"
 HEADER_CSV = REG / "demos_header.csv"
 
 DEMO_RE = re.compile(r"^(\d{4}-\d{2}-\d{2})_(.+)_([a-z0-9]+)$")
@@ -90,22 +91,52 @@ def player_country_team() -> dict[str, tuple[str, str]]:
     return out
 
 
+def _from_features(demo_id: str) -> pd.DataFrame | None:
+    """Склад гравців із ГАРЯЧОГО ярусу (ознаки, ~0.5 МБ на демку)."""
+    ver_file = FEAT / "CURRENT_VER"
+    if not ver_file.exists():
+        return None
+    p = FEAT / demo_id / ver_file.read_text().strip() / "feats.parquet"
+    if not p.exists():
+        return None
+    f = pd.read_parquet(p, columns=["steamid", "player", "side", "round"])
+    g = (f.groupby(["steamid", "player", "side"])["round"]
+           .nunique().reset_index(name="rounds")
+           .rename(columns={"player": "name"}))
+    g["tickrate_ticks"] = float("nan")     # тікрейт лишається з demos_header
+    return g
+
+
 def scan_ticks(demo_ids: list[str], quiet: bool) -> pd.DataFrame:
-    """(demo_id, steamid, name, side) -> кількість раундів. Читаються чотири
-    колонки зі 34, тому прохід по всьому теплому ярусу — секунди, не хвилини."""
-    rows = []
+    """(demo_id, steamid, name, side) -> кількість раундів.
+
+    Джерело — спершу гарячий ярус, і лише потім тіки. Це не оптимізація, а
+    умова працездатності: теплий ярус ротується (parquet видаляються після
+    заливання в S3, локально лишається остання партія), тоді як гарячий важить
+    45 МБ на 108 демок і лежить завжди. Читати склад гравців із того, що може
+    зникнути, — значить будувати реєстр, який мовчки недорахує половину сесій.
+    """
+    rows, from_hot, from_warm = [], 0, 0
     for i, d in enumerate(demo_ids, 1):
-        p = PROC / f"{d}_ticks.parquet"
-        if not p.exists():
-            continue
-        t = pd.read_parquet(p, columns=["steamid", "name", "side", "round", "tickrate"])
-        g = (t.groupby(["steamid", "name", "side"])["round"]
-               .nunique().reset_index(name="rounds"))
+        g = _from_features(d)
+        if g is not None:
+            from_hot += 1
+        else:
+            p = PROC / f"{d}_ticks.parquet"
+            if not p.exists():
+                continue
+            t = pd.read_parquet(p, columns=["steamid", "name", "side", "round", "tickrate"])
+            g = (t.groupby(["steamid", "name", "side"])["round"]
+                   .nunique().reset_index(name="rounds"))
+            g["tickrate_ticks"] = float(t.tickrate.iloc[0])
+            from_warm += 1
         g["demo_id"] = d
-        g["tickrate_ticks"] = float(t.tickrate.iloc[0])
         rows.append(g)
         if not quiet and (i % 25 == 0 or i == len(demo_ids)):
-            print(f"  тіки {i}/{len(demo_ids)}")
+            print(f"  склад {i}/{len(demo_ids)}")
+    if not quiet:
+        print(f"  джерело складу: ознаки {from_hot}, тіки {from_warm}, "
+              f"немає {len(demo_ids)-from_hot-from_warm}")
     if not rows:
         return pd.DataFrame(columns=["steamid", "name", "side", "rounds", "demo_id"])
     return pd.concat(rows, ignore_index=True)
@@ -141,7 +172,7 @@ def main() -> int:
     tk = scan_ticks(demos.demo_id.tolist(), a.quiet)
     if len(tk):
         tr = tk.groupby("demo_id")["tickrate_ticks"].first()
-        demos["tickrate"] = demos.demo_id.map(tr).fillna(demos.tickrate)
+        demos["tickrate"] = demos.tickrate.fillna(demos.demo_id.map(tr))
     tk = tk.merge(demos[["demo_id", "series_id", "date", "event", "context", "map"]],
                   on="demo_id", how="left")
 
@@ -184,6 +215,17 @@ def main() -> int:
     players = players.sort_values(["n_sessions", "nick_canonical"], ascending=[False, True])
 
     REG.mkdir(parents=True, exist_ok=True)
+    # Тікрейт, раз виміряний із тіків, повертається у demos_header.csv. Інакше
+    # він живе лише доти, доки відповідний parquet лежить локально, а теплий
+    # ярус ротується — і наступна перебудова реєстру мовчки лишає NaN.
+    resolved = demos.set_index("demo_id")["tickrate"]
+    if resolved.notna().any():
+        h = pd.read_csv(HEADER_CSV, dtype={"patch": "string"})
+        before = h.tickrate.isna().sum()
+        h["tickrate"] = h.tickrate.fillna(h.demo_id.map(resolved))
+        if h.tickrate.isna().sum() < before:
+            h.to_csv(HEADER_CSV, index=False)
+
     demos.to_csv(REG / "demos.csv", index=False)
     players.to_csv(REG / "players.csv", index=False)
     sessions.sort_values(["steamid", "date"]).to_csv(REG / "sessions.csv", index=False)

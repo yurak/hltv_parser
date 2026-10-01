@@ -27,6 +27,25 @@ FLICK_DEG_S = 400.0    # порогова кутова швидкість для
 MOVE_EPS = 5.0         # u/s: нижче цього гравець стоїть
 WALK_MAX = 135.0       # u/s: верх діапазону шифт-ходи
 RUN_MIN = 200.0        # u/s: біг
+# Постріл «на ходу» = куля при горизонтальній швидкості > 34% max speed зброї в
+# руках (правило штрафу за рух із коду CS:GO; для CS2 підтверджено емпірично:
+# швидкість у повному присіді впирається рівно в 0.34, див. shot_technique.py).
+# max speed — m_flMaxSpeed [звичайна, у прицілі] з weapons.vdata CS2, знімок
+# references/game_data/weapons_2026-09-23.vdata. Таблиця вписана сюди, а не
+# читається з файлу, щоб її зміна змінювала feat_ver. Дробовики не входять:
+# у дробу інша модель розкиду.
+ACC_FRAC = 0.34
+GUN_MAX_SPEED = {
+    "AK-47": (215, 215), "AUG": (220, 150), "AWP": (200, 100), "CZ75-Auto": (240, 240),
+    "Desert Eagle": (230, 230), "Dual Berettas": (240, 240), "FAMAS": (220, 220),
+    "Five-SeveN": (240, 240), "G3SG1": (215, 120), "Galil AR": (215, 215),
+    "Glock-18": (240, 240), "M249": (195, 195), "M4A1-S": (225, 225), "M4A4": (225, 225),
+    "MAC-10": (240, 240), "MP5-SD": (235, 220), "MP7": (220, 220), "MP9": (240, 240),
+    "Negev": (150, 150), "P2000": (240, 240), "P250": (240, 240), "P90": (230, 230),
+    "PP-Bizon": (240, 240), "R8 Revolver": (180, 220), "SCAR-20": (215, 120),
+    "SG 553": (210, 150), "SSG 08": (230, 230), "Tec-9": (240, 240), "UMP-45": (230, 230),
+    "USP-S": (240, 240),
+}
 
 
 def _rising(x: np.ndarray) -> int:
@@ -221,7 +240,6 @@ def round_features(g: pd.DataFrame, tickrate: float = TICKRATE) -> dict | None:
     J = g["JUMP"].to_numpy(dtype=np.int8)
     D = g["DUCK"].to_numpy(dtype=np.int8)
     W = g["WALK"].to_numpy(dtype=np.int8)
-    FIRE = g["FIRE"].to_numpy(dtype=np.int8)
     air = g["is_airborne"].to_numpy(dtype=np.int8)
     duck_amt = g["duck_amount"].to_numpy(dtype=float)
     scoped = g["is_scoped"].to_numpy(dtype=np.int8)
@@ -238,9 +256,19 @@ def round_features(g: pd.DataFrame, tickrate: float = TICKRATE) -> dict | None:
     v_lat = vx * (-np.sin(ry)) + vy * np.cos(ry)
     v_fwd = vx * np.cos(ry) + vy * np.sin(ry)
 
-    fire_edges = np.flatnonzero((FIRE[1:] == 1) & (FIRE[:-1] == 0)) + 1
-    spd_at_fire = float(np.mean(spd[fire_edges])) if fire_edges.size else np.nan
-    moving_shots = float(np.mean(spd[fire_edges] > 60)) if fire_edges.size else np.nan
+    # Кулі, а не кліки ЛКМ: фронт FIRE ловить і ніж, і гранату, і C4. Куля =
+    # зростання shots_fired з вогнепальною зброєю в руках.
+    shots_fired = g["shots_fired"].to_numpy(dtype=float)
+    weapon = g["active_weapon_name"].to_numpy()
+    rise = np.flatnonzero(np.diff(shots_fired) > 0) + 1
+    bullets = rise[np.isin(weapon[rise], list(GUN_MAX_SPEED))]
+    if bullets.size:
+        mx = np.array([GUN_MAX_SPEED[w][1 if sc else 0]
+                       for w, sc in zip(weapon[bullets], scoped[bullets] > 0)], dtype=float)
+        spd_at_fire = float(np.mean(spd[bullets]))
+        moving_shots = float(np.mean(spd[bullets] > ACC_FRAC * mx))
+    else:
+        spd_at_fire = moving_shots = np.nan
 
     dspd = np.diff(spd) * tickrate
 
@@ -328,7 +356,7 @@ def round_features(g: pd.DataFrame, tickrate: float = TICKRATE) -> dict | None:
         # мікро: дисциплина стрільби
         "speed_at_fire": spd_at_fire,
         "moving_shot_frac": moving_shots,
-        "shots_per_s": float(len(fire_edges) / secs),
+        "shots_per_s": float(len(bullets) / secs),
         # макро: просторовий слід
         "path_len": path_len,
         "path_per_s": path_len / secs,

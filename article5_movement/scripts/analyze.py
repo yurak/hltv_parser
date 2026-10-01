@@ -172,7 +172,8 @@ EVENT_KEYS = {"demo", "demo_id", "player", "steamid", "side", "round", "secs_ali
 
 
 def run(feat_csv: str, side: str, outdir: Path, events_csv: str | None = None,
-        group_by: str = "series_id") -> dict:
+        group_by: str = "series_id", imp_trees: int = 200,
+        imp_repeats: int = 10) -> dict:
     df = read_table(feat_csv)
     event_cols: list[str] = []
     if events_csv and Path(events_csv).exists():
@@ -232,12 +233,20 @@ def run(feat_csv: str, side: str, outdir: Path, events_csv: str | None = None,
     groups = df[gcol].to_numpy()
     report["group_by"] = gcol
     report["n_groups"] = int(df[gcol].nunique())
+    # Родини фільтруються тим самим правилом, що й feats_all. Інакше в них
+    # потрапляють сталі колонки (напр. dwell_SPACE_ms), і LDA на них падає —
+    # мовчки, бо cv_identify ловить ValueError і повертає NaN. Саме через це
+    # acc_lda_keydyn виходив NaN при робочому acc_rf_keydyn: RF сталу колонку
+    # просто ігнорує, а LDA зі зсувом Ledoit-Wolf — ні.
+    def fam(cols):
+        return [c for c in cols if c in feats_all]
+
     for tag, cols in (("all", feats_all),
-                      ("micro", [c for c in MICRO if c in df.columns]),
-                      ("keydyn", [c for c in KEYDYN if c in df.columns]),
-                      ("habit", [c for c in HABIT if c in df.columns]),
-                      ("event", [c for c in event_cols if c in df.columns]),
-                      ("macro", [c for c in MACRO if c in df.columns])):
+                      ("micro", fam(MICRO)),
+                      ("keydyn", fam(KEYDYN)),
+                      ("habit", fam(HABIT)),
+                      ("event", fam(event_cols)),
+                      ("macro", fam(MACRO))):
         if not cols:
             continue
         acc, _ = cv_identify(df[cols].to_numpy(), y, groups, "rf")
@@ -256,13 +265,17 @@ def run(feat_csv: str, side: str, outdir: Path, events_csv: str | None = None,
 
     # важливість ознак
     clf = make_pipeline(StandardScaler(), RandomForestClassifier(
-        n_estimators=500, min_samples_leaf=2, random_state=RNG, n_jobs=-1)).fit(X, y)
-    # Підгонка забирає всі ядра, а ось далі — ні: permutation_importance сам
-    # розкидає повтори по воркерах, і якщо ліс усередині кожного знову проситиме
-    # всі 12 ядер, вони конкуруватимуть між собою. Саме через це joblib і
-    # скаржився на зупинених воркерів, а завантаження не піднімалось вище ~465%.
+        n_estimators=imp_trees, min_samples_leaf=2, random_state=RNG,
+        n_jobs=-1)).fit(X, y)
+    # Тут паралелізм шкодить, і це заміряно. Ліс із 500 дерев на 32 класи важить
+    # 727 МБ у серіалізованому вигляді, а permutation_importance розкидає ознаки
+    # по воркерах — кожному дістається копія моделі. Пересилання коштує більше,
+    # ніж дає розпаралелення: n_jobs=1 виходить у півтора раза швидшим за
+    # n_jobs=-1 (107 с проти 159 с на два повтори). Разом зі зменшенням лісу до
+    # 200 дерев крок падає з 32 хвилин до ~4.
     clf[-1].set_params(n_jobs=1)
-    imp = permutation_importance(clf, X, y, n_repeats=20, random_state=RNG, n_jobs=-1)
+    imp = permutation_importance(clf, X, y, n_repeats=imp_repeats,
+                                 random_state=RNG, n_jobs=1)
     pd.DataFrame({"feature": feats_all, "perm_importance": imp.importances_mean,
                   "sd": imp.importances_std}).sort_values(
         "perm_importance", ascending=False).to_csv(
@@ -333,6 +346,8 @@ if __name__ == "__main__":
     ap.add_argument("--side", default="both", choices=["T", "CT", "both"])
     ap.add_argument("--events", default=None, help="CSV з event_features")
     ap.add_argument("--outdir", default="article5_movement/outputs")
+    ap.add_argument("--importance-trees", type=int, default=200, dest="imp_trees")
+    ap.add_argument("--importance-repeats", type=int, default=10, dest="imp_repeats")
     ap.add_argument("--group-by", default="series_id",
                     choices=["series_id", "match_id", "round"], dest="group_by",
                     help="одиниця групування сплітів (типово серія)")
@@ -340,6 +355,7 @@ if __name__ == "__main__":
 
     outdir = Path(a.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
-    rep = run(a.features, a.side, outdir, a.events, a.group_by)
+    rep = run(a.features, a.side, outdir, a.events, a.group_by,
+              a.imp_trees, a.imp_repeats)
     print(json.dumps(rep, indent=2, ensure_ascii=False))
     (outdir / f"report_{a.side}.json").write_text(json.dumps(rep, indent=2, ensure_ascii=False))

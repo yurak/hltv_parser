@@ -75,9 +75,20 @@ def main() -> int:
     players = pd.read_csv(REG / "players.csv")
     sessions = pd.read_csv(REG / "sessions.csv", dtype={"series_id": "string"})
 
+    # Список виключень — рішення про склад датасету, зафіксоване у файлі, а не
+    # видаленням рядків. Так воно зворотне, видиме в маніфесті і не змушує
+    # переганяти ознаки, щоб повернути гравця назад.
+    excl, excl_n = set(), 0
+    ef = REG / "exclude.csv"
+    if ef.exists():
+        ex = pd.read_csv(ef)
+        excl = set(ex.steamid)
+        excl_n = len(ex)
+
     have = [d for d in demos.demo_id if (FEAT / d / ver / "feats.parquet").exists()]
     missing = sorted(set(demos.demo_id) - set(have))
-    print(f"feat_ver {ver} | демок з ознаками {len(have)}/{len(demos)}")
+    print(f"feat_ver {ver} | демок з ознаками {len(have)}/{len(demos)}"
+          + (f" | виключено гравців: {excl_n}" if excl_n else ""))
     if missing:
         print(f"  без ознак ({len(missing)}): {', '.join(missing[:5])}"
               + (" ..." if len(missing) > 5 else ""))
@@ -103,6 +114,8 @@ def main() -> int:
         if key == "features":
             df = df.join(meta, on="demo_id")
         df["player"] = df.steamid.map(canon).fillna(df.player)
+        if excl:
+            df = df[~df.steamid.isin(excl)].copy()
         out[key] = df
 
     feats = out["features"]
@@ -113,7 +126,7 @@ def main() -> int:
     # --- когорта ---
     full = sessions[(sessions.rounds_T >= a.min_rounds)
                     & (sessions.rounds_CT >= a.min_rounds)]
-    cohort = players.copy()
+    cohort = players[~players.steamid.isin(excl)].copy() if excl else players.copy()
     cohort["n_sessions_full"] = (cohort.steamid.map(full.groupby("steamid").size())
                                  .fillna(0).astype(int))
     cohort["in_core"] = cohort.n_sessions >= a.min_sessions
@@ -141,11 +154,16 @@ def main() -> int:
     core = cohort[cohort.in_core]
     strict = cohort[cohort.in_core_strict]
     summary = {
-        "feat_ver": ver, "demos": len(have), "series": int(feats.series_id.nunique()),
+        # demos — демки, що лишились у датасеті ПІСЛЯ виключень; до 01.10.2026 тут
+        # стояло len(have), і 13 демок без жодного гравця когорти рахувались як
+        # використані (стаття писала 136 замість 123)
+        "feat_ver": ver, "demos": int(feats.demo_id.nunique()),
+        "demos_with_features": len(have), "series": int(feats.series_id.nunique()),
         "players": int(feats.player.nunique()), "observations": int(len(feats)),
         "events": int(len(out["events"])), "n_features": int(feats.shape[1]),
         "cohort_core": int(len(core)), "cohort_core_strict": int(len(strict)),
         "min_sessions": a.min_sessions, "min_rounds": a.min_rounds,
+        "excluded_players": excl_n,
     }
     (OUT / "summary.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False))
 

@@ -31,3 +31,6 @@ __pycache__/
 *.pyc
 .ipynb_checkpoints/
 collection/_probe_dump.html
+
+# Разові проби поза когортою (FACEIT-демки окремих гравців)
+data/probe/

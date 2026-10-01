@@ -1,13 +1,15 @@
 {
-  "feat_ver": "f9e3df1acf",
-  "demos": 108,
-  "series": 48,
-  "players": 201,
-  "observations": 22672,
-  "events": 559660,
+  "feat_ver": "1db3fd759a",
+  "demos": 123,
+  "demos_with_features": 136,
+  "series": 49,
+  "players": 132,
+  "observations": 24860,
+  "events": 635020,
   "n_features": 96,
-  "cohort_core": 32,
-  "cohort_core_strict": 11,
+  "cohort_core": 39,
+  "cohort_core_strict": 10,
   "min_sessions": 3,
-  "min_rounds": 24
+  "min_rounds": 24,
+  "excluded_players": 82
 }

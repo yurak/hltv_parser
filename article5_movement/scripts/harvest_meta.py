@@ -82,10 +82,25 @@ def main() -> int:
 
     REG.mkdir(parents=True, exist_ok=True)
     out = Path(a.output)
+    # ЗЛИТТЯ, а не перезапис. Локальні .dem — транзит: після заливання в S3
+    # вони видаляються, і наступного разу на диску лежить зовсім інша партія.
+    # Перезапис стер би метадані всіх демок, яких зараз локально немає, —
+    # саме ті, що їх нізвідки відновити без качання 40+ ГБ.
+    old_rows = {}
+    if out.exists():
+        with out.open() as f:
+            for r in csv.DictReader(f):
+                old_rows[r["demo_id"]] = r
+    kept = len(old_rows)
+    for r in rows:
+        old_rows[r["demo_id"]] = {k: r.get(k, "") for k in FIELDS}
+    added = len(old_rows) - kept
     with out.open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=FIELDS, extrasaction="ignore")
         w.writeheader()
-        w.writerows(rows)
+        for k in sorted(old_rows):
+            w.writerow(old_rows[k])
+    print(f"реєстр заголовків: було {kept}, додано {added}, разом {len(old_rows)}")
 
     no_map = [r["demo_id"] for r in rows if not r.get("map")]
     no_pq = [r["demo_id"] for r in rows
