@@ -1,0 +1,34 @@
+/Users/yuriikuzhii/Library/Python/3.9/lib/python/site-packages/statsmodels/stats/power.py:524: ConvergenceWarning: 
+Failed to converge on a solution.
+
+  warnings.warn(convergence_doc, ConvergenceWarning)
+/Users/yuriikuzhii/projects/hltv_parser/article5_movement/scripts/sample_size.py:91: DeprecationWarning: Conversion of an array with ndim > 0 to a scalar is deprecated, and will error in future. Ensure you extract a single element from your array before performing this operation. (Deprecated NumPy 1.25.)
+  return float(power.solve_power(effect_size=g, alpha=alpha,
+[side=both] ознак усього 108; з ICC>=0.10: 43
+
+ТОП-12 за ICC — скільки раундів на гравця для надійного профілю:
+            feature family  icc1  k_rounds_R80  k_rounds_R90  g_max_pair  n_per_player_bonf
+strafe_overlap_frac keydyn  0.54          3.40          7.65        5.83               4.06
+    wpn_sniper_frac  habit  0.45          4.89         10.99        1.33              24.44
+combo_trans_entropy keydyn  0.45          4.97         11.18        2.53               9.02
+presses_total_per_s keydyn  0.41          5.86         13.18        3.14               6.93
+        frac_scoped  micro  0.40          5.97         13.43        1.20              29.48
+       switch_per_s  habit  0.39          6.26         14.07        1.89              13.63
+ combo_switch_per_s keydyn  0.39          6.35         14.29        2.94               7.47
+  zoom_toggle_per_s  habit  0.33          7.99         17.97        1.16              30.97
+    presses_D_per_s keydyn  0.33          8.25         18.57        2.27              10.43
+strafe_switch_per_s  micro  0.32          8.48         19.07        2.31              10.16
+   fwd_switch_per_s  micro  0.31          8.87         19.95        2.06              11.97
+presses_SHIFT_per_s keydyn  0.28         10.26         23.09        2.57               8.82
+
+медіана по інформативних ознаках:
+  раундів на гравця для надійності профілю 0.8: 16   -> демок на сторону: 1.3
+  раундів на гравця для надійності профілю 0.9: 36   -> демок на сторону: 3.0
+  раундів для power=0.8 попарного тесту (Бонферроні): 19   -> демок на сторону: 1.6
+
+75-й перцентиль по інформативних ознаках:
+  раундів на гравця для надійності профілю 0.8: 25   -> демок на сторону: 2.1
+  раундів на гравця для надійності профілю 0.9: 56   -> демок на сторону: 4.7
+  раундів для power=0.8 попарного тесту (Бонферроні): 25   -> демок на сторону: 2.0
+
+Емпірична крива навчання: плато з 11 раундів (точність 0.75 проти випадкової 0.07)

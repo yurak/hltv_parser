@@ -1,0 +1,11 @@
+/Users/yuriikuzhii/projects/hltv_parser/article5_movement/scripts/compare_profiles.py:95: PerformanceWarning: DataFrame is highly fragmented.  This is usually the result of calling `frame.insert` many times, which has poor performance.  Consider joining all columns at once using pd.concat(axis=1) instead. To get a de-fragmented frame, use `newframe = frame.copy()`
+  df["block"] = df[unit]
+Ознак у профілі (ICC>=0.1): 45 з родин ['keydyn', 'event', 'micro', 'habit']
+Профілів: 248  |  пар: 15277
+
+                   count   mean    std  median
+kind                                          
+genuine_same_map    1117  0.392  0.102   0.376
+impostor_same_map  14160  0.737  0.177   0.719
+
+genuine проти impostor:  AUC=0.962  EER=0.099  d'=2.38  (порог відстані 0.526)

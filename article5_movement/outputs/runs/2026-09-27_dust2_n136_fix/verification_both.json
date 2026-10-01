@@ -1,0 +1,22 @@
+{
+  "side": "both",
+  "block_unit": "series_id",
+  "z_by": "match",
+  "context": "tournament",
+  "families": [
+    "keydyn",
+    "event",
+    "micro",
+    "habit"
+  ],
+  "n_features": 43,
+  "n_profiles": 284,
+  "n_genuine": 1611,
+  "n_impostor": 18511,
+  "auc": 0.9365,
+  "eer": 0.1409,
+  "dprime": 1.988,
+  "threshold": 0.56,
+  "genuine_same_map": 0.4316,
+  "genuine_cross_map": null
+}

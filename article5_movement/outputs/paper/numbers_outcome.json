@@ -1,0 +1,16 @@
+{
+  "t16_n_maps": 28,
+  "t16_n_series": 11,
+  "t16_n_pairs": 260,
+  "t16_median_abs_d": 0.19,
+  "t16_max_abs_d": 0.54,
+  "t16_var_outcome_mean": 0.005,
+  "t16_var_player_mean": 0.12,
+  "t16_match_n_players": 5,
+  "t16_match_sim_won": 0.753,
+  "t16_match_sim_lost": 0.631,
+  "t16_match_p": 0.062,
+  "t16_split_wl": 0.869,
+  "t16_split_random": 0.932,
+  "t16_split_n_players": 9
+}

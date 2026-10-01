@@ -1,0 +1,10 @@
+прогін: 2026-09-27_mirage_n136_fix
+рисунків зібрано: 7
+  + F1_pca_scatter.png
+  + F2_genuine_impostor.png
+  + F3_roc_det.png
+  + F4_cmc.png
+  + F5_probe_length.png
+  + F6_families.png
+  + F8_degradation.png
+  - пропущено: F7_open_set (протоколу P3 ще немає)

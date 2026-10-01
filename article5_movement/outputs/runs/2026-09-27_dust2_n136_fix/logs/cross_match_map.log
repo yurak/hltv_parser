@@ -1,0 +1,14 @@
+сторона=both  нормалізація=match
+гравців із >=2 значеннями match_id: 15 (Aleksib, Neityu, Twistzz, ZywOo, apEX, b1t, flameZ, frozen, iM, jL, jcobbb, makazze, mezii, ropz, w0nderful)
+спостережень: 3064  match_id: 27  випадковий рівень: 0.067
+
+родина    n ознак  між match_id   у межах матчу   деградація
+all           108         0.714           0.729        0.015
+keydyn         29         0.559           0.581        0.022
+micro          26         0.493           0.506        0.013
+habit          14         0.349           0.493        0.144
+event          31         0.287           0.384        0.098
+macro           8         0.172           0.193        0.021
+
+permutation-нуль (між матчами): середнє 0.103, 95-й перцентиль 0.109
+збережено /Users/yuriikuzhii/projects/hltv_parser/article5_movement/outputs/runs/2026-09-27_dust2_n136_fix/cross_match_id_both_match.csv

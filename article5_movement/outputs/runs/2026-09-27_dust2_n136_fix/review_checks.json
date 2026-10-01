@@ -1,0 +1,294 @@
+{
+  "run_id": "2026-09-27_dust2_n136_fix",
+  "n_players": 15,
+  "n_obs": 3064,
+  "n_series": 26,
+  "chance": 0.0667,
+  "n_features": {
+    "all": 108,
+    "verif_default": 100,
+    "loco": 49,
+    "loco_no_cs": 48,
+    "keydyn": 29,
+    "micro_clean": 20,
+    "combat": 6
+  },
+  "verification": {
+    "verif_default": {
+      "n_genuine": 1611,
+      "n_impostor": 18511,
+      "eer": 0.1409,
+      "auc": 0.9365,
+      "dprime": 1.988,
+      "far_at_frr01": 0.5502,
+      "far_at_frr10": 0.1931,
+      "eer_ci": [
+        0.1315,
+        0.1482
+      ],
+      "n_features_icc": 43,
+      "n_profiles": 284,
+      "vs_teammates": {
+        "n_genuine": 1611,
+        "n_impostor": 6812,
+        "eer": 0.103,
+        "auc": 0.9653,
+        "dprime": 2.327,
+        "far_at_frr01": 0.4182,
+        "far_at_frr10": 0.1042
+      },
+      "vs_other_teams": {
+        "n_genuine": 1611,
+        "n_impostor": 11699,
+        "eer": 0.1607,
+        "auc": 0.9197,
+        "dprime": 1.856,
+        "far_at_frr01": 0.6271,
+        "far_at_frr10": 0.2449
+      }
+    },
+    "all": {
+      "n_genuine": 1611,
+      "n_impostor": 18511,
+      "eer": 0.1409,
+      "auc": 0.9365,
+      "dprime": 1.988,
+      "far_at_frr01": 0.5502,
+      "far_at_frr10": 0.1931,
+      "eer_ci": [
+        0.1315,
+        0.1482
+      ],
+      "n_features_icc": 43,
+      "n_profiles": 284,
+      "vs_teammates": {
+        "n_genuine": 1611,
+        "n_impostor": 6812,
+        "eer": 0.103,
+        "auc": 0.9653,
+        "dprime": 2.327,
+        "far_at_frr01": 0.4182,
+        "far_at_frr10": 0.1042
+      },
+      "vs_other_teams": {
+        "n_genuine": 1611,
+        "n_impostor": 11699,
+        "eer": 0.1607,
+        "auc": 0.9197,
+        "dprime": 1.856,
+        "far_at_frr01": 0.6271,
+        "far_at_frr10": 0.2449
+      }
+    },
+    "loco": {
+      "n_genuine": 1611,
+      "n_impostor": 18511,
+      "eer": 0.174,
+      "auc": 0.909,
+      "dprime": 1.708,
+      "far_at_frr01": 0.6135,
+      "far_at_frr10": 0.2812,
+      "eer_ci": [
+        0.1633,
+        0.1863
+      ],
+      "n_features_icc": 30,
+      "n_profiles": 284,
+      "vs_teammates": {
+        "n_genuine": 1611,
+        "n_impostor": 6812,
+        "eer": 0.1429,
+        "auc": 0.9361,
+        "dprime": 1.924,
+        "far_at_frr01": 0.5088,
+        "far_at_frr10": 0.1914
+      },
+      "vs_other_teams": {
+        "n_genuine": 1611,
+        "n_impostor": 11699,
+        "eer": 0.1899,
+        "auc": 0.8932,
+        "dprime": 1.614,
+        "far_at_frr01": 0.6744,
+        "far_at_frr10": 0.3334
+      }
+    },
+    "loco_no_cs": {
+      "n_genuine": 1611,
+      "n_impostor": 18511,
+      "eer": 0.1758,
+      "auc": 0.9092,
+      "dprime": 1.72,
+      "far_at_frr01": 0.6211,
+      "far_at_frr10": 0.2755,
+      "eer_ci": [
+        0.1639,
+        0.1866
+      ],
+      "n_features_icc": 29,
+      "n_profiles": 284,
+      "vs_teammates": {
+        "n_genuine": 1611,
+        "n_impostor": 6812,
+        "eer": 0.1408,
+        "auc": 0.9369,
+        "dprime": 1.948,
+        "far_at_frr01": 0.5169,
+        "far_at_frr10": 0.1856
+      },
+      "vs_other_teams": {
+        "n_genuine": 1611,
+        "n_impostor": 11699,
+        "eer": 0.1894,
+        "auc": 0.893,
+        "dprime": 1.62,
+        "far_at_frr01": 0.6818,
+        "far_at_frr10": 0.3278
+      }
+    },
+    "keydyn": {
+      "n_genuine": 1611,
+      "n_impostor": 18511,
+      "eer": 0.1732,
+      "auc": 0.909,
+      "dprime": 1.721,
+      "far_at_frr01": 0.6122,
+      "far_at_frr10": 0.2709,
+      "eer_ci": [
+        0.1651,
+        0.1832
+      ],
+      "n_features_icc": 21,
+      "n_profiles": 284,
+      "vs_teammates": {
+        "n_genuine": 1611,
+        "n_impostor": 6812,
+        "eer": 0.136,
+        "auc": 0.9376,
+        "dprime": 1.95,
+        "far_at_frr01": 0.5091,
+        "far_at_frr10": 0.1856
+      },
+      "vs_other_teams": {
+        "n_genuine": 1611,
+        "n_impostor": 11699,
+        "eer": 0.1936,
+        "auc": 0.8924,
+        "dprime": 1.62,
+        "far_at_frr01": 0.6723,
+        "far_at_frr10": 0.3206
+      }
+    },
+    "combat": {
+      "n_genuine": 1611,
+      "n_impostor": 18511,
+      "eer": 0.3345,
+      "auc": 0.7451,
+      "dprime": 0.992,
+      "far_at_frr01": 0.8138,
+      "far_at_frr10": 0.506,
+      "eer_ci": [
+        0.3232,
+        0.3444
+      ],
+      "n_features_icc": 4,
+      "n_profiles": 284,
+      "vs_teammates": {
+        "n_genuine": 1611,
+        "n_impostor": 6812,
+        "eer": 0.2931,
+        "auc": 0.7889,
+        "dprime": 1.192,
+        "far_at_frr01": 0.7645,
+        "far_at_frr10": 0.4243
+      },
+      "vs_other_teams": {
+        "n_genuine": 1611,
+        "n_impostor": 11699,
+        "eer": 0.3518,
+        "auc": 0.7196,
+        "dprime": 0.883,
+        "far_at_frr01": 0.8425,
+        "far_at_frr10": 0.5536
+      }
+    }
+  },
+  "within_team": [
+    {
+      "команда": "Vitality",
+      "гравців": 5,
+      "канал": "all",
+      "між серіями": 0.8805,
+      "випадковий рівень": 0.2
+    },
+    {
+      "команда": "Vitality",
+      "гравців": 5,
+      "канал": "loco",
+      "між серіями": 0.8299,
+      "випадковий рівень": 0.2
+    },
+    {
+      "команда": "Natus Vincere",
+      "гравців": 5,
+      "канал": "all",
+      "між серіями": 0.8923,
+      "випадковий рівень": 0.2
+    },
+    {
+      "команда": "Natus Vincere",
+      "гравців": 5,
+      "канал": "loco",
+      "між серіями": 0.8501,
+      "випадковий рівень": 0.2
+    },
+    {
+      "команда": "FaZe",
+      "гравців": 4,
+      "канал": "all",
+      "між серіями": 0.8066,
+      "випадковий рівень": 0.25
+    },
+    {
+      "команда": "FaZe",
+      "гравців": 4,
+      "канал": "loco",
+      "між серіями": 0.7737,
+      "випадковий рівень": 0.25
+    }
+  ],
+  "teammate_errors": {
+    "all": {
+      "n_errors": 877,
+      "to_teammate": 0.1779,
+      "expected_if_random": 0.2524
+    },
+    "loco": {
+      "n_errors": 1128,
+      "to_teammate": 0.2172,
+      "expected_if_random": 0.2547
+    }
+  },
+  "closed_set": {
+    "loco": 0.6319,
+    "loco_no_cs": 0.6214
+  },
+  "random_subsets": {
+    "combat": {
+      "k": 6,
+      "real_lda": 0.2614,
+      "random_mean": 0.2745,
+      "random_p05": 0.199,
+      "random_p95": 0.3501,
+      "percentile_of_real": 39.5
+    },
+    "loco": {
+      "k": 49,
+      "real_lda": 0.6319,
+      "random_mean": 0.5917,
+      "random_p05": 0.5305,
+      "random_p95": 0.6423,
+      "percentile_of_real": 88.5
+    }
+  }
+}

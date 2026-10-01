@@ -1,0 +1,16 @@
+steamid,nick_canonical,nicks_seen,team,country,n_sessions,n_sessions_full,cohort,in_core,in_core_strict,role
+76561198113666193,ZywOo,ZywOo,Vitality,FR,27,11,core,True,True,awp
+76561197989744167,apEX,apEX,Vitality,FR,27,11,core,True,True,rifler
+76561197978835160,flameZ,flameZ,Vitality,IL,27,11,core,True,True,rifler
+76561197991272318,ropz,ropz,Vitality,EE,27,11,core,True,True,rifler
+76561198013243326,Aleksib,Aleksib,Natus Vincere,FI,25,10,core,True,True,
+76561198246607476,b1t,b1t,Natus Vincere,UA,25,10,core,True,True,
+76561198050250233,iM,iM,Natus Vincere,RO,25,10,core,True,True,
+76561199076189612,makazze,makazze,Natus Vincere,XK,25,10,core,True,True,
+76561199063068840,w0nderful,w0nderful,Natus Vincere,UA,25,10,core,True,True,
+76561197973140692,mezii,mezii,Vitality,GB,21,9,core,True,True,rifler
+76561198176878303,jL,jL,,,6,2,core,True,False,
+76561198971718392,Neityu,Neityu,FaZe,FR,4,0,core,True,False,rifler
+76561198016255205,Twistzz,Twistzz,FaZe,CA,4,0,core,True,False,rifler
+76561198068422762,frozen,frozen,FaZe,SK,4,0,core,True,False,rifler
+76561198178737429,jcobbb,jcobbb,FaZe,PL,4,0,core,True,False,rifler

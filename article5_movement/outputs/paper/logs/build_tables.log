@@ -1,0 +1,17 @@
+прогін: 2026-09-27_mirage_n136_fix
+таблиць зібрано: 13
+  + T1_dataset.csv
+  + T2_cohort.csv
+  + T3_closed_set.csv
+  + T4_verification.csv
+  + T5_ablation.csv
+  + T6_degradation.csv
+  + T7_probe_length.csv
+  + T10_feature_stability.csv
+  + T11_channel_ablation.csv
+  + T17_verification_channels.csv
+  + T18_within_team.csv
+  + T9_temporal.csv
+  + T19_groups_summary.csv
+  - пропущено: T8_open_set (протоколу P3 ще немає)
+чисел у numbers.json: 242

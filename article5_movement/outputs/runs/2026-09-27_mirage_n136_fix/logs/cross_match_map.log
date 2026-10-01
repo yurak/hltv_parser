@@ -1,0 +1,14 @@
+сторона=both  нормалізація=match
+гравців із >=2 значеннями match_id: 15 (Aleksib, PR, REZ, Snax, Tauson, ZywOo, apEX, b1t, flameZ, hypex, iM, makazze, mezii, ropz, w0nderful)
+спостережень: 2830  match_id: 25  випадковий рівень: 0.067
+
+родина    n ознак  між match_id   у межах матчу   деградація
+all           108         0.706           0.727        0.020
+keydyn         29         0.566           0.579        0.012
+micro          26         0.465           0.484        0.019
+habit          14         0.288           0.481        0.193
+event          31         0.240           0.397        0.157
+macro           8         0.182           0.208        0.026
+
+permutation-нуль (між матчами): середнє 0.077, 95-й перцентиль 0.087
+збережено /Users/yuriikuzhii/projects/hltv_parser/article5_movement/outputs/runs/2026-09-27_mirage_n136_fix/cross_match_id_both_match.csv

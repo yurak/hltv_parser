@@ -1,0 +1,85 @@
+попарний крок: 105 пар, групування за series_id
+/Users/yuriikuzhii/Library/Python/3.9/lib/python/site-packages/sklearn/covariance/_shrunk_covariance.py:349: UserWarning: Only one sample available. You may want to reshape your data array
+  warnings.warn(
+/Users/yuriikuzhii/Library/Python/3.9/lib/python/site-packages/sklearn/covariance/_empirical_covariance.py:102: UserWarning: Only one sample available. You may want to reshape your data array
+  warnings.warn(
+/Users/yuriikuzhii/Library/Python/3.9/lib/python/site-packages/sklearn/covariance/_shrunk_covariance.py:349: UserWarning: Only one sample available. You may want to reshape your data array
+  warnings.warn(
+/Users/yuriikuzhii/Library/Python/3.9/lib/python/site-packages/sklearn/covariance/_empirical_covariance.py:102: UserWarning: Only one sample available. You may want to reshape your data array
+  warnings.warn(
+/Users/yuriikuzhii/Library/Python/3.9/lib/python/site-packages/sklearn/covariance/_shrunk_covariance.py:349: UserWarning: Only one sample available. You may want to reshape your data array
+  warnings.warn(
+/Users/yuriikuzhii/Library/Python/3.9/lib/python/site-packages/sklearn/covariance/_empirical_covariance.py:102: UserWarning: Only one sample available. You may want to reshape your data array
+  warnings.warn(
+/Users/yuriikuzhii/Library/Python/3.9/lib/python/site-packages/sklearn/covariance/_shrunk_covariance.py:349: UserWarning: Only one sample available. You may want to reshape your data array
+  warnings.warn(
+/Users/yuriikuzhii/Library/Python/3.9/lib/python/site-packages/sklearn/covariance/_empirical_covariance.py:102: UserWarning: Only one sample available. You may want to reshape your data array
+  warnings.warn(
+/Users/yuriikuzhii/Library/Python/3.9/lib/python/site-packages/sklearn/covariance/_shrunk_covariance.py:349: UserWarning: Only one sample available. You may want to reshape your data array
+  warnings.warn(
+/Users/yuriikuzhii/Library/Python/3.9/lib/python/site-packages/sklearn/covariance/_empirical_covariance.py:102: UserWarning: Only one sample available. You may want to reshape your data array
+  warnings.warn(
+/Users/yuriikuzhii/Library/Python/3.9/lib/python/site-packages/sklearn/covariance/_shrunk_covariance.py:349: UserWarning: Only one sample available. You may want to reshape your data array
+  warnings.warn(
+/Users/yuriikuzhii/Library/Python/3.9/lib/python/site-packages/sklearn/covariance/_empirical_covariance.py:102: UserWarning: Only one sample available. You may want to reshape your data array
+  warnings.warn(
+/Users/yuriikuzhii/Library/Python/3.9/lib/python/site-packages/sklearn/covariance/_shrunk_covariance.py:349: UserWarning: Only one sample available. You may want to reshape your data array
+  warnings.warn(
+/Users/yuriikuzhii/Library/Python/3.9/lib/python/site-packages/sklearn/covariance/_empirical_covariance.py:102: UserWarning: Only one sample available. You may want to reshape your data array
+  warnings.warn(
+/Users/yuriikuzhii/Library/Python/3.9/lib/python/site-packages/sklearn/covariance/_shrunk_covariance.py:349: UserWarning: Only one sample available. You may want to reshape your data array
+  warnings.warn(
+/Users/yuriikuzhii/Library/Python/3.9/lib/python/site-packages/sklearn/covariance/_empirical_covariance.py:102: UserWarning: Only one sample available. You may want to reshape your data array
+  warnings.warn(
+/Users/yuriikuzhii/Library/Python/3.9/lib/python/site-packages/sklearn/covariance/_shrunk_covariance.py:349: UserWarning: Only one sample available. You may want to reshape your data array
+  warnings.warn(
+/Users/yuriikuzhii/Library/Python/3.9/lib/python/site-packages/sklearn/covariance/_empirical_covariance.py:102: UserWarning: Only one sample available. You may want to reshape your data array
+  warnings.warn(
+{
+  "side": "both",
+  "n_obs": 2830,
+  "n_players": 15,
+  "obs_per_player": {
+    "Aleksib": 264,
+    "b1t": 264,
+    "w0nderful": 264,
+    "iM": 262,
+    "makazze": 262,
+    "ZywOo": 231,
+    "flameZ": 230,
+    "apEX": 229,
+    "ropz": 229,
+    "mezii": 189,
+    "PR": 98,
+    "Snax": 77,
+    "REZ": 77,
+    "hypex": 77,
+    "Tauson": 77
+  },
+  "pca_var_2d": 0.2174316134218905,
+  "silhouette_full": -0.006342734814678783,
+  "silhouette_pca2": -0.13676224297315703,
+  "group_by": "series_id",
+  "n_groups": 23,
+  "acc_rf_all": 0.6473498233215548,
+  "acc_lda_all": 0.7300353356890459,
+  "acc_rf_micro": 0.4685512367491166,
+  "acc_lda_micro": 0.48939929328621906,
+  "acc_rf_keydyn": 0.5667844522968198,
+  "acc_lda_keydyn": 0.5787985865724382,
+  "acc_rf_habit": 0.3431095406360424,
+  "acc_lda_habit": 0.2802120141342756,
+  "acc_rf_event": 0.28586572438162544,
+  "acc_lda_event": 0.2664310954063604,
+  "acc_rf_macro": 0.22014134275618374,
+  "acc_lda_macro": 0.13851590106007067,
+  "chance": 0.06666666666666667,
+  "acc_lda_all_permnull_mean": 0.08447585394581861,
+  "acc_lda_all_permnull_p95": 0.09378091872791519,
+  "pair_dist_median": 4.66543686308332,
+  "pair_dist_min": 3.000553520481149,
+  "pair_dist_max": 8.103074332967246,
+  "pair_auc_median": 0.9845841181719044,
+  "intra_player_spread": 9.352623305730502,
+  "separability_ratio": 0.4988372471095604
+}
